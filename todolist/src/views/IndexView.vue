@@ -14,7 +14,8 @@
         <span :class="{'disp_none': edit_id===category.id}">{{ category.name }}</span>
         <el-input size="large" class="width-20 cate_input disp_none" :ref="'edit'+category.id" v-model="category.name"
                   :suffix-icon="EditPen"
-                  @keyup.enter.native="updateCategory(category)" :class="{'disp_block': edit_id===category.id}"/>
+                  @keyup.enter.native="updateCategory(category)" :class="{'disp_block': edit_id===category.id}"
+        />
         <button type="button" class="btn1-write disp_none"
                 :class="{'disp_block': isMouseOverID === category.id && !['全部任务', '已完成'].includes(isMouseOverName)}"
                 @click="updateCategoryClick(category)"></button>
@@ -25,7 +26,7 @@
       <li class="list-group-item justify-content-between align-items-center cursor1 disp_none" id="add_category"
           :class="{'disp_block': isEdit}">
         <el-input size="large" class="width-20 cate_input " v-model="new_category" :suffix-icon="EditPen" ref="edit"
-                  @keyup.enter.native="addCategory"/>
+                  @keyup.enter.native="addCategory" @blur="isEdit = false"/>
       </li>
       <li class="list-group-item justify-content-between align-items-center cursor1" id="add_category"
           @click="addCategoryClick">
@@ -47,7 +48,9 @@
         <el-input size="large" class="task_input disp_none desc_input" :ref="'descEdit'+task.id"
                   v-model="task.description"
                   :prefix-icon="EditPen"
-                  @keyup.enter.native="updateTask(task,'desc')" :class="{'disp_block': task_edit_id===task.id}"/>
+                  @keyup.enter.native="updateTask(task,'desc')" :class="{'disp_block': task_edit_id===task.id}"
+                  @blur="task_edit_id = false"
+        />
         <button type="button" class="btn-close disp_none" data-bs-dismiss="alert" @click="deleteTask(task.id)"
                 :class="{'disp_block': isMouseOverID === task.id}"></button>
         <el-icon :size="20" class="btn-select btn-close disp_none"
@@ -121,7 +124,6 @@ export default {
   },
   // inject: ["reload"],
   methods: {
-
     // 获取所有分类
     getCategory() {
       let url = "/api/get_all_category/";
@@ -192,6 +194,7 @@ export default {
       let url = "/api/search/"
       apiHttpClient.post(url, {"words": searchText}).then((response) => {
         this.task_list = response.data.results
+        this.task_list.sort((a, b) => b.id - a.id)
       })
     },
     // 打开添加任务弹窗
@@ -255,8 +258,8 @@ export default {
     updateTaskClick(task) {
       this.task_edit_id = task.id
       this.$refs[`titleEdit${task.id}`][0].focus()
+    },
 
-    }
   },
 }
 </script>

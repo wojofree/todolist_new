@@ -34,9 +34,8 @@ export default {
 }
 </script>
 <script setup>
-
 import {reactive} from 'vue'
-import axios from "axios";
+import {apiHttpClient} from "@/app/app.service";
 
 const formLabelAlign = reactive({
   username: '',
@@ -47,8 +46,8 @@ const formLabelAlign = reactive({
 })
 
 function login() {
-  let url = location.protocol + '//' + document.domain + ':8000' + "/api/user_register/";
-  axios.post(url, formLabelAlign).then(function () {
+  let url = "/api/user_register/";
+  apiHttpClient.post(url, formLabelAlign).then(function () {
     this.$router.push('/');
   }, function (err) {
     alert(err.response.data.msg)

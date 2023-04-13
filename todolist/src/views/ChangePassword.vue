@@ -30,7 +30,7 @@ export default {
 <script setup>
 
 import {reactive} from 'vue'
-import axios from "axios";
+import {apiHttpClient} from "@/app/app.service";
 
 const formLabelAlign = reactive({
   old_password: '',
@@ -39,8 +39,8 @@ const formLabelAlign = reactive({
 })
 
 function login() {
-  let url = location.protocol + '//' + document.domain + ':8000' + "/api/user_register/";
-  axios.post(url, formLabelAlign).then(function () {
+  let url = "/api/change_password/";
+  apiHttpClient.post(url, formLabelAlign).then(function () {
     this.$router.push('/');
   }, function (err) {
     alert(err.response.data.msg)

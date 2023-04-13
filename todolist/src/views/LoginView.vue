@@ -8,7 +8,7 @@
           :model="formLabelAlign"
       >
         <el-form-item label="username" class="login-form">
-          <el-input size="large" v-model="formLabelAlign.username"/>
+          <el-input size="large" v-model="formLabelAlign.username" />
         </el-form-item>
         <el-form-item label="password" class="login-form">
           <el-input size="large" show-password v-model="formLabelAlign.password" type="password"/>
