@@ -194,6 +194,7 @@ export default {
   margin: auto;
 }
 
+
 .project-color {
   width: 1rem;
   height: 1rem;
