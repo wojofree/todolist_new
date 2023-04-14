@@ -4,29 +4,19 @@
 
 <style lang="scss">
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  //font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  //background: #2c3e50;
+  color: #1e1f21;
+  font-size: .9rem;
 }
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+::selection  {
+  background-color: #BBD6FB;
 }
 </style>
 <script>
-import NavbarView from "@/views/NavbarView";
+import NavbarView from "@/components/NavbarView";
 export default {
   components: {NavbarView},
   data() {

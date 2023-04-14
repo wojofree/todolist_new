@@ -1,4 +1,5 @@
 <template>
+  <NavbarView></NavbarView>
   <div class="card border-light mb-3 max-width-30 mg-auto mt-5">
     <div class="card-header">登陆</div>
     <div class="card-body">
@@ -28,6 +29,7 @@ export default {
 
 import {reactive} from 'vue'
 import {apiHttpClient} from "@/app/app.service";
+import NavbarView from "@/components/NavbarView";
 
 const formLabelAlign = reactive({
   username: '',
