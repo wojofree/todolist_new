@@ -2,21 +2,13 @@
   <nav class="navBar">
     <div class="flex">
       <div class="navLeft">
-        <div class="float">
-          <el-icon color="#6d6e6f" size="1rem" class="cursor fold">
-            <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-              <path
-                  d="M1,16h30c0.6,0,1,0.4,1,1l0,0c0,0.6-0.4,1-1,1H1c-0.6,0-1-0.4-1-1l0,0C0,16.4,0.4,16,1,16z M1,4h30c0.6,0,1,0.4,1,1l0,0c0,0.6-0.4,1-1,1H1C0.4,6,0,5.6,0,5l0,0C0,4.4,0.4,4,1,4z M1,28h30c0.6,0,1,0.4,1,1l0,0c0,0.6-0.4,1-1,1H1c-0.6,0-1-0.4-1-1l0,0C0,28.4,0.4,28,1,28z"></path>
-            </svg>
-          </el-icon>
+        <div class="float" @click="fold">
+          <IconBase width="1rem" height="1rem" boxView="0 0 32 32"><Fold /></IconBase>
         </div>
         <div class="navButton cursor" @click="add">
-          <el-icon class="create">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path
-                  d="M10,10V4c0-1.1,0.9-2,2-2s2,0.9,2,2v6h6c1.1,0,2,0.9,2,2s-0.9,2-2,2h-6v6c0,1.1-0.9,2-2,2s-2-0.9-2-2v-6H4c-1.1,0-2-0.9-2-2s0.9-2,2-2H10z"></path>
-            </svg>
-          </el-icon>
+          <div class="create">
+            <IconBase><Plus /></IconBase>
+          </div>
           <span>Create</span>
         </div>
       </div>
@@ -44,7 +36,6 @@ export default {
   created() {
     let url = "/api/user_info/";
     apiHttpClient.get(url).then((response) => {
-      console.log(response.data.results.nickname[0])
       this.nickName = response.data.results.nickname[0]
     })
   },
@@ -55,10 +46,16 @@ export default {
     add () {
       this.$emit('add')
     },
+    fold() {
+      this.$emit('fold')
+    }
   }
 }
 </script>
 <script setup>
+import {Search} from "@element-plus/icons-vue";
+import IconBase from "@/components/IconBase";
+import {Fold,Plus} from "@/components/icons";
 </script>
 <style>
 .searchInput .el-input__wrapper {
@@ -151,10 +148,12 @@ export default {
   display: flex;
   border-radius: .2rem;
   transition: background-color .3s;
+  color:#6d6e6f;
 }
 
 .float:hover {
   background-color: rgba(55, 23, 23, 0.04);
+  color:#1e1f21;
 }
 
 .navButton span {

@@ -1,10 +1,17 @@
 <template>
-  <router-view v-if="isRouterAlive"/>
+    <NavbarView @fold="menuFold"></NavbarView>
+  <div style="display: flex;">
+    <div>
+      <SideMenu ref="sideMenu"></SideMenu>
+    </div>
+    <div style="width: 100%;">
+      <router-view v-if="isRouterAlive"/>
+    </div>
+  </div>
 </template>
 
 <style lang="scss">
 #app {
-  //font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -17,8 +24,9 @@
 </style>
 <script>
 import NavbarView from "@/components/NavbarView";
+import SideMenu from "@/components/SideMenu.vue"
 export default {
-  components: {NavbarView},
+  components: {NavbarView,SideMenu},
   data() {
     return {
       isRouterAlive: true,
@@ -37,6 +45,11 @@ export default {
         this.isRouterAlive = true;
       });
     },
+    menuFold() {
+      this.$nextTick(() => {
+        this.$refs.sideMenu.foldMenu()
+      })
+    }
   },
 }
 </script>

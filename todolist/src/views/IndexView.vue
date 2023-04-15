@@ -1,26 +1,31 @@
 <template>
-  <NavbarView></NavbarView>
-  <Menu></Menu>
+      <HomeView></HomeView>
 </template>
 
 <script>
-import {apiHttpClient} from '@/app/app.service';
+import SideMenu from "@/components/SideMenu.vue"
 
 export default {
+  components: {
+    SideMenu
+  },
   data() {
     return {
-
-      }
+    }
   },
-  // 表单规则校验
-  created() {
-    // 获取内容列表数据
-  },
+  methods: {
+    menuFold() {
+      this.$nextTick(() => {
+        this.$refs.sideMenu.foldMenu()
+      })
+    }
+  }
 }
 </script>
 <script setup>
-import Menu from "@/components/Menu.vue"
+// import Menu from "@/components/SideMenu.vue"
 import NavbarView from "@/components/NavbarView";
+import HomeView from "@/views/home/HomeView";
 </script>
 <style>
 </style>
