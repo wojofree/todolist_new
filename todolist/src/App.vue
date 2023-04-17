@@ -1,11 +1,11 @@
 <template>
-    <NavbarView @fold="menuFold"></NavbarView>
+  <NavbarView @fold="menuFold" @userInfo="getUser"></NavbarView>
   <div style="display: flex;">
     <div>
       <SideMenu ref="sideMenu"></SideMenu>
     </div>
     <div style="width: 100%;">
-      <router-view v-if="isRouterAlive"/>
+      <router-view v-if="isRouterAlive" :user="user"/>
     </div>
   </div>
 </template>
@@ -18,18 +18,21 @@
   color: #1e1f21;
   font-size: .9rem;
 }
-::selection  {
+
+::selection {
   background-color: #BBD6FB;
 }
 </style>
 <script>
 import NavbarView from "@/components/NavbarView";
 import SideMenu from "@/components/SideMenu.vue"
+
 export default {
-  components: {NavbarView,SideMenu},
+  components: {NavbarView, SideMenu},
   data() {
     return {
       isRouterAlive: true,
+      user:{}
     };
   },
   provide() {
@@ -49,6 +52,9 @@ export default {
       this.$nextTick(() => {
         this.$refs.sideMenu.foldMenu()
       })
+    },
+    getUser(user) {
+      this.user = user
     }
   },
 }

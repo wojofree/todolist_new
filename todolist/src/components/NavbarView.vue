@@ -3,16 +3,20 @@
     <div class="flex">
       <div class="navLeft">
         <div class="float" @click="fold">
-          <IconBase width="1rem" height="1rem" boxView="0 0 32 32"><Fold /></IconBase>
+          <IconBase width="1rem" height="1rem" boxView="0 0 32 32">
+            <Fold/>
+          </IconBase>
         </div>
         <div class="navButton cursor" @click="add">
           <div class="create">
-            <IconBase><Plus /></IconBase>
+            <IconBase>
+              <Plus/>
+            </IconBase>
           </div>
           <span>Create</span>
         </div>
       </div>
-      <el-input class="searchInput" size="middle" :prefix-icon="Search" clearable v-model="searchWords" @input="search"
+      <el-input class="searchInput"  :prefix-icon="Search" clearable v-model="searchWords" @input="taskSearch"
                 placeholder="search"></el-input>
       <div class="flex-1">
         <div class="userInfo cursor">{{ nickName }}</div>
@@ -30,20 +34,20 @@ export default {
     return {
       searchWords: '',
       nickName: '',
-      isHover: false,
     };
   },
   created() {
     let url = "/api/user_info/";
     apiHttpClient.get(url).then((response) => {
       this.nickName = response.data.results.nickname[0]
+      this.$emit('userInfo',response.data.results)
     })
   },
-  methods:{
-    search() {
-      this.$emit('search', this.searchWords);
+  methods: {
+    taskSearch() {
+      this.$emit('taskSearch', this.searchWords);
     },
-    add () {
+    add() {
       this.$emit('add')
     },
     fold() {
@@ -55,7 +59,7 @@ export default {
 <script setup>
 import {Search} from "@element-plus/icons-vue";
 import IconBase from "@/components/IconBase";
-import {Fold,Plus} from "@/components/icons";
+import {Fold, Plus} from "@/components/icons";
 </script>
 <style>
 .searchInput .el-input__wrapper {
@@ -78,14 +82,6 @@ import {Fold,Plus} from "@/components/icons";
 .searchInput {
   width: 30rem;
   flex: 1
-}
-
-.hover-color {
-  color: #1e1f21;
-}
-
-.fold:hover {
-  color:#1e1f21
 }
 
 .navBar .userInfo {
@@ -148,12 +144,12 @@ import {Fold,Plus} from "@/components/icons";
   display: flex;
   border-radius: .2rem;
   transition: background-color .3s;
-  color:#6d6e6f;
+  color: #6d6e6f;
 }
 
 .float:hover {
   background-color: rgba(55, 23, 23, 0.04);
-  color:#1e1f21;
+  color: #1e1f21;
 }
 
 .navButton span {

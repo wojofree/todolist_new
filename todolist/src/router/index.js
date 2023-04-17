@@ -4,7 +4,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: () => import(/* webpackChunkName: "about" */ '../views/IndexView.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/home/HomeView')
   },
   {
     path: '/login',
@@ -20,7 +20,13 @@ const routes = [
     path: '/reset',
     name: 'ChangePassword',
     component: () => import(/* webpackChunkName: "about" */ '../views/ChangePassword.vue')
+  },
+  {
+    path: '/select',
+    name: 'SelectBar',
+    component: () => import(/* webpackChunkName: "about" */ '../components/SelectBar.vue')
   }
+
 ]
 
 const router = createRouter({
