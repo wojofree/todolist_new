@@ -1,16 +1,26 @@
 <template>
-  <NavbarView @fold="menuFold" @userInfo="getUser"></NavbarView>
-  <div style="display: flex;">
-    <div>
-      <SideMenu ref="sideMenu"></SideMenu>
-    </div>
-    <div style="width: 100%;">
-      <router-view v-if="isRouterAlive" :user="user"/>
+  <div class="main-swap">
+    <NavbarView @fold="menuFold" @userInfo="getUser"></NavbarView>
+    <div class="d-flex">
+      <div>
+        <SideMenu ref="sideMenu" @projectList="getProject"></SideMenu>
+      </div>
+      <div class="main">
+        <router-view v-if="isRouterAlive" :user="user" :projectList="projectList"/>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss">
+.main-swap {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh);
+  width: calc(100vw);
+  overflow-x: hidden;
+}
+
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -22,6 +32,13 @@
 ::selection {
   background-color: #BBD6FB;
 }
+
+.main {
+  width: 100%;
+  min-width: 63rem;
+  overflow-y: auto;
+  height: calc(100vh - 3.4rem);
+}
 </style>
 <script>
 import NavbarView from "@/components/NavbarView";
@@ -32,7 +49,8 @@ export default {
   data() {
     return {
       isRouterAlive: true,
-      user:{}
+      user: {},
+      projectList: {}
     };
   },
   provide() {
@@ -55,6 +73,9 @@ export default {
     },
     getUser(user) {
       this.user = user
+    },
+    getProject(projectList) {
+      this.projectList = projectList
     }
   },
 }

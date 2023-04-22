@@ -1,41 +1,43 @@
 <template>
-<div class="tab-bar">
-  <div v-for="item in options" class="tab-item"
-       :class="{'isActive':isActive === item.value}"
-       @click="setActive(item.value)"
-       :style="{'fontSize':fontSize}"
-  >
-    <span class="mg-b-6">{{ item.name }}</span>
+  <div class="tab-bar">
+    <div v-for="item in options" class="tab-item cursor"
+         :class="{'isActive':isActive === item.value}"
+         @click="setActive(item.value)"
+         :style="{'fontSize':fontSize}"
+    >
+      <div class="mg-b-6">
+        <span>{{ item.name }}</span>
+      </div>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
 export default {
   name: "TabBar",
-  data (){
-    return{
-      'isActive':'',
+  data() {
+    return {
+      isActive: '',
     }
   },
-  props:{
+  props: {
     options: {
-      type:Object,
-      default: [{'name':'test1','value':1},{'name':'test2','value':2},{'name':'test2','value':3},]
+      type: Object,
+      default: [{'name': 'test1', 'value': 1}, {'name': 'test2', 'value': 2}, {'name': 'test2', 'value': 3},]
     },
     modelValue: {
-      type:String,
+      type: String,
       default: ''
     },
     fontSize: {
-      type:String,
+      type: String,
     },
     setValue: {
-      type:String,
+      type: String,
       default: 'default'
     },
     color: {
-      type:String,
+      type: String,
       default: '#1e1f21'
     }
   },
@@ -46,10 +48,10 @@ export default {
       this.setActive(this.options[0].value)
     }
   },
-  methods:{
-    setActive (item) {
+  methods: {
+    setActive(item) {
       this.isActive = item
-      this.$emit('update:modelValue',this.isActive)
+      this.$emit('update:modelValue', this.isActive)
     }
   }
 }
@@ -62,7 +64,7 @@ export default {
 
 .tab-item {
   margin-right: 1.5rem;
-  color: #6d6e6f;
+  color: var(--gray);
   font-weight: 600;
   transition: color .2s;
 }

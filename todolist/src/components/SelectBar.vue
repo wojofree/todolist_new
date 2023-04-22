@@ -1,7 +1,7 @@
 <template>
-  <div class="select-bar">
+  <div class="select-bar" ref="contentWrap">
     <div class="disp-block">
-      <div class="select" @click="openSelect = !openSelect">
+      <div class="select cursor" @click="this.openSelect = true">
         <div class="flex">
           <span>{{ select }}</span>
           <IconBase width=".75rem" height=".75rem" box-view="0 0 24 24">
@@ -11,10 +11,10 @@
       </div>
     </div>
     <div class="disp-block">
-      <div class="option" :class="{'disp-none':!openSelect}">
-        <div class="option-item" v-for="item in options" @click="selectOption(item)">
-          <IconBase width=".75rem" height=".75rem" box-view="0 0 32 32" class="vis-hidden"
-                    :class="{'vis-inh':isSelect === item.value}">
+      <div class="option" v-show="openSelect">
+        <div class="option-item cursor" v-for="item in options" @click="selectOption(item)">
+          <IconBase width=".75rem" height=".75rem" box-view="0 0 32 32"
+                    :class="{'vis-hidden':isSelect !== item.value}">
             <Right/>
           </IconBase>
           <p>{{ item.name }}</p>
@@ -58,21 +58,23 @@ export default {
     }
   },
   created() {
-    if (this.setValue === '' && this.selectName === 'Choose One') {
-      this.selectOption(this.options[0])
-    } else if (this.setValue === '' && this.selectName !== 'Choose One') {
-      this.select = this.selectName
-      this.$emit('update:modelValue', '')
+    if (this.setValue === '') {
+      if (this.selectName === 'Choose One') {
+        this.selectOption(this.options[0])
+      } else {
+        this.select = this.selectName
+        this.$emit('update:modelValue', '')
+      }
     } else {
       this.selectOption(this.setValue)
     }
+
   },
   mounted() {
     // 监听，除了点击自己，点击其他地方将自身隐藏
     document.addEventListener("click", e => {
-      const contentWrap = document.getElementsByClassName("select-bar")[0];
-      if (contentWrap) {
-        if (!contentWrap.contains(e.target)) {
+      if (this.$refs.contentWrap) {
+        if (!this.$refs.contentWrap.contains(e.target)) {
           this.openSelect = false;
         }
       }
@@ -111,10 +113,6 @@ import {Arrow, Right} from "@/components/icons"
   display: block !important;
 }
 
-.vis-inh {
-  visibility: inherit !important;
-}
-
 .vis-hidden {
   visibility: hidden;
 }
@@ -122,7 +120,7 @@ import {Arrow, Right} from "@/components/icons"
 .select {
   width: auto;
   display: inline-block;
-  color: #6d6e6f;
+  color: var(--gray);
   padding: .5rem;
   border-radius: .4rem;
 }
@@ -138,7 +136,7 @@ import {Arrow, Right} from "@/components/icons"
 
 .select:hover {
   background-color: rgb(248, 246, 246);
-  color: #1e1f21;
+  color: var(--black);
 }
 
 .select span {

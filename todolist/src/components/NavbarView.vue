@@ -2,7 +2,7 @@
   <nav class="navBar">
     <div class="flex">
       <div class="navLeft">
-        <div class="float" @click="fold">
+        <div class="float cursor" @click="fold">
           <IconBase width="1rem" height="1rem" boxView="0 0 32 32">
             <Fold/>
           </IconBase>
@@ -127,12 +127,12 @@ import {Fold, Plus} from "@/components/icons";
   border-radius: 15rem;
   text-align: center;
   display: flex;
-  border: .05rem solid rgba(0, 0, 0, .05);
+  border: .05rem solid var(--box-shadow);
   transition: background-color .3s;
 }
 
 .navButton:hover {
-  background-color: rgba(55, 23, 23, 0.05);
+  background-color: var(--box-shadow);
 
 }
 
@@ -144,19 +144,16 @@ import {Fold, Plus} from "@/components/icons";
   display: flex;
   border-radius: .2rem;
   transition: background-color .3s;
-  color: #6d6e6f;
+  color: var(--gray);
 }
 
 .float:hover {
-  background-color: rgba(55, 23, 23, 0.04);
-  color: #1e1f21;
+  background-color: var(--box-shadow);
+  color: var(--black);
 }
 
 .navButton span {
   margin-left: .5rem;
 }
 
-.cursor {
-  cursor: pointer;
-}
 </style>

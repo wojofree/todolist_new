@@ -4,28 +4,28 @@
     <div class="menu-swap">
       <!--    home-->
       <div class="menu-top ml-7">
-        <div class="menu-item" @click="isActive = 'home'" :class="{'hover-bg':isActive === 'home'}">
+        <div class="menu-item cursor" @click="isActive = 'home'" :class="{'hover-bg':isActive === 'home'}">
           <IconBase box-view=" 0 0 40 40" width="1.2rem" height="1.2rem">
             <Home/>
           </IconBase>
           <span>Home</span>
         </div>
         <!--      my tasks-->
-        <div class="menu-item" @click="isActive = 'tasks'" :class="{'hover-bg':isActive === 'tasks'}">
+        <div class="menu-item cursor" @click="isActive = 'tasks'" :class="{'hover-bg':isActive === 'tasks'}">
           <IconBase box-view=" 0 0 40 40" width="1.2rem" height="1.2rem">
             <Done/>
           </IconBase>
           <span>My Tasks</span>
         </div>
         <!--      inbox-->
-        <div class="menu-item" @click="isActive = 'inbox'" :class="{'hover-bg':isActive === 'inbox'}">
+        <div class="menu-item cursor" @click="isActive = 'inbox'" :class="{'hover-bg':isActive === 'inbox'}">
           <IconBase box-view=" 0 0 40 40" width="1.2rem" height="1.2rem">
             <InBox/>
           </IconBase>
           <span>Inbox</span>
         </div>
         <!--      my workspace-->
-        <div class="menu-item" @click="isActive = 'workspace'" :class="{'hover-bg':isActive === 'workspace'}">
+        <div class="menu-item cursor" @click="isActive = 'workspace'" :class="{'hover-bg':isActive === 'workspace'}">
           <IconBase box-view=" 0 0 1020 1020" width="1.2rem" height="1.2rem">
             <WorkSpace/>
           </IconBase>
@@ -34,9 +34,9 @@
       </div>
       <!--    项目导航-->
       <!--    project title-->
-      <div class="menu-top">
+      <div class="menu-top flex">
         <div class="menu-title" @mouseenter="isTitleHover = true" @mouseleave="isTitleHover = false">
-          <div class="menu-title-left" @click="isSeen = !isSeen">
+          <div class="menu-title-left cursor" @click="isSeen = !isSeen">
             <div class="rotate-90" :class="{'hover-color':isTitleHover === true,'rotate-0':isSeen === false}">
               <IconBase>
                 <Triangle/>
@@ -44,13 +44,13 @@
             </div>
             <span>Projects</span>
           </div>
-          <div class="icon-item">
+          <div class="icon-item cursor">
             <IconBase box-view="0 0 24 24" width=".75rem" height=".75rem" class="mag-auto">
               <More/>
               >
             </IconBase>
           </div>
-          <div class="icon-item">
+          <div class="icon-item cursor">
             <IconBase box-view="0 0 24 24" width=".75rem" height=".75rem" class="mag-auto">
               <Plus/>
               >
@@ -58,12 +58,12 @@
           </div>
         </div>
         <!--      project list-->
-        <div class="project" v-for="project in projectList" :class="{'dsp-none':isSeen === false}">
-          <div class="menu-item" :class="{'hover-bg':isActive === project.id}" @click="isActive = project.id">
-            <IconBase :icon-color=project.color width="1.25rem" height="1.25rem" box-view=" 2 2 20 20">
+        <div class="project" v-for="project in projectList" v-show="isSeen">
+          <div class="menu-item cursor" :class="{'hover-bg':isActive === project.id}" @click="isActive = project.id">
+            <IconBase :icon-color=project.color width="1.25rem" height="1.25rem" box-view=" 2 2 20 20" class="flex-0">
               <Box/>
             </IconBase>
-            <span>{{ project.name }}</span>
+            <span class="text-overflow">{{ project.name }}</span>
           </div>
         </div>
       </div>
@@ -100,6 +100,7 @@ export default {
         let data = response.data.results
         data.sort((a, b) => b.id - a.id)
         this.projectList = data
+        this.$emit('projectList',this.projectList)
       })
     },
     foldMenu() {
@@ -113,7 +114,7 @@ export default {
 .Menu {
   width: 15rem;
   background-color: #F9F8F8;
-  height: calc(100vh - 3.9rem);
+  height:100%;
   transition: width .3s;
   position: relative;
 }
@@ -128,10 +129,13 @@ export default {
   width: 15rem;
   position: absolute;
   right: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .hover-color {
-  color: #1e1f21 !important;
+  color: var(--black) !important;
 }
 
 .mag-auto {
@@ -168,17 +172,13 @@ export default {
 .rotate-90 {
   -webkit-transform: rotate(90deg);
   transform: rotate(90deg);
-  color: #6d6e6f;
+  color: var(--gray);
 }
 
 .rotate-0 {
   -webkit-transform: rotate(0deg);
   transform: rotate(0deg);
 }
-
-/*.project span{*/
-/*  margin-left: .3rem;*/
-/*}*/
 
 .ml-7 {
   margin-left: .7rem;
@@ -189,10 +189,14 @@ export default {
   border-bottom: .08rem solid #E9E7E7;
 }
 
+.flex {
+  flex: 1 1 auto;
+}
+
 .menu-title {
   font-weight: 500;
   text-align: left;
-  padding: .5rem 1rem .5rem 0rem;
+  padding: .5rem 1rem .5rem 0;
   display: flex;
   align-items: center;
 }
@@ -215,7 +219,7 @@ export default {
   display: flex;
   justify-items: center;
   border-radius: .15rem;
-  color: #6d6e6f;
+  color: var(--gray);
 }
 
 .icon-item > svg {
@@ -224,21 +228,10 @@ export default {
 
 .icon-item:hover {
   background-color: rgba(231, 231, 231, .5);
-  color: #1e1f21;
+  color: var(--black);
 }
 
-.mini-icon {
-  width: .6rem;
-  height: .6rem;
-  display: block;
-  margin: auto;
-}
-
-.dsp-none {
-  display: none;
-}
-
-.dsp-block {
-  display: block;
+.flex-0 {
+  flex: 0 0 auto;
 }
 </style>

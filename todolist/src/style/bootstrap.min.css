@@ -12,6 +12,9 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
 :root {
+    --gray:#6d6e6f;
+    --black:#1e1f21;
+    --box-shadow:rgba(231, 231, 231, .5)
     --bs-blue: #3a8fd9;
     --bs-indigo: #6610f2;
     --bs-purple: #686dc3;
@@ -166,6 +169,12 @@ hr {
     font-size: 1rem
 }
 
+.text-overflow{
+  text-overflow: ellipsis;
+  white-space:nowrap;
+  overflow: hidden;
+}
+
 p {
     margin-top: 0;
     margin-bottom: 1rem
@@ -214,6 +223,8 @@ blockquote {
 b, strong {
     font-weight: bolder
 }
+
+
 
 .small, small {
     font-size: .875em
@@ -324,6 +335,10 @@ tbody, td, tfoot, th, thead, tr {
     border-color: inherit;
     border-style: solid;
     border-width: 0
+}
+
+.mag-auto {
+    margin: auto;
 }
 
 label {
@@ -669,6 +684,10 @@ progress {
 
 .col {
     flex: 1 0 0%
+}
+
+.cursor {
+  cursor: pointer;
 }
 
 .row-cols-auto > * {
