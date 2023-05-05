@@ -1,5 +1,5 @@
 <template>
-  <div class="task-card" @mouseenter="isHover = true" @mouseleave="isHover = false" ref="taskCard">
+  <div class="task-card" ref="taskCard">
     <!--    header-->
     <div class="header">
       <ToolTip content="Add profile photo">
@@ -99,12 +99,6 @@
     <!--    show more-->
     <div class="show-more cursor" v-show="isShowMore" @click="overFlow = 'auto',isShowMore = false">
       <span>Show more</span>
-    </div>
-    <!--    角标-->
-    <div class="more cursor" v-show="isHover">
-      <IconBase width="1.2rem" height="1.2rem" box-view="0 0 24 24" class="mag-auto">
-        <More/>
-      </IconBase>
     </div>
   </div>
   <!--    输入框提示-->
@@ -215,7 +209,6 @@ export default {
         {'name': 'Overdue', 'value': 'overDue'},
         {'name': 'Completed', 'value': 'completed'}
       ],                                                  // tab栏option
-      isHover: false,                                     // 控制角标是否出现
       isShowMore: false,                                  // showMore角标是否出现
       overFlow: 'hidden',                                 // 和showMore配合用，控制是否可以滚动
       taskList: [],                                       // 当前的任务列表
@@ -1076,15 +1069,7 @@ function filterTasks(taskList, type, now) {
   text-decoration-thickness:1px;
 }
 
-.more {
-  color: var(--gray);
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  border-radius: .2rem;
-  padding: .5rem;
-  transition: background-color .3s;
-}
+
 
 .return {
   font-family: Menlo;
@@ -1103,11 +1088,6 @@ function filterTasks(taskList, type, now) {
   color: var(--black);
   background-color: #F9F8F8;
   border-radius: .2rem;
-}
-
-.more:hover {
-  color: var(--black);
-  background-color: rgba(231, 231, 231, .5);
 }
 
 .task-main {

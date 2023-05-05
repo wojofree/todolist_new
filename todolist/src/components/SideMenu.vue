@@ -26,7 +26,7 @@
         </div>
         <!--      my workspace-->
         <div class="menu-item cursor" @click="isActive = 'workspace'" :class="{'hover-bg':isActive === 'workspace'}">
-          <IconBase box-view=" 0 0 1020 1020" width="1.2rem" height="1.2rem">
+          <IconBase box-view=" 0 0 32 32" width="1.2rem" height="1.2rem">
             <WorkSpace/>
           </IconBase>
           <span>My Workspace</span>

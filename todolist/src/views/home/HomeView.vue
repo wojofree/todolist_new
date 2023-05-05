@@ -17,13 +17,13 @@
           </IconBase>
           <div class="completed-numb task-numb">
             <div v-for="item in taskNumb" class="numb" :style="{'transform':'translateY(-'+item*10+'%)'}">
-              <div v-for="i of 10"><span>{{ i-1 }}</span></div>
+              <div v-for="i of 10"><span>{{ i - 1 }}</span></div>
             </div>
           </div>
           <span> tasks completed</span>
         </div>
         <div class="analyze-item">
-          <IconBase width="1rem" height="1rem" boxView="0 0 1020 1020">
+          <IconBase width="1rem" height="1rem" boxView="0 0 32 32">
             <WorkSpace/>
           </IconBase>
           <span class="task-numb">{{ taskNumb[0] }}</span>
@@ -34,21 +34,66 @@
       <div class="">
         <draggable v-model="list" v-bind="dragOptions" class="home-card">
           <transition-group type="transition">
-            <div v-for="element in list" :key="element.id" class="card-item">
-              <component :is="element.name" v-if="element.name === 'Tasks'"  :projectList="projectList" :analyzeValue="analyzeValue" @task-completed="taskCompletedNumb"></component>
-              <component :is="element.name" v-else-if="element.name === 'Projects'"  :projectList="projectList"></component>
+            <div v-for="(element,index) in list" :key="element.id" class="card-item" @mouseenter="isHover = index"
+                 @mouseleave="isHover = false">
+              <component :is="element.name" v-if="element.name === 'Tasks'" :projectList="projectList"
+                         :analyzeValue="analyzeValue" @task-completed="taskCompletedNumb"></component>
+              <component :is="element.name" v-else-if="element.name === 'Projects'"
+                         :projectList="projectList"></component>
               <component :is="element.name" v-else></component>
+              <!--    角标-->
+              <Popover>
+                <template #main>
+                  <div class="more">
+                    <ToolTip content="Actions">
+                      <div class="cursor more-item">
+                        <IconBase width="1.2rem" height="1.2rem" box-view="0 0 24 24" class="mag-auto">
+                          <More/>
+                        </IconBase>
+                      </div>
+                    </ToolTip>
+                  </div>
+                </template>
+                <template #pop>
+                  <div class="pop-main">
+                    <div class="task-pop">
+                      <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
+                                :class="{'vis-hidden':taskMenuSelect === 'half'}">
+                        <Right/>
+                      </IconBase>
+                      <span class="size-control">Half size</span>
+                    </div>
+                    <div class="task-pop brd-bottom">
+                      <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
+                                :class="{'vis-hidden':taskMenuSelect === 'full'}">
+                        <Right/>
+                      </IconBase>
+                      <span class="size-control">Full size</span>
+                    </div>
+                    <div class="task-pop brd-bottom">
+                      <IconBase width="1rem" height="1rem" icon-color="var(--gray)" box-view="0 0 32 32">
+                        <Eye/>
+                      </IconBase>
+                      <span>View all my tasks</span>
+                    </div>
+                    <div class="task-pop trash">
+                      <IconBase width="1rem" height="1rem" box-view="0 0 32 32">
+                        <Trash/>
+                      </IconBase>
+                      <span>Remove widget</span>
+                    </div>
+                  </div>
+                </template>
+              </Popover>
             </div>
           </transition-group>
         </draggable>
       </div>
     </div>
-
   </div>
 </template>
 <script setup>
-import {Right, WorkSpace} from "@/components/icons"
-import DatePick from "@/components/DateTimePicker";
+import ToolTip from "@/components/ToolTip";
 </script>
 <script>
 import {VueDraggableNext} from 'vue-draggable-next'
@@ -58,10 +103,26 @@ import Tasks from "@/components/homeCard/Tasks"
 import People from "@/components/homeCard/People"
 import Projects from "@/components/homeCard/Projects"
 import Goals from "@/components/homeCard/Goals"
+import {More, Trash, Eye, WorkSpace, Right} from "@/components/icons"
+import Popover from "@/components/Popover"
 
 export default {
   name: "HomeView",
-  components: {IconBase, SelectBar, draggable: VueDraggableNext, Tasks, People, Projects, Goals},
+  components: {
+    IconBase,
+    SelectBar,
+    draggable: VueDraggableNext,
+    Tasks,
+    People,
+    Projects,
+    Goals,
+    More,
+    Popover,
+    Trash,
+    Eye,
+    WorkSpace,
+    Right
+  },
   data() {
     const options = {
       weekday: 'long',
@@ -91,7 +152,9 @@ export default {
         'name': "Goals",
         'id': 4
       }],
-      drag: false
+      drag: false,
+      isHover: false,
+      taskMenuSelect: 'full'
     }
   },
   props: {
@@ -114,8 +177,8 @@ export default {
       };
     }
   },
-  methods:{
-    taskCompletedNumb(numb){
+  methods: {
+    taskCompletedNumb(numb) {
       this.taskNumb = numb.toString().split('')
     }
   }
@@ -134,11 +197,16 @@ export default {
   padding: 4rem 1rem 0 1rem;
 }
 
+.trash {
+  color: #c92f54;
+}
+
 .numb {
   display: inline-block;
   height: fit-content;
   transition: transform .5s ease-in-out;
 }
+
 .title {
   font-weight: 500;
 }
@@ -149,6 +217,32 @@ export default {
 
 .title .welcome {
   font-size: 2rem;
+}
+
+.pop-main {
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+}
+
+.task-pop {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  padding: .8rem 3rem .8rem .8rem;
+}
+
+.brd-bottom {
+  border-bottom: 1px solid #ECEAE9;
+}
+
+.size-control {
+  margin-left: 1.2rem !important;
+}
+
+.task-pop span {
+  margin-left: 1rem;
 }
 
 .analyze {
@@ -195,6 +289,10 @@ export default {
   transition: all 0.5s ease-in-out;
 }
 
+.vis-hidden {
+  visibility: hidden;
+}
+
 .task-numb {
   font-size: 1.25rem;
   margin: 0 .5rem;
@@ -209,7 +307,8 @@ export default {
 }
 
 .card-item {
-  width: 50%;
+  position: relative;
+  width: 100%;
   flex: 0 0 50%;
   border-radius: .5rem;
 }
@@ -217,5 +316,25 @@ export default {
 .width-12 {
   max-width: 75rem;
   margin: auto;
+}
+
+.more {
+  position: absolute;
+  top: 1.5rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+.more-item {
+  padding: .5rem;
+  border-radius: .2rem;
+  transition: background-color .3s;
+  color: var(--gray);
+}
+
+.more-item:hover {
+  color: var(--black);
+  background-color: rgba(231, 231, 231, .5);
 }
 </style>
