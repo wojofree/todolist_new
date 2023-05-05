@@ -6,7 +6,7 @@
           Projects
         </div>
         <div class="select">
-          <SelectBar :options=options v-model="selectValue" :set-value="options[0]"></SelectBar>
+          <SelectBar :options=options v-model="selectValue"></SelectBar>
         </div>
       </div>
 <!--      内容-->
@@ -133,10 +133,6 @@ created() {
 .more:hover {
   color: var(--black);
   background-color: rgba(231, 231, 231, .5);
-}
-
-.dsp-none {
-  display: none;
 }
 
 .item {

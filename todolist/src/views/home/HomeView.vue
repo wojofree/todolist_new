@@ -8,21 +8,25 @@
       <!--    统计-->
       <div class="analyze">
         <div class="select">
-          <SelectBar class="select-bar" v-model="optionValue" :options=options :set-value=options[0]></SelectBar>
+          <SelectBar class="select-bar" v-model="analyzeValue" :options=options></SelectBar>
           <div class="segmentation"></div>
         </div>
         <div class="analyze-item">
           <IconBase width="1rem" height="1rem">
             <Right/>
           </IconBase>
-          <span class="task-numb">{{ taskNumb }}</span>
+          <div class="completed-numb task-numb">
+            <div v-for="item in taskNumb" class="numb" :style="{'transform':'translateY(-'+item*10+'%)'}">
+              <div v-for="i of 10"><span>{{ i-1 }}</span></div>
+            </div>
+          </div>
           <span> tasks completed</span>
         </div>
         <div class="analyze-item">
           <IconBase width="1rem" height="1rem" boxView="0 0 1020 1020">
             <WorkSpace/>
           </IconBase>
-          <span class="task-numb">{{ taskNumb }}</span>
+          <span class="task-numb">{{ taskNumb[0] }}</span>
           <span>collaborators</span>
         </div>
       </div>
@@ -31,17 +35,20 @@
         <draggable v-model="list" v-bind="dragOptions" class="home-card">
           <transition-group type="transition">
             <div v-for="element in list" :key="element.id" class="card-item">
-              <component :is="element.name" v-if="element.name === 'Projects' || element.name === 'Tasks'"  :projectList="projectList"></component>
+              <component :is="element.name" v-if="element.name === 'Tasks'"  :projectList="projectList" :analyzeValue="analyzeValue" @task-completed="taskCompletedNumb"></component>
+              <component :is="element.name" v-else-if="element.name === 'Projects'"  :projectList="projectList"></component>
               <component :is="element.name" v-else></component>
             </div>
           </transition-group>
         </draggable>
       </div>
     </div>
+
   </div>
 </template>
 <script setup>
 import {Right, WorkSpace} from "@/components/icons"
+import DatePick from "@/components/DateTimePicker";
 </script>
 <script>
 import {VueDraggableNext} from 'vue-draggable-next'
@@ -74,12 +81,12 @@ export default {
     return {
       date: date.toLocaleDateString('en-US', options),
       welcome: welcome,
-      optionValue: '',
+      analyzeValue: '',
       options: [
         {'value': 'week', "name": 'My week'},
         {'value': 'month', "name": 'My month'},
       ],
-      taskNumb: '4',
+      taskNumb: [0],
       list: [{'name': "Tasks", 'id': 1}, {'name': "Projects", 'id': 2}, {'name': "People", 'id': 3}, {
         'name': "Goals",
         'id': 4
@@ -106,16 +113,32 @@ export default {
         ghostClass: "ghost"
       };
     }
+  },
+  methods:{
+    taskCompletedNumb(numb){
+      this.taskNumb = numb.toString().split('')
+    }
   }
 }
 </script>
 <style scoped>
+.completed-numb {
+  display: flex;
+  height: 2rem;
+  overflow-y: hidden;
+}
+
 .home {
   background-color: #fff3cd;
   width: 100%;
   padding: 4rem 1rem 0 1rem;
 }
 
+.numb {
+  display: inline-block;
+  height: fit-content;
+  transition: transform .5s ease-in-out;
+}
 .title {
   font-weight: 500;
 }
@@ -132,7 +155,8 @@ export default {
   background-color: #f9f8f8;
   height: 3rem;
   border-radius: 3rem;
-  width: 30rem;
+  max-width: 40rem;
+  width: max-content;
   margin: 1rem auto;
   padding: .425rem 1.5rem;
   display: flex;
@@ -149,7 +173,7 @@ export default {
 
 .analyze .select .select-bar {
   height: 2rem;
-  width: 7rem;
+  width: 5.5rem;
 }
 
 .segmentation {
@@ -163,6 +187,12 @@ export default {
   color: var(--gray);
   flex: 1;
   justify-content: flex-end;
+  margin-left: 1rem;
+}
+
+.analyze-item span {
+  white-space: nowrap;
+  transition: all 0.5s ease-in-out;
 }
 
 .task-numb {

@@ -1,16 +1,16 @@
 <template>
   <div class="select-bar" ref="contentWrap">
     <div class="disp-block">
-      <div class="select cursor" @click="this.openSelect = true">
+      <div class="select cursor" @click="this.openSelect = !this.openSelect"  ref="title">
         <div class="flex">
-          <span>{{ select }}</span>
+          <span>{{ modelValue.name }}</span>
           <IconBase width=".75rem" height=".75rem" box-view="0 0 24 24">
             <Arrow/>
           </IconBase>
         </div>
       </div>
     </div>
-    <div class="disp-block">
+    <div class="disp-block list">
       <div class="option" v-show="openSelect">
         <div class="option-item cursor" v-for="item in options" @click="selectOption(item)">
           <IconBase width=".75rem" height=".75rem" box-view="0 0 32 32"
@@ -29,19 +29,15 @@ export default {
   name: "SelectBar",
   data() {
     return {
-      select: this.selectName,
       openSelect: false,
-      isSelect: ''
+      isSelect: '',
+      titleWidth:'2rem'
     }
   },
   props: {
     modelValue: {
-      type: [String, Number],
+      type: [String, Number,Date,Object],
       default: '11'
-    },
-    selectName: {
-      type: String,
-      default: 'Choose One'
     },
     options: {
       type: Object,
@@ -52,40 +48,48 @@ export default {
         {'value': 4, "name": '选项4'},
       ]
     },
-    setValue: {
-      type: Object,
-      default: ''
+    fontSize: {
+      type: String,
+      default:'.75rem'
     }
   },
   created() {
-    if (this.setValue === '') {
-      if (this.selectName === 'Choose One') {
-        this.selectOption(this.options[0])
-      } else {
-        this.select = this.selectName
-        this.$emit('update:modelValue', '')
-      }
+    if (this.modelValue === '') {
+      this.selectOption(this.options[0])
     } else {
-      this.selectOption(this.setValue)
+      this.selectOption(this.modelValue)
     }
-
+  },
+  watch:{
+    openSelect(newVal) {
+    if (newVal) {
+      document.addEventListener("click", this.handleOutsideClick);
+    } else {
+      document.removeEventListener("click", this.handleOutsideClick);
+      }
+    },
   },
   mounted() {
     // 监听，除了点击自己，点击其他地方将自身隐藏
-    document.addEventListener("click", e => {
-      if (this.$refs.contentWrap) {
-        if (!this.$refs.contentWrap.contains(e.target)) {
-          this.openSelect = false;
-        }
-      }
+    this.$nextTick(()=>{
+      this.titleWidth = this.$refs.title.offsetWidth + 'px'
     })
+
   },
   methods: {
+    handleOutsideClick(e) {
+      if (this.$refs.contentWrap && !this.$refs.contentWrap.contains(e.target)) {
+        this.openSelect = false;
+      }
+    },
     selectOption(item) {
       this.select = item.name
       this.isSelect = item.value
       this.openSelect = false
-      this.$emit('update:modelValue', item.value)
+      this.$emit('update:modelValue', item)
+      this.$nextTick(()=>{
+        this.titleWidth = this.$refs.title.offsetWidth + 'px'
+      })
     }
   }
 }
@@ -98,10 +102,11 @@ import {Arrow, Right} from "@/components/icons"
 .select-bar {
   text-align: left;
   z-index: 1000;
+  width: v-bind(titleWidth);
 }
 
 .select-bar span {
-  font-size: .75rem;
+  font-size: v-bind(fontSize);
   font-weight: 500;
 }
 
@@ -130,13 +135,17 @@ import {Arrow, Right} from "@/components/icons"
   align-items: center;
 }
 
-.disp-none {
-  display: none !important;
+.flex span {
+    width: max-content;
 }
 
 .select:hover {
   background-color: rgb(248, 246, 246);
   color: var(--black);
+}
+
+.list {
+  z-index: 2000;
 }
 
 .select span {
@@ -146,7 +155,8 @@ import {Arrow, Right} from "@/components/icons"
 .option {
   min-width: 11rem;
   max-width: 30rem;
-  height: auto;
+  max-height: 29rem;
+  overflow-y: auto;
   border: .1rem solid rgba(0, 0, 0, .03);
   border-radius: .3rem;
   padding: .4rem 0;
@@ -164,6 +174,7 @@ import {Arrow, Right} from "@/components/icons"
 .option-item p {
   margin-bottom: 0;
   margin-left: 1rem;
+  width: max-content;
 }
 
 .option-item:hover {

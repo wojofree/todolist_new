@@ -15,5 +15,7 @@ import List from './List'
 import Lock from './Lock'
 import Completed from './Completed'
 import Calendar from './Calendar'
+import Clock from './Clock'
+import Repeat from './Repeat'
 
-export {Fold,Plus,Home,Done,InBox,WorkSpace,Triangle,More,Box,Arrow,Right,Avatar,TinyPlus,List,Lock,Completed,Calendar}
+export {Fold,Plus,Home,Done,InBox,WorkSpace,Triangle,More,Box,Arrow,Right,Avatar,TinyPlus,List,Lock,Completed,Calendar,Clock, Repeat}

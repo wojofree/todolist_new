@@ -42,10 +42,10 @@ export default {
     }
   },
   created() {
-    if (this.setValue !== 'default') {
-      this.setActive(this.setValue)
-    } else if (this.setValue === 'default') {
+    if (this.modelValue === '') {
       this.setActive(this.options[0].value)
+    } else {
+      this.setActive(this.modelValue)
     }
   },
   methods: {

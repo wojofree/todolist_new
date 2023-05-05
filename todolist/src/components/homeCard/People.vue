@@ -93,14 +93,10 @@ export default {
   text-align: left;
 }
 
-.no-border {
-  border: none!important;
-}
-
 .select {
   margin-left: 1rem;
-  height: 2rem;
-  z-index: 1000;
+  /*height: 2rem;*/
+  /*z-index: 1000;*/
 }
 
 .more {
@@ -117,10 +113,6 @@ export default {
 .more:hover {
   color: var(--black);
   background-color: rgba(231, 231, 231, .5);
-}
-
-.dsp-none {
-  display: none;
 }
 
 .item {
