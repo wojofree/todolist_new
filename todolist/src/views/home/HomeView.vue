@@ -6,42 +6,50 @@
         <div class="welcome">{{ welcome }} {{ user.nickname }}</div>
       </div>
       <!--    统计-->
-      <div class="analyze">
-        <div class="select">
-          <SelectBar class="select-bar" v-model="analyzeValue" :options=options></SelectBar>
-          <div class="segmentation"></div>
-        </div>
-        <div class="analyze-item">
-          <IconBase width="1rem" height="1rem">
-            <Right/>
-          </IconBase>
-          <div class="completed-numb task-numb">
-            <div v-for="item in taskNumb" class="numb" :style="{'transform':'translateY(-'+item*10+'%)'}">
-              <div v-for="i of 10"><span>{{ i - 1 }}</span></div>
-            </div>
+      <div class="analyze-swap">
+        <div class="analyze grid">
+          <div class="select">
+            <SelectBar class="select-bar" v-model="analyzeValue" :options=options></SelectBar>
+            <div class="segmentation"></div>
           </div>
-          <span> tasks completed</span>
+          <div class="analyze-item">
+            <IconBase width="1rem" height="1rem">
+              <Right/>
+            </IconBase>
+            <div class="completed-numb task-numb">
+              <div v-for="item in taskNumb" class="numb" :style="{'transform':'translateY(-'+item*10+'%)'}">
+                <div v-for="i of 10"><span>{{ i - 1 }}</span></div>
+              </div>
+            </div>
+            <span> tasks completed</span>
+          </div>
+          <div class="analyze-item">
+            <IconBase width="1rem" height="1rem" boxView="0 0 32 32">
+              <WorkSpace/>
+            </IconBase>
+            <span class="task-numb">{{ taskNumb[0] }}</span>
+            <span>collaborators</span>
+          </div>
         </div>
-        <div class="analyze-item">
-          <IconBase width="1rem" height="1rem" boxView="0 0 32 32">
-            <WorkSpace/>
+        <new-button backgroundStyle="#f9f8f8" class="grid home-button">
+          <IconBase box-view="0 0 32 32">
+            <Apps/>
           </IconBase>
-          <span class="task-numb">{{ taskNumb[0] }}</span>
-          <span>collaborators</span>
-        </div>
+          <span>Customize</span>
+        </new-button>
       </div>
       <!--    卡片-->
-      <div class="">
-        <draggable v-model="list" v-bind="dragOptions" class="home-card">
-          <transition-group type="transition">
-            <div v-for="(element,index) in list" :key="element.id" class="card-item" @mouseenter="isHover = index"
-                 @mouseleave="isHover = false">
-              <component :is="element.name" v-if="element.name === 'Tasks'" :projectList="projectList"
-                         :analyzeValue="analyzeValue" @task-completed="taskCompletedNumb"></component>
-              <component :is="element.name" v-else-if="element.name === 'Projects'"
-                         :projectList="projectList"></component>
-              <component :is="element.name" v-else></component>
-              <!--    角标-->
+      <draggable v-model="list" v-bind="dragOptions" class="home-card">
+        <transition-group type="transition">
+          <div v-for="(element,index) in list" :key="element.id" class="card-item" @mouseenter="isHover = index"
+               @mouseleave="isHover = false" :style="{'flex':this.flex[element.name]}">
+            <component :is="element.name" v-if="element.name === 'Tasks'" :projectList="projectList"
+                       :analyzeValue="analyzeValue" @task-completed="taskCompletedNumb"></component>
+            <component :is="element.name" v-else-if="element.name === 'Projects'"
+                       :projectList="projectList"></component>
+            <component :is="element.name" v-else></component>
+            <!--    角标-->
+            <div class="more-swap">
               <Popover>
                 <template #main>
                   <div class="more">
@@ -55,17 +63,19 @@
                   </div>
                 </template>
                 <template #pop>
+                  <!--                  task 角标菜单-->
                   <div class="pop-main">
-                    <div class="task-pop">
+                    <div class="task-pop" @click="this.taskMenuSelect = 'half',this.flex['Tasks'] = '0 0 50%'">
                       <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
-                                :class="{'vis-hidden':taskMenuSelect === 'half'}">
+                                :class="{'vis-hidden':this.taskMenuSelect === 'full'}">
                         <Right/>
                       </IconBase>
                       <span class="size-control">Half size</span>
                     </div>
-                    <div class="task-pop brd-bottom">
+                    <div class="task-pop brd-bottom"
+                         @click="this.taskMenuSelect = 'full',this.flex['Tasks'] = '0 0 100%'">
                       <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
-                                :class="{'vis-hidden':taskMenuSelect === 'full'}">
+                                :class="{'vis-hidden':this.taskMenuSelect === 'half'}">
                         <Right/>
                       </IconBase>
                       <span class="size-control">Full size</span>
@@ -86,14 +96,18 @@
                 </template>
               </Popover>
             </div>
-          </transition-group>
-        </draggable>
-      </div>
+          </div>
+        </transition-group>
+      </draggable>
     </div>
+    <CustomizeHome v-model="isShowCustom"></CustomizeHome>
   </div>
 </template>
 <script setup>
 import ToolTip from "@/components/ToolTip";
+import NewButton from "@/components/NewButton";
+import {Apps} from "@/components/icons";
+import CustomizeHome from "@/components/homePage/CustomizeHome";
 </script>
 <script>
 import {VueDraggableNext} from 'vue-draggable-next'
@@ -154,7 +168,9 @@ export default {
       }],
       drag: false,
       isHover: false,
-      taskMenuSelect: 'full'
+      taskMenuSelect: 'half',
+      flex: {'Tasks': '0 0 50%', 'Projects': '0 0 50%', 'People': '0 0 50%', 'Goals': '0 0 50%'},
+      isShowCustom:true
     }
   },
   props: {
@@ -195,6 +211,7 @@ export default {
   background-color: #fff3cd;
   width: 100%;
   padding: 4rem 1rem 0 1rem;
+  height: 100%;
 }
 
 .trash {
@@ -215,6 +232,17 @@ export default {
   font-size: 1rem;
 }
 
+.analyze-swap {
+  display: grid;
+  margin: 1rem auto;
+  align-items: end;
+}
+
+.grid {
+  grid-column-start: 1;
+  grid-row-start: 1
+}
+
 .title .welcome {
   font-size: 2rem;
 }
@@ -223,6 +251,11 @@ export default {
   width: max-content;
   display: flex;
   flex-direction: column;
+  padding: .3rem 0;
+  background-color: white;
+  border: 1px solid #EDEAE9;
+  border-radius: .4rem;
+  box-shadow: 0 1px 4px 0 rgba(109, 110, 111, 0.08);
 }
 
 .task-pop {
@@ -231,6 +264,10 @@ export default {
   align-items: center;
   background-color: white;
   padding: .8rem 3rem .8rem .8rem;
+}
+
+.task-pop:hover {
+  background-color: #F9F8F8;
 }
 
 .brd-bottom {
@@ -251,7 +288,7 @@ export default {
   border-radius: 3rem;
   max-width: 40rem;
   width: max-content;
-  margin: 1rem auto;
+  margin: 0 auto;
   padding: .425rem 1.5rem;
   display: flex;
   align-items: center;
@@ -309,8 +346,8 @@ export default {
 .card-item {
   position: relative;
   width: 100%;
-  flex: 0 0 50%;
   border-radius: .5rem;
+  transition: flex .3s;
 }
 
 .width-12 {
@@ -318,10 +355,16 @@ export default {
   margin: auto;
 }
 
-.more {
+.more-swap {
   position: absolute;
   top: 1.5rem;
-  right: 1rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+}
+
+.more {
   width: 2rem;
   height: 2rem;
 }
@@ -331,6 +374,16 @@ export default {
   border-radius: .2rem;
   transition: background-color .3s;
   color: var(--gray);
+}
+
+.home-button {
+  margin-right: .5rem;
+  display: flex;
+  align-items: center;
+}
+
+.home-button span {
+  margin-left: .5rem;
 }
 
 .more-item:hover {

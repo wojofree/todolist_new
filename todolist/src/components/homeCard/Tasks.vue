@@ -220,9 +220,7 @@ export default {
       tipsTop: 1,                                         // 新增任务输入框的tips 高
       tipsLeft: 0,                                        // 新增任务输入框的tips 左
       whenLeft: 0,                                        // 时间选择框的左
-      projectRight: 0,                                    // project框的右
       calendarTop: 0,                                     // 日历框的高
-      calendarRight: 0,                                   // 日历框的右
       overDueCont: '',                                     // overDue 计数
       isWhenActive: false,                                // 新增task when input框是否展示
       whenSelectShow: false,                              // 新增task when selection框是否展示
@@ -421,13 +419,13 @@ export default {
         this.isDateChange = false
       }, 400)
       const {top, right} = this.$refs.calendar[index].getBoundingClientRect()
-      this.calendarRight = window.innerWidth - right - 12 + 'px'
+      const main = this.$refs.taskCard.getBoundingClientRect()
       if (window.innerHeight-428-top >= 10) {
         this.triangle = ['column','rotate(45deg)','0']
-        this.calendarTop = top + 38 + 'px'
+        this.calendarTop = top  - main.top + 38 + 'px'
       } else {
         this.triangle = ['column-reverse','rotate(225deg)','-.5rem']
-        this.calendarTop = top -390 + 'px'
+        this.calendarTop = top -390 - main.top + 'px'
       }
       if (item.start_time !== null) {
         this.dateType = 'dateRange'
@@ -502,8 +500,9 @@ export default {
     taskTips() {
       this.isTaskActive = true
       const {top, left} = this.$refs.hiddenInput.getBoundingClientRect()
-      this.tipsTop = top + 41 + 'px'
-      this.tipsLeft = left + Math.min(this.$refs.hiddenInput.offsetWidth, this.$refs.taskValue.offsetWidth) + 'px'
+      const main = this.$refs.taskCard.getBoundingClientRect()
+      this.tipsTop = top - main.top + 41 + 'px'
+      this.tipsLeft = left - main.left + Math.min(this.$refs.hiddenInput.offsetWidth, this.$refs.taskValue.offsetWidth) + 'px'
     },
     // 监听task input的按键，tab和回车时跳转到when的input框
     chooseWhen(event) {
@@ -511,15 +510,14 @@ export default {
         this.isWhenActive = true
         this.taskWhenValue = this.defaultWhenList[0].name
         this.$nextTick(() => {
+          const main = this.$refs.taskCard.getBoundingClientRect()
           const {left} = this.$refs.taskWhenValue.getBoundingClientRect()
-          this.whenLeft = left + 'px'
+          this.whenLeft = left - main.left + 'px'
         })
       }
     },
     // when输入框focus时,监听键盘和鼠标
     selectWhen() {
-      const {right} = this.$refs.taskCard.getBoundingClientRect()
-      this.projectRight = window.innerWidth - right + 'px'
       this.handleProjectListChange()
       // 端盘时键盘输入触发，还是点击触发
       if (event.keyCode) {
@@ -857,7 +855,7 @@ function filterTasks(taskList, type, now) {
 .date-swap {
   position: absolute;
   top: v-bind(calendarTop);
-  right: v-bind(calendarRight);
+  right: 2rem;
   /*top: 0;*/
   /*right: 0;*/
   display: flex;
@@ -1261,7 +1259,7 @@ function filterTasks(taskList, type, now) {
   background-color: white;
   position: absolute;
   top: v-bind(tipsTop);
-  right: v-bind(projectRight);
+  right: 30px;
   z-index: 1000;
   box-shadow: 0 1px 4px 0 rgba(109, 110, 111, 0.08);
 }
