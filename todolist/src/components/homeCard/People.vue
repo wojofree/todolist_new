@@ -11,13 +11,6 @@
         </div>
       </div>
 <!--      内容-->
-
-<!--      角标-->
-      <div class="more" v-show="isHover">
-        <IconBase width="1.2rem" height="1.2rem" box-view="0 0 24 24" class="mag-auto">
-          <More/>
-        </IconBase>
-      </div>
     </div>
   </div>
 </template>

@@ -31,7 +31,7 @@
             <span>collaborators</span>
           </div>
         </div>
-        <new-button backgroundStyle="#f9f8f8" class="grid home-button">
+        <new-button backgroundStyle="#f9f8f8" class="grid home-button" @click="isOpenDrawer = true">
           <IconBase box-view="0 0 32 32">
             <Apps/>
           </IconBase>
@@ -65,22 +65,22 @@
                 <template #pop>
                   <!--                  task 角标菜单-->
                   <div class="pop-main">
-                    <div class="task-pop" @click="this.taskMenuSelect = 'half',this.flex['Tasks'] = '0 0 50%'">
+                    <div class="task-pop" @click="changeSize(element.name,'half')">
                       <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
-                                :class="{'vis-hidden':this.taskMenuSelect === 'full'}">
+                                :class="{'vis-hidden':this.MenuSelect[element.name] === 'full'}">
                         <Right/>
                       </IconBase>
                       <span class="size-control">Half size</span>
                     </div>
                     <div class="task-pop brd-bottom"
-                         @click="this.taskMenuSelect = 'full',this.flex['Tasks'] = '0 0 100%'">
+                         @click="changeSize(element.name,'full')">
                       <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
-                                :class="{'vis-hidden':this.taskMenuSelect === 'half'}">
+                                :class="{'vis-hidden':this.MenuSelect[element.name] === 'half'}">
                         <Right/>
                       </IconBase>
                       <span class="size-control">Full size</span>
                     </div>
-                    <div class="task-pop brd-bottom">
+                    <div class="task-pop brd-bottom" v-if="element.name === 'Tasks'">
                       <IconBase width="1rem" height="1rem" icon-color="var(--gray)" box-view="0 0 32 32">
                         <Eye/>
                       </IconBase>
@@ -100,7 +100,7 @@
         </transition-group>
       </draggable>
     </div>
-    <CustomizeHome v-model="isShowCustom"></CustomizeHome>
+    <CustomizeHome @backColor="backColor" v-model="isOpenDrawer"></CustomizeHome>
   </div>
 </template>
 <script setup>
@@ -108,36 +108,61 @@ import ToolTip from "@/components/ToolTip";
 import NewButton from "@/components/NewButton";
 import {Apps} from "@/components/icons";
 import CustomizeHome from "@/components/homePage/CustomizeHome";
+import {More, Trash, Eye, WorkSpace, Right} from "@/components/icons"
+import IconBase from "@/components/IconBase";
 </script>
 <script>
 import {VueDraggableNext} from 'vue-draggable-next'
 import SelectBar from "@/components/SelectBar";
-import IconBase from "@/components/IconBase";
 import Tasks from "@/components/homeCard/Tasks"
 import People from "@/components/homeCard/People"
 import Projects from "@/components/homeCard/Projects"
 import Goals from "@/components/homeCard/Goals"
-import {More, Trash, Eye, WorkSpace, Right} from "@/components/icons"
+import {apiHttpClient} from "@/app/app.service";
 import Popover from "@/components/Popover"
 
 export default {
   name: "HomeView",
   components: {
-    IconBase,
     SelectBar,
     draggable: VueDraggableNext,
     Tasks,
     People,
     Projects,
     Goals,
-    More,
     Popover,
-    Trash,
-    Eye,
-    WorkSpace,
-    Right
   },
   data() {
+    return {
+      date: '',
+      welcome: '',
+      analyzeValue: '',
+      options: [
+        {'value': 'week', "name": 'My week'},
+        {'value': 'month', "name": 'My month'},
+      ],
+      taskNumb: [0],
+      list: [{'name': 'Tasks', 'id': 1},{'name': 'Projects', 'id': 2},{'name': 'People', 'id': 3},{'name': 'Goals', 'id': 4}],
+      drag: false,
+      isHover: false,
+      MenuSelect: {Tasks:'half',People:'half',Projects:'half',Goals:'half'},
+      flex: {"Goals": "0 0 50%", "People": "0 0 50%", "Projects": "0 0 50%", "Tasks": "0 0 50%"},
+      backgroundColor: '#AD7CC4',
+      isOpenDrawer: false,
+    }
+  },
+  props: {
+    user: {
+      type: Object,
+      default: null
+    },
+    projectList: {
+      type: Object,
+      default: null
+    }
+  },
+  created() {
+    this.getUserSetting()
     const options = {
       weekday: 'long',
       month: 'long',
@@ -153,35 +178,8 @@ export default {
     } else {
       welcome = 'Good Evening,'
     }
-    return {
-      date: date.toLocaleDateString('en-US', options),
-      welcome: welcome,
-      analyzeValue: '',
-      options: [
-        {'value': 'week', "name": 'My week'},
-        {'value': 'month', "name": 'My month'},
-      ],
-      taskNumb: [0],
-      list: [{'name': "Tasks", 'id': 1}, {'name': "Projects", 'id': 2}, {'name': "People", 'id': 3}, {
-        'name': "Goals",
-        'id': 4
-      }],
-      drag: false,
-      isHover: false,
-      taskMenuSelect: 'half',
-      flex: {'Tasks': '0 0 50%', 'Projects': '0 0 50%', 'People': '0 0 50%', 'Goals': '0 0 50%'},
-      isShowCustom:true
-    }
-  },
-  props: {
-    user: {
-      type: Object,
-      default: null
-    },
-    projectList: {
-      type: Object,
-      default: null
-    }
+    this.date = date.toLocaleDateString('en-US', options)
+    this.welcome = welcome
   },
   computed: {
     dragOptions() {
@@ -193,9 +191,38 @@ export default {
       };
     }
   },
+  watch:{
+    list(newValue){
+      const url = "/api/update_setting/"
+      const data = {"home_card":JSON.stringify(newValue)}
+      apiHttpClient.post(url,data)
+    },
+  },
   methods: {
+    changeSize(card,type){
+      this.MenuSelect[card] = type
+      this.flex[card] = type==='half'?'0 0 50%':'0 0 100%'
+      const url = "/api/update_setting/"
+      const data = {"card_size":JSON.stringify(this.flex)}
+      apiHttpClient.post(url,data)
+    },
     taskCompletedNumb(numb) {
       this.taskNumb = numb.toString().split('')
+    },
+    backColor(item) {
+      this.backgroundColor = item
+    },
+    getUserSetting() {
+      const url = "/api/user_setting"
+      apiHttpClient.get(url).then((response) => {
+        this.backgroundColor = response.data.results.background_color
+        this.list = response.data.results.home_card
+        this.flex = response.data.results.card_size
+        const FLEX_FULL = '0 0 100%'
+        for(let key in this.flex){
+          this.MenuSelect[key] = this.flex[key] === FLEX_FULL?'full':'half'
+        }
+      })
     }
   }
 }
@@ -208,10 +235,13 @@ export default {
 }
 
 .home {
-  background-color: #fff3cd;
+  background-color: v-bind(backgroundColor);
+  color: v-bind(backgroundColor);
   width: 100%;
   padding: 4rem 1rem 0 1rem;
-  height: 100%;
+  height: calc(100vh - 3.4rem);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .trash {
@@ -228,11 +258,17 @@ export default {
   font-weight: 500;
 }
 
+.title::selection {
+  background-color: #BCD6FB;
+}
+
 .title .date {
   font-size: 1rem;
+  filter: grayscale(1) contrast(999) invert(1);
 }
 
 .analyze-swap {
+  color: var(--gray);
   display: grid;
   margin: 1rem auto;
   align-items: end;
@@ -245,6 +281,12 @@ export default {
 
 .title .welcome {
   font-size: 2rem;
+  filter: grayscale(1) contrast(999) invert(1)
+}
+
+*::selection {
+  background-color: #BCD6FB !important; /* 高优先级，设置选中文字的背景色 */
+  color: #000 !important; /* 高优先级，设置选中的文字颜色 */
 }
 
 .pop-main {
@@ -263,7 +305,7 @@ export default {
   display: flex;
   align-items: center;
   background-color: white;
-  padding: .8rem 3rem .8rem .8rem;
+  padding: .7rem 3rem .7rem .8rem;
 }
 
 .task-pop:hover {
@@ -341,6 +383,7 @@ export default {
   width: 100%;
   flex-direction: row;
   flex-wrap: wrap;
+  color: var(--black);
 }
 
 .card-item {

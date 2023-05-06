@@ -20,5 +20,6 @@ import Repeat from './Repeat'
 import Eye from './Eye'
 import Trash from './Trash'
 import Apps from './Apps'
+import Close from './Close'
 
-export {Apps, Trash, Eye, Fold,Plus,Home,Done,InBox,WorkSpace,Triangle,More,Box,Arrow,Right,Avatar,TinyPlus,List,Lock,Completed,Calendar,Clock, Repeat}
+export {Close, Apps, Trash, Eye, Fold,Plus,Home,Done,InBox,WorkSpace,Triangle,More,Box,Arrow,Right,Avatar,TinyPlus,List,Lock,Completed,Calendar,Clock, Repeat}

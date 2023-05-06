@@ -19,6 +19,7 @@
   height: calc(100vh);
   width: calc(100vw);
   overflow-x: hidden;
+  position: relative;
 }
 
 #app {
@@ -36,7 +37,7 @@
 .main {
   width: 100%;
   min-width: 63rem;
-  overflow-y: auto;
+  //overflow-y: auto;
   height: calc(100vh - 3.4rem);
 }
 </style>

@@ -28,12 +28,6 @@
           <span class="text-overflow">{{ item.name }}</span>
         </div>
       </div>
-<!--      角标-->
-      <div class="more" v-show="isHover">
-        <IconBase width="1.2rem" height="1.2rem" box-view="0 0 24 24" class="mag-auto">
-          <More/>
-        </IconBase>
-      </div>
   </div>
 </template>
 
@@ -86,6 +80,7 @@ created() {
   display: flex;
   flex-direction: column;
   padding-bottom: .5rem;
+  color:var(--black);
 }
 
 .header {

@@ -347,7 +347,6 @@ export default {
 }
 
 .date {
-  /*margin-right: .5rem;*/
   position: relative;
   width: 2.25rem;
 }

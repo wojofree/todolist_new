@@ -333,13 +333,10 @@ export default {
     },
     // 日历弹窗鼠标监听
     isShowCalendar(newValue) {
-      const wrapper = document.getElementsByClassName('main')[0]
       if (newValue) {
         document.addEventListener("click", this.calendarOutsideClick);
-        wrapper.addEventListener("scroll", this.closeCalendar);
       } else {
         document.removeEventListener("click", this.calendarOutsideClick);
-        wrapper.removeEventListener("scroll", this.closeCalendar);
       }
     },
     analyzeValue(newValue) {
@@ -380,10 +377,6 @@ export default {
       this.dateValue = this.dateValue !== '' ? [null, this.dateValue] : ['', '']
     },
     // 弹窗外点击，如有符合要求，直接请求更改信息
-    closeCalendar() {
-      this.isShowCalendar = false;
-      this.isFirstClick = true
-    },
     calendarOutsideClick(e) {
       if (this.$refs.datePickerSwap && !this.$refs.datePickerSwap.contains(e.target) && !this.isFirstClick) {
         this.isShowCalendar = false;
@@ -418,7 +411,7 @@ export default {
         this.isFirstClick = false
         this.isDateChange = false
       }, 400)
-      const {top, right} = this.$refs.calendar[index].getBoundingClientRect()
+      const {top} = this.$refs.calendar[index].getBoundingClientRect()
       const main = this.$refs.taskCard.getBoundingClientRect()
       if (window.innerHeight-428-top >= 10) {
         this.triangle = ['column','rotate(45deg)','0']
@@ -954,6 +947,7 @@ function filterTasks(taskList, type, now) {
 }
 
 .task-card {
+  color:var(--black);
   min-width: 24rem;
   height: 25rem;
   background-color: white;

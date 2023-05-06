@@ -1,65 +1,50 @@
 <template>
-  <div class="main3">
-<div class="main2">
-  <div class="main1">
-    <div class="title" style="background-color: blue">
-      <div class="select">
-        <div class="select-title">testest</div>
-        <div class="select-option">111</div>
-      </div>
-    </div>
-    <div class="title" style="background-color: blueviolet"></div>
-    <div class="title" style="background-color: red"></div>
-  </div>
-</div>
-    </div>
+
 </template>
 
 <script>
+import NewButton from "@/components/NewButton";
 export default {
-  name: "test"
+  name: "test",
+  components: {NewButton},
+  data(){
+    return {
+      isHover:'30rem'
+    }
+  }
 }
 </script>
 
 <style scoped>
-.main2 {
-  display: flex;
+.button {
+  position: absolute;
+  left: 20rem;
+  top: 10rem;
 }
 
-.main3 {
-  display: flex;
-  flex-direction:column;
-  overflow-x: hidden;
-}
-
-.select-title {
-  height: 3rem;
-  color: white;
-}
-
-.select-option {
-  height: 15rem;
-  width: 100%;
-  display: inline-block;
+.main-test {
+  height: 100%;
+  position: absolute;
+  right: 0;
+  width: v-bind(isHover);
   background-color: #fff3cd;
+  transition: width .3s;
 }
 
-.list {
-  height: 15rem;
-  width: 3rem;
+.item-1 {
+  width: 30rem;
+  height: 100%;
+  position: relative;
+  right: 0;
   background-color: #1b6279;
 }
 
-.title {
-  height: 2rem;
-  width: 3rem;
-  background-color: #fff3cd;
+.item-2 {
+  position: absolute;
+  width: 20rem;
+  height: 20rem;
+  background-color: black;
+  right: 0;
+  top: 0;
 }
-
-.main1 {
-  /*height: 3rem;*/
-  display: flex;
-  justify-content: flex-start;
-}
-
 </style>
