@@ -25,5 +25,49 @@ import Pencil from './Pencil'
 import Star from './Star'
 import Archive from './Archive'
 import Link from './Link'
+import Bord from './Bord'
+import TimeLine from './TimeLine'
+import People from './People'
+import Graph from './Graph'
+import DarkStar from './DarkStar'
+import Gear from './Gear'
+import Chat from './Chat'
+import Symbols from './Symbols'
 
-export {Link, Archive, Star, Pencil,Close, Apps, Trash, Eye, Fold,Plus,Home,Done,InBox,WorkSpace,Triangle,More,Box,Arrow,Right,Avatar,TinyPlus,List,Lock,Completed,Calendar,Clock, Repeat}
+export {
+    People,
+    Graph,
+    DarkStar,
+    Gear,
+    Chat,
+    Symbols,
+    TimeLine,
+    Bord,
+    Link,
+    Archive,
+    Star,
+    Pencil,
+    Close,
+    Apps,
+    Trash,
+    Eye,
+    Fold,
+    Plus,
+    Home,
+    Done,
+    InBox,
+    WorkSpace,
+    Triangle,
+    More,
+    Box,
+    Arrow,
+    Right,
+    Avatar,
+    TinyPlus,
+    List,
+    Lock,
+    Completed,
+    Calendar,
+    Clock,
+    Repeat
+}

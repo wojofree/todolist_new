@@ -3,7 +3,7 @@
     <div class="popover-main" @click="showPop" @mouseenter="hoverShow" ref="popoverMain">
       <slot name="main"></slot>
     </div>
-    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent">
+    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent" @mouseenter="hoverShow">
       <slot name="pop"></slot>
     </div>
   </div>
@@ -52,10 +52,20 @@ export default {
       this.mainHeight = this.$refs.popoverMain.offsetHeight + 'px'
       this.mainWidth = this.$refs.popoverMain.offsetWidth + 'px'
     })
+    if (this.popPosition === 'under') {
+        this.marHeight = this.mainHeight
+        this.marWidth = 0
+      } else if (this.popPosition === 'side') {
+        this.marWidth = this.mainWidth
+        this.marHeight = 0
+      }
   },
   methods: {
     hoverShow() {
-      this.hoverControl && this.showPop();
+      if (this.hoverControl) {
+        this.getPosition()
+        this.isPopShow = true
+      }
     },
     hoverClose() {
       if (this.hoverControl) {
@@ -66,14 +76,12 @@ export default {
       this.isPopShow = false;
     },
     showPop() {
-
-      if (this.popPosition === 'under') {
-        this.marHeight = this.mainHeight
-        this.marWidth = 0
-      } else if (this.popPosition === 'side') {
-        this.marWidth = this.mainWidth
-        this.marHeight = 0
-      }
+      this.getPosition()
+      setTimeout(() => {
+        this.isPopShow = true
+      }, 30)
+    },
+    getPosition(){
       const width = this.$refs.popoverContent.offsetWidth
       const height = this.$refs.popoverContent.offsetHeight
       const {left, right, top, bottom} = this.$refs.popoverMain.getBoundingClientRect()
@@ -89,9 +97,6 @@ export default {
       if (this.flexDirection === 'column' && window.innerHeight - bottom - height < 0) {
         this.flexDirection = 'column-reverse'
       }
-      setTimeout(() => {
-        this.isPopShow = true
-      }, 30)
     }
   }
 }

@@ -26,6 +26,7 @@
           </IconBase>
         </div>
         <span class="text-overflow project-name">{{ item.name }}</span>
+        <!--        选项-->
         <Popover>
           <template #main>
             <div class="project-more">
@@ -39,22 +40,23 @@
             </div>
           </template>
           <template #pop>
-            <div class="share pop-item">
+            <div class="share pop-item cursor">
               <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
                 <WorkSpace/>
               </icon-base>
               <span>Share...</span>
             </div>
-            <div class="favorite pop-item">
+            <div class="favorite pop-item cursor">
               <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
                 <Star/>
               </icon-base>
               <span>Add to favorites</span>
             </div>
+            <!--            颜色设置-->
             <popover pop-position="side" hover-control direction="flex-start">
               <template #main>
-                <div class="set-color pop-item">
-                  <div class="color-item"></div>
+                <div class="set-color pop-item cursor">
+                  <div class="color-icon"></div>
                   <span style="margin-right: auto">Set color&icon</span>
                   <icon-base style="transform: rotate(-90deg)">
                     <Arrow/>
@@ -62,22 +64,33 @@
                 </div>
               </template>
               <template #pop>
-                <div style="width: 5rem;height: 15rem;background-color: #fff3cd">etsetrset</div>
+                <div>
+                  <div class="color-selection brd-bottom">
+                    <label v-for="item in colorList" :style="{'color':item}" class="color-item">
+                      <icon-base width=".7rem" height=".7rem" class="color-right">
+                        <Right />
+                      </icon-base>
+                    </label>
+                  </div>
+                  <div class="icon-selection">
+
+                  </div>
+                </div>
               </template>
             </popover>
-            <div class="edit pop-item">
+            <div class="edit pop-item cursor">
               <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
                 <Pencil/>
               </icon-base>
               <span>Edit project details</span>
             </div>
-            <div class="copy pop-item">
+            <div class="copy pop-item cursor">
               <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
                 <Link/>
               </icon-base>
               <span>Copy project link</span>
             </div>
-            <div class="archive pop-item">
+            <div class="archive pop-item cursor">
               <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
                 <Archive/>
               </icon-base>
@@ -91,6 +104,7 @@
 </template>
 <script setup>
 import {More, TinyPlus, List, WorkSpace, Link, Star, Pencil, Archive, Arrow} from "@/components/icons"
+import Right from "@/components/icons/Right";
 </script>
 <script>
 import IconBase from "@/components/IconBase";
@@ -111,6 +125,7 @@ export default {
         {'value': 'favorites', "name": 'Favorites'},
       ],
       selectValue: '',
+      colorList: ['#C6C4C4', '#F06A6A', '#EC8E71', '#E9BF78', '#F8DF72', '#B4CE67', '#6D9F84', '#6CBEB9', '#AEE5E2', '#5072CB', '#8B84E1', '#A96ECE', '#EDADEB', '#E277B0', '#ED9B9B', '#68696A']
     }
   },
   props: {
@@ -235,7 +250,7 @@ export default {
   display: flex;
   align-items: center;
   background-color: white;
-  padding: .7rem .7rem .7rem .7rem;
+  padding: .7rem .5rem .7rem .7rem;
 }
 
 .pop-item:hover {
@@ -252,9 +267,41 @@ export default {
   height: 2rem;
 }
 
-.color-item {
+.color-icon {
   width: 1rem;
   height: 1rem;
   background-color: #fff3cd;
+}
+
+.color-selection {
+  display: flex;
+  flex-wrap: wrap;
+  width: 15rem;
+  padding: 1.5rem;
+  justify-content: space-around;
+}
+
+.icon-selection {
+  height: 14.25rem;
+  padding: 1.5rem;
+}
+
+.brd-bottom {
+  border-bottom: 1px solid #ECEAE9;
+}
+
+.color-item {
+  background-color: currentColor;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: .125rem;
+  border-radius: .25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.color-right {
+  filter: grayscale(1) contrast(999) invert(1);
 }
 </style>

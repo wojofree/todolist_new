@@ -106,9 +106,8 @@
 <script setup>
 import ToolTip from "@/components/common/ToolTip";
 import NewButton from "@/components/common/NewButton";
-import {Apps} from "@/components/icons";
 import CustomizeHome from "@/components/homePage/CustomizeHome";
-import {More, Trash, Eye, WorkSpace, Right} from "@/components/icons"
+import {More, Trash, Eye, WorkSpace, Right, Apps} from "@/components/icons"
 import IconBase from "@/components/IconBase";
 </script>
 <script>

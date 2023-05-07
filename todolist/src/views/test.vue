@@ -1,50 +1,47 @@
 <template>
-
+  <div class="swap">
+<div class="test1" @mouseenter="show" @mouseleave="close"></div>
+<div class="test2" :class="{'vsb-hidden':!isPopShow}" @mouseleave="close" @mouseenter="show"></div>
+    </div>
 </template>
 
 <script>
-import NewButton from "@/components/common/NewButton";
 export default {
   name: "test",
-  components: {NewButton},
   data(){
     return {
-      isHover:'30rem'
+      isPopShow:false
+    }
+  },
+  methods:{
+    show() {
+      this.isPopShow = true
+    },
+    close() {
+      this.isPopShow = false
     }
   }
 }
 </script>
 
 <style scoped>
-.button {
-  position: absolute;
-  left: 20rem;
-  top: 10rem;
+.swap{
+  display: flex;
 }
-
-.main-test {
-  height: 100%;
-  position: absolute;
-  right: 0;
-  width: v-bind(isHover);
+.test1 {
+  width: 5rem;
+  height: 5rem;
   background-color: #fff3cd;
-  transition: width .3s;
 }
 
-.item-1 {
-  width: 30rem;
-  height: 100%;
-  position: relative;
-  right: 0;
+.test2 {
+  width: 5rem;
+  height: 5rem;
   background-color: #1b6279;
-}
-
-.item-2 {
   position: absolute;
-  width: 20rem;
-  height: 20rem;
-  background-color: black;
-  right: 0;
-  top: 0;
+  margin-left: 4rem;
+}
+.vsb-hidden{
+  visibility: hidden;
 }
 </style>
