@@ -104,8 +104,8 @@
   </div>
 </template>
 <script setup>
-import ToolTip from "@/components/ToolTip";
-import NewButton from "@/components/NewButton";
+import ToolTip from "@/components/common/ToolTip";
+import NewButton from "@/components/common/NewButton";
 import {Apps} from "@/components/icons";
 import CustomizeHome from "@/components/homePage/CustomizeHome";
 import {More, Trash, Eye, WorkSpace, Right} from "@/components/icons"
@@ -113,13 +113,13 @@ import IconBase from "@/components/IconBase";
 </script>
 <script>
 import {VueDraggableNext} from 'vue-draggable-next'
-import SelectBar from "@/components/SelectBar";
+import SelectBar from "@/components/common/SelectBar";
 import Tasks from "@/components/homeCard/Tasks"
 import People from "@/components/homeCard/People"
 import Projects from "@/components/homeCard/Projects"
 import Goals from "@/components/homeCard/Goals"
 import {apiHttpClient} from "@/app/app.service";
-import Popover from "@/components/Popover"
+import Popover from "@/components/common/Popover"
 
 export default {
   name: "HomeView",

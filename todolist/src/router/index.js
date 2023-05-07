@@ -24,7 +24,7 @@ const routes = [
   {
     path: '/select',
     name: 'SelectBar',
-    component: () => import(/* webpackChunkName: "about" */ '../components/SelectBar.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../components/common/SelectBar.vue')
   },
   {
     path: '/test',

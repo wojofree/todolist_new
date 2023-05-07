@@ -18,7 +18,7 @@
 <script>
 import IconBase from "@/components/IconBase";
 import {More, TinyPlus,List} from "@/components/icons"
-import SelectBar from "@/components/SelectBar";
+import SelectBar from "@/components/common/SelectBar";
 import {apiHttpClient} from "@/app/app.service";
 
 export default {

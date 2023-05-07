@@ -183,10 +183,10 @@
 <script>
 import IconBase from "@/components/IconBase";
 import {Avatar, Done, Lock, More, Completed, Calendar, Plus, Clock, Repeat} from "@/components/icons"
-import TabBar from "@/components/TabBar";
+import TabBar from "@/components/common/TabBar";
 import {apiHttpClient} from "@/app/app.service";
-import DatePick from "@/components/DateTimePicker";
-import ToolTip from "@/components/ToolTip";
+import DatePick from "@/components/common/DateTimePicker";
+import ToolTip from "@/components/common/ToolTip";
 
 const now = new Date()
 export default {

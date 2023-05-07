@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import Drawer from "@/components/Drawer";
-import NewButton from "@/components/NewButton";
+import Drawer from "@/components/common/Drawer";
+import NewButton from "@/components/common/NewButton";
 import IconBase from "@/components/IconBase";
 import {Close, Right} from "@/components/icons";
 import {apiHttpClient} from "@/app/app.service";

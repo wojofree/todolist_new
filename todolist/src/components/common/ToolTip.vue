@@ -60,7 +60,9 @@ export default {
 }
 
 .tips-swap {
-  margin: .2rem 0;
+  position: absolute;
+  margin-top: v-bind(height);
+  margin-bottom: v-bind(height);
   display: flex;
   align-items: flex-end;
   flex-direction: v-bind(triangle[0]);

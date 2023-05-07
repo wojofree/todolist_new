@@ -48,7 +48,7 @@
 <script>
 import IconBase from "@/components/IconBase";
 import {Arrow} from "@/components/icons";
-import SelectBar from "@/components/SelectBar";
+import SelectBar from "@/components/common/SelectBar";
 
 export default {
   name: "DatePick",

@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import SideMenu from "@/components/SideMenu.vue"
+import SideMenu from "@/components/common/SideMenu.vue"
 
 export default {
   components: {
@@ -23,7 +23,7 @@ export default {
 }
 </script>
 <script setup>
-// import Menu from "@/components/SideMenu.vue"
+// import common from "@/components/SideMenu.vue"
 import NavbarView from "@/components/NavbarView";
 import HomeView from "@/views/home/HomeView";
 </script>

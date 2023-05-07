@@ -43,7 +43,7 @@
 </style>
 <script>
 import NavbarView from "@/components/NavbarView";
-import SideMenu from "@/components/SideMenu.vue"
+import SideMenu from "@/components/common/SideMenu.vue"
 
 export default {
   components: {NavbarView, SideMenu},

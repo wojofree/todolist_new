@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import NewButton from "@/components/NewButton";
+import NewButton from "@/components/common/NewButton";
 export default {
   name: "test",
   components: {NewButton},

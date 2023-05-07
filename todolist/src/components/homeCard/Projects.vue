@@ -25,7 +25,18 @@
               <List/>
             </IconBase>
           </div>
-          <span class="text-overflow">{{ item.name }}</span>
+          <span class="text-overflow project-name">{{ item.name }}</span>
+          <Popover>
+            <template #main>
+              <ToolTip content="Show options">
+                <div class="more cursor">
+                  <icon-base box-view="0 0 24 24">
+                    <More />
+                  </icon-base>
+                </div>
+              </ToolTip>
+            </template>
+          </Popover>
         </div>
       </div>
   </div>
@@ -34,12 +45,14 @@
 <script>
 import IconBase from "@/components/IconBase";
 import {More, TinyPlus,List} from "@/components/icons"
-import SelectBar from "@/components/SelectBar";
+import SelectBar from "@/components/common/SelectBar";
 import {apiHttpClient} from "@/app/app.service";
+import Popover from "@/components/common/Popover";
+import ToolTip from "@/components/common/ToolTip";
 
 export default {
   name: "Projects",
-  components: {TinyPlus, SelectBar, IconBase, More, List},
+  components: {ToolTip, Popover, TinyPlus, SelectBar, IconBase, More, List},
   data() {
     return {
       isHover: false,
@@ -108,6 +121,11 @@ created() {
   border: none!important;
 }
 
+.project-name {
+  font-weight: 600;
+  margin-right: auto;
+}
+
 .select {
   margin-left: 1rem;
   height: 2rem;
@@ -116,11 +134,8 @@ created() {
 
 .more {
   color: var(--gray);
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  border-radius: .2rem;
-  padding: .5rem;
+  border-radius: .3rem;
+  padding: .2rem;
   transition: background-color .3s;
   /*border: 1px solid rgba(0,0,0,.05);*/
 }
