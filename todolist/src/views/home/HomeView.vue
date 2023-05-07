@@ -50,7 +50,7 @@
             <component :is="element.name" v-else></component>
             <!--    角标-->
             <div class="more-swap">
-              <Popover direction="flex-start">
+              <Popover direction="flex-end" popPosition="under">
                 <template #main>
                   <div class="more">
                     <ToolTip content="Actions">

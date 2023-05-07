@@ -1,9 +1,9 @@
 <template>
   <div class="pop-swap">
-    <div class="popover-main" @click="showPop" ref="popoverMain">
+    <div class="popover-main" @click="showPop" @mouseenter="hoverShow" ref="popoverMain">
       <slot name="main"></slot>
     </div>
-    <div class="popover-content" v-show="isPopShow" ref="popoverContent">
+    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent">
       <slot name="pop"></slot>
     </div>
   </div>
@@ -15,8 +15,26 @@ export default {
   data() {
     return {
       isPopShow: false,
-      mainWidth:'',
-      mainHeight:'',
+      mainWidth: '',
+      mainHeight: '',
+      marWidth: '',
+      marHeight: '',
+      flexDirection: 'column',
+      alignItems: ''
+    }
+  },
+  props: {
+    direction: {
+      type: String,
+      default: 'flex-end'
+    },
+    popPosition: {
+      type: String,
+      default: 'under'
+    },
+    hoverControl: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -28,27 +46,53 @@ export default {
       }
     }
   },
-  mounted() {
-    this.$nextTick(()=>{
-      this.mainWidth = this.$refs.popoverMain.offsetWidth + 'px'
+  async created() {
+    this.alignItems = this.direction
+    await this.$nextTick(() => {
       this.mainHeight = this.$refs.popoverMain.offsetHeight + 'px'
+      this.mainWidth = this.$refs.popoverMain.offsetWidth + 'px'
     })
   },
   methods: {
+    hoverShow() {
+      this.hoverControl && this.showPop();
+    },
+    hoverClose() {
+      if (this.hoverControl) {
+        this.isPopShow = false;
+      }
+    },
     closePop() {
       this.isPopShow = false;
     },
     showPop() {
+
+      if (this.popPosition === 'under') {
+        this.marHeight = this.mainHeight
+        this.marWidth = 0
+      } else if (this.popPosition === 'side') {
+        this.marWidth = this.mainWidth
+        this.marHeight = 0
+      }
+      const width = this.$refs.popoverContent.offsetWidth
+      const height = this.$refs.popoverContent.offsetHeight
+      const {left, right, top, bottom} = this.$refs.popoverMain.getBoundingClientRect()
+      if (this.alignItems === 'flex-start' && window.innerWidth - left - width < 0) {
+        this.alignItems = 'flex-end'
+      }
+      if (this.alignItems === 'flex-end' && right - width < 0) {
+        this.alignItems = 'flex-start'
+      }
+      if (this.flexDirection === 'column-reverse' && top - height < 0) {
+        this.flexDirection = 'column'
+      }
+      if (this.flexDirection === 'column' && window.innerHeight - bottom - height < 0) {
+        this.flexDirection = 'column-reverse'
+      }
       setTimeout(() => {
         this.isPopShow = true
       }, 30)
     }
-  },
-  props:{
-   direction: {
-     type:String,
-     default:'flex-end'
-   }
   }
 }
 </script>
@@ -61,17 +105,20 @@ export default {
 
 .pop-swap {
   display: flex;
-  align-items: v-bind(direction);
-  flex-direction: column;
+  align-items: v-bind(alignItems);
+  flex-direction: v-bind(flexDirection);
   width: v-bind(mainWidth);
   height: v-bind(mainHeight);
 }
 
 .popover-content {
   position: absolute;
-  margin-bottom: v-bind(mainHeight);
-  margin-top: v-bind(mainHeight);
+  margin-top: v-bind(marHeight);
+  margin-bottom: v-bind(marHeight);
+  margin-right: v-bind(marWidth);
+  margin-left: v-bind(marWidth);
   width: max-content;
+  min-width: 10rem;
   display: flex;
   flex-direction: column;
   padding: .3rem 0;
@@ -80,5 +127,9 @@ export default {
   border-radius: .4rem;
   box-shadow: 0 1px 4px 0 rgba(109, 110, 111, 0.08);
   z-index: 100001;
+}
+
+.vis-hidden {
+  visibility: hidden;
 }
 </style>
