@@ -50,7 +50,7 @@
             <component :is="element.name" v-else></component>
             <!--    角标-->
             <div class="more-swap">
-              <Popover>
+              <Popover direction="flex-start">
                 <template #main>
                   <div class="more">
                     <ToolTip content="Actions">
@@ -290,14 +290,7 @@ export default {
 }
 
 .pop-main {
-  width: max-content;
-  display: flex;
-  flex-direction: column;
-  padding: .3rem 0;
-  background-color: white;
-  border: 1px solid #EDEAE9;
-  border-radius: .4rem;
-  box-shadow: 0 1px 4px 0 rgba(109, 110, 111, 0.08);
+
 }
 
 .task-pop {
@@ -402,9 +395,6 @@ export default {
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
 }
 
 .more {

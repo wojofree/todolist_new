@@ -21,5 +21,9 @@ import Eye from './Eye'
 import Trash from './Trash'
 import Apps from './Apps'
 import Close from './Close'
+import Pencil from './Pencil'
+import Star from './Star'
+import Archive from './Archive'
+import Link from './Link'
 
-export {Close, Apps, Trash, Eye, Fold,Plus,Home,Done,InBox,WorkSpace,Triangle,More,Box,Arrow,Right,Avatar,TinyPlus,List,Lock,Completed,Calendar,Clock, Repeat}
+export {Link, Archive, Star, Pencil,Close, Apps, Trash, Eye, Fold,Plus,Home,Done,InBox,WorkSpace,Triangle,More,Box,Arrow,Right,Avatar,TinyPlus,List,Lock,Completed,Calendar,Clock, Repeat}

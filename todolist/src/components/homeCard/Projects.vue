@@ -28,6 +28,7 @@
           <span class="text-overflow project-name">{{ item.name }}</span>
           <Popover>
             <template #main>
+              <div class="project-more">
               <ToolTip content="Show options">
                 <div class="more cursor">
                   <icon-base box-view="0 0 24 24">
@@ -35,16 +36,57 @@
                   </icon-base>
                 </div>
               </ToolTip>
+                </div>
+            </template>
+            <template #pop>
+              <div class="share pop-item">
+                <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
+                  <WorkSpace />
+                </icon-base>
+                <span>Share...</span>
+              </div>
+              <div class="favorite pop-item">
+                <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
+                  <Star />
+                </icon-base>
+                <span>Add to favorites</span>
+              </div>
+              <div class="set-color pop-item">
+                <div class="color-item"></div>
+                <span>Set color&icon</span>
+                <icon-base>
+
+                </icon-base>
+              </div>
+              <div class="edit pop-item">
+                <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
+                  <Pencil />
+                </icon-base>
+                <span>Edit project details</span>
+              </div>
+              <div class="copy pop-item">
+                <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
+                  <Link />
+                </icon-base>
+                <span>Copy project link</span>
+              </div>
+              <div class="archive pop-item">
+                <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
+                  <Archive />
+                </icon-base>
+                <span>Archive</span>
+              </div>
             </template>
           </Popover>
         </div>
       </div>
   </div>
 </template>
-
+<script setup>
+import {More, TinyPlus,List, WorkSpace, Link, Star, Pencil, Archive} from "@/components/icons"
+</script>
 <script>
 import IconBase from "@/components/IconBase";
-import {More, TinyPlus,List} from "@/components/icons"
 import SelectBar from "@/components/common/SelectBar";
 import {apiHttpClient} from "@/app/app.service";
 import Popover from "@/components/common/Popover";
@@ -52,7 +94,7 @@ import ToolTip from "@/components/common/ToolTip";
 
 export default {
   name: "Projects",
-  components: {ToolTip, Popover, TinyPlus, SelectBar, IconBase, More, List},
+  components: {ToolTip, Popover, SelectBar, IconBase},
   data() {
     return {
       isHover: false,
@@ -135,7 +177,7 @@ created() {
 .more {
   color: var(--gray);
   border-radius: .3rem;
-  padding: .2rem;
+  padding: .5rem;
   transition: background-color .3s;
   /*border: 1px solid rgba(0,0,0,.05);*/
 }
@@ -178,5 +220,33 @@ created() {
 
 .item-option:hover {
   background-color: #F9F8F8;
+}
+
+.pop-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  padding: .7rem 3rem .7rem .8rem;
+}
+
+.pop-item:hover {
+  color: var(--black);
+  background-color: rgba(231, 231, 231, .5);
+}
+
+.pop-item span{
+  margin-left:1rem;
+}
+
+.project-more {
+  width: 2rem;
+  height: 2rem;
+}
+
+.color-item {
+  width: 1rem;
+  height: 1rem;
+  background-color: #fff3cd;
 }
 </style>
