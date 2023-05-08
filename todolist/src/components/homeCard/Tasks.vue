@@ -65,7 +65,7 @@
       </div>
       <!--      任务列表-->
       <div class="item-main" ref="taskMain">
-        <div class="task-item" v-for="(task,index) in taskList"
+        <div class="task-item" v-for="(task,index) in taskList" :key="task.id"
              :class="{'completed-background':isDelete === index && tabValue !== 'completed'}"
              @mouseenter="isCalendar = index" @mouseleave="isCalendar = true">
           <div class="cursor" @click="completeTask(task,index)"
@@ -123,7 +123,7 @@
   </div>
   <!--  projectSelection-->
   <div class="project-select" v-show="projectSelectShow" ref="selectWrapper">
-    <div class="select-option cursor" v-for="(item,index) in currentProjectList"
+    <div class="select-option cursor" v-for="(item,index) in currentProjectList" :key="item.id"
          :class="{'when-active':projectSelectIndex === index,'borderBottom':item.id === 0}"
          @mouseenter="projectSelectIndex = index"
          @click="selectProject"

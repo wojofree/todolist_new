@@ -64,16 +64,20 @@
                 </div>
               </template>
               <template #pop>
-                <div>
+                <div class="set-color">
                   <div class="color-selection brd-bottom">
                     <label v-for="item in colorList" :style="{'color':item}" class="color-item">
                       <icon-base width=".7rem" height=".7rem" class="color-right">
-                        <Right />
+                        <Right/>
                       </icon-base>
                     </label>
                   </div>
                   <div class="icon-selection">
-
+                    <div v-for="icon in iconList" class="icon-option">
+                      <icon-base>
+                        <component :is="icon"></component>
+                      </icon-base>
+                    </div>
                   </div>
                 </div>
               </template>
@@ -103,10 +107,20 @@
   </div>
 </template>
 <script setup>
-import {More, TinyPlus, List, WorkSpace, Link, Star, Pencil, Archive, Arrow} from "@/components/icons"
+import {
+  More, TinyPlus, List, WorkSpace, Link, Star, Pencil, Archive, Arrow, People,
+  Graph,
+  DarkStar,
+  Gear,
+  Chat,
+  Symbols,
+  TimeLine,
+  Bord,
+} from "@/components/icons"
 import Right from "@/components/icons/Right";
 </script>
 <script>
+import { markRaw } from 'vue'
 import IconBase from "@/components/IconBase";
 import SelectBar from "@/components/common/SelectBar";
 import {apiHttpClient} from "@/app/app.service";
@@ -125,7 +139,8 @@ export default {
         {'value': 'favorites', "name": 'Favorites'},
       ],
       selectValue: '',
-      colorList: ['#C6C4C4', '#F06A6A', '#EC8E71', '#E9BF78', '#F8DF72', '#B4CE67', '#6D9F84', '#6CBEB9', '#AEE5E2', '#5072CB', '#8B84E1', '#A96ECE', '#EDADEB', '#E277B0', '#ED9B9B', '#68696A']
+      colorList: ['#C6C4C4', '#F06A6A', '#EC8E71', '#E9BF78', '#F8DF72', '#B4CE67', '#6D9F84', '#6CBEB9', '#AEE5E2', '#5072CB', '#8B84E1', '#A96ECE', '#EDADEB', '#E277B0', '#ED9B9B', '#68696A'],
+      iconList: [markRaw(List), markRaw(Bord), markRaw(TimeLine), markRaw(People), markRaw(Graph), markRaw(DarkStar), markRaw(Gear), markRaw(Chat), markRaw(Symbols)]
     }
   },
   props: {
@@ -284,6 +299,9 @@ export default {
 .icon-selection {
   height: 14.25rem;
   padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .brd-bottom {
@@ -303,5 +321,15 @@ export default {
 
 .color-right {
   filter: grayscale(1) contrast(999) invert(1);
+}
+
+.icon-option {
+  width: 2.75rem;
+  height: 2.75rem;
+  background-color: #fff3cd;
+}
+
+.set-color {
+  width: 15rem;
 }
 </style>

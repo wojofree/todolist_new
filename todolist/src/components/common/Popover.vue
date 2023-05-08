@@ -1,9 +1,9 @@
 <template>
   <div class="pop-swap">
-    <div class="popover-main" @click="showPop" @mouseenter="hoverShow" ref="popoverMain">
+    <div class="popover-main" @click="showPop" @mouseenter="hoverShow" @mouseleave="hoverClose" ref="popoverMain">
       <slot name="main"></slot>
     </div>
-    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent" @mouseenter="hoverShow">
+    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent" @mouseenter="hoverShow" @mouseleave="hoverClose">
       <slot name="pop"></slot>
     </div>
   </div>
@@ -59,6 +59,7 @@ export default {
         this.marWidth = this.mainWidth
         this.marHeight = 0
       }
+    console.log(this.marWidth)
   },
   methods: {
     hoverShow() {

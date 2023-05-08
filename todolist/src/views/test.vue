@@ -1,13 +1,29 @@
 <template>
-  <div class="swap">
-<div class="test1" @mouseenter="show" @mouseleave="close"></div>
-<div class="test2" :class="{'vsb-hidden':!isPopShow}" @mouseleave="close" @mouseenter="show"></div>
-    </div>
+<popover>
+  <template #main>
+    <div style="width: 5rem;height: 5rem;background-color: #fff3cd;">点这里</div>
+  </template>
+  <template #pop>
+    <div class="item">item1</div>
+    <div class="item">item2</div>
+    <popover pop-position="side" hover-control direction="flex-start">>
+      <template #main>
+      <div class="item">item3</div>
+  </template>
+      <template #pop>
+        <div style="width: 10rem;height: 10rem;background-color: #fff3cd;"></div>
+      </template>
+    </popover>
+    <div class="item">item4</div>
+  </template>
+</popover>
 </template>
 
 <script>
+import Popover from "@/components/common/Popover";
 export default {
   name: "test",
+  components: {Popover},
   data(){
     return {
       isPopShow:false
@@ -25,23 +41,14 @@ export default {
 </script>
 
 <style scoped>
-.swap{
-  display: flex;
-}
-.test1 {
-  width: 5rem;
-  height: 5rem;
-  background-color: #fff3cd;
+.item{
+  width: 15rem;
+  height: 3rem;
+  line-height: 3rem;
+  text-align: center;
 }
 
-.test2 {
-  width: 5rem;
-  height: 5rem;
-  background-color: #1b6279;
-  position: absolute;
-  margin-left: 4rem;
-}
-.vsb-hidden{
-  visibility: hidden;
+.item:hover {
+  background-color: #8c8c8b;
 }
 </style>
