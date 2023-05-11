@@ -274,7 +274,7 @@ export default {
     // 获取taskList
     // const now = new Date()
     const day = now.getDate() === 0 ? 7 : now.getDay()
-    this.analyzeTime = new Date(now.getFullYear(), now.getMonth(), now.getDay() - day + 1, 0, 0, 0)
+    this.analyzeTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1, 0, 0, 0)
     this.whenList = formatWhenOption(this.whenList)
     this.currentWhenList = this.defaultWhenList = formatWhenOption(this.defaultWhenList)
     const response = await apiHttpClient.post("/api/get_tasks/");
@@ -343,7 +343,7 @@ export default {
       // const now = new Date()
       if (newValue.value === 'week') {
         const day = now.getDate() === 0 ? 7 : now.getDay()
-        this.analyzeTime = new Date(now.getFullYear(), now.getMonth(), now.getDay() - day + 1, 0, 0, 0)
+        this.analyzeTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1, 0, 0, 0)
       } else {
         this.analyzeTime = new Date(now.getFullYear(), 1, 1, 0, 0, 0)
       }

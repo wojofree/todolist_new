@@ -98,7 +98,7 @@ export default {
       let url = "/api/get_project/"
       apiHttpClient.get(url).then((response) => {
         let data = response.data.results
-        data.sort((a, b) => b.id - a.id)
+        data.sort((a, b) => a.id - b.id)
         this.projectList = data
         this.$emit('projectList',this.projectList)
       })

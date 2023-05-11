@@ -1,9 +1,9 @@
 <template>
-  <div class="pop-swap">
-    <div class="popover-main" @click="showPop" @mouseenter="hoverShow" @mouseleave="hoverClose" ref="popoverMain">
+  <div class="pop-swap" ref="popSwap" @click="stopPropagation">
+    <div class="popover-main" @click="showPop" @mouseenter="hoverShow" ref="popoverMain" @mouseleave="hoverClose">
       <slot name="main"></slot>
     </div>
-    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent" @mouseenter="hoverShow" @mouseleave="hoverClose">
+    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent" @mouseenter="hoverShow" @click="closePop" @mouseleave="hoverClose" >
       <slot name="pop"></slot>
     </div>
   </div>
@@ -35,6 +35,10 @@ export default {
     hoverControl: {
       type: Boolean,
       default: false
+    },
+    clickClose: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -53,13 +57,12 @@ export default {
       this.mainWidth = this.$refs.popoverMain.offsetWidth + 'px'
     })
     if (this.popPosition === 'under') {
-        this.marHeight = this.mainHeight
-        this.marWidth = 0
-      } else if (this.popPosition === 'side') {
-        this.marWidth = this.mainWidth
-        this.marHeight = 0
-      }
-    console.log(this.marWidth)
+      this.marHeight = this.mainHeight
+      this.marWidth = 0
+    } else if (this.popPosition === 'side') {
+      this.marWidth = this.mainWidth
+      this.marHeight = 0
+    }
   },
   methods: {
     hoverShow() {
@@ -73,8 +76,14 @@ export default {
         this.isPopShow = false;
       }
     },
-    closePop() {
-      this.isPopShow = false;
+    closePop(e) {
+      if (!this.clickClose) {
+        if (this.$refs.popSwap && !this.$refs.popSwap.contains(e.target)) {
+          this.isPopShow = false;
+        }
+      } else {
+        this.isPopShow = false;
+      }
     },
     showPop() {
       this.getPosition()
@@ -82,14 +91,14 @@ export default {
         this.isPopShow = true
       }, 30)
     },
-    getPosition(){
+    getPosition() {
       const width = this.$refs.popoverContent.offsetWidth
       const height = this.$refs.popoverContent.offsetHeight
       const {left, right, top, bottom} = this.$refs.popoverMain.getBoundingClientRect()
-      if (this.alignItems === 'flex-start' && window.innerWidth - left - width < 0) {
+      if (this.alignItems === 'flex-start' && window.innerWidth - right - width < 0) {
         this.alignItems = 'flex-end'
       }
-      if (this.alignItems === 'flex-end' && right - width < 0) {
+      if (this.alignItems === 'flex-end' && left - width < 0) {
         this.alignItems = 'flex-start'
       }
       if (this.flexDirection === 'column-reverse' && top - height < 0) {
@@ -98,6 +107,9 @@ export default {
       if (this.flexDirection === 'column' && window.innerHeight - bottom - height < 0) {
         this.flexDirection = 'column-reverse'
       }
+    },
+    stopPropagation(event) {
+      event.stopPropagation()
     }
   }
 }
@@ -118,6 +130,7 @@ export default {
 }
 
 .popover-content {
+  cursor: default;
   position: absolute;
   margin-top: v-bind(marHeight);
   margin-bottom: v-bind(marHeight);

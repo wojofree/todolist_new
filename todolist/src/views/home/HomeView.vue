@@ -142,6 +142,7 @@ export default {
       ],
       taskNumb: [0],
       list: [{'name': 'Tasks', 'id': 1},{'name': 'Projects', 'id': 2},{'name': 'People', 'id': 3},{'name': 'Goals', 'id': 4}],
+      defaultList: [{'name': 'Tasks', 'id': 1},{'name': 'Projects', 'id': 2},{'name': 'People', 'id': 3},{'name': 'Goals', 'id': 4}],
       drag: false,
       isHover: false,
       MenuSelect: {Tasks:'half',People:'half',Projects:'half',Goals:'half'},
@@ -192,9 +193,12 @@ export default {
   },
   watch:{
     list(newValue){
-      const url = "/api/update_setting/"
-      const data = {"home_card":JSON.stringify(newValue)}
-      apiHttpClient.post(url,data)
+      if (this.defaultList !== newValue){
+        const url = "/api/update_setting/"
+        const data = {"home_card":JSON.stringify(newValue)}
+        apiHttpClient.post(url,data)
+        this.defaultList = newValue
+      }
     },
   },
   methods: {
@@ -215,13 +219,14 @@ export default {
       const url = "/api/user_setting"
       apiHttpClient.get(url).then((response) => {
         this.backgroundColor = response.data.results.background_color
-        this.list = response.data.results.home_card
+        this.defaultList = this.list = response.data.results.home_card
         this.flex = response.data.results.card_size
         const FLEX_FULL = '0 0 100%'
         for(let key in this.flex){
           this.MenuSelect[key] = this.flex[key] === FLEX_FULL?'full':'half'
         }
       })
+
     }
   }
 }

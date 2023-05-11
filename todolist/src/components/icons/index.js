@@ -33,8 +33,14 @@ import DarkStar from './DarkStar'
 import Gear from './Gear'
 import Chat from './Chat'
 import Symbols from './Symbols'
+import SolidStar from './SolidStar'
+import SolidArchived from './SolidArchived'
+import XIcon from './XIcon'
 
 export {
+    XIcon,
+    SolidArchived,
+    SolidStar,
     People,
     Graph,
     DarkStar,
