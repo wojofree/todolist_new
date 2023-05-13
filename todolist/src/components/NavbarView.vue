@@ -16,7 +16,7 @@
           <span>Create</span>
         </div>
       </div>
-      <el-input class="searchInput"  :prefix-icon="Search" clearable v-model="searchWords" @input="taskSearch"
+      <el-input class="searchInput" :prefix-icon="Search" clearable v-model="searchWords" @input="taskSearch"
                 placeholder="search"></el-input>
       <div class="flex-1">
         <div class="userInfo cursor">{{ nickName }}</div>
@@ -40,7 +40,7 @@ export default {
     let url = "/api/user_info/";
     apiHttpClient.get(url).then((response) => {
       this.nickName = response.data.results.nickname[0]
-      this.$emit('userInfo',response.data.results)
+      this.$emit('userInfo', response.data.results)
     })
   },
   methods: {

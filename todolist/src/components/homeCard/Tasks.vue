@@ -1,16 +1,16 @@
 <template>
-  <div class="task-card" ref="taskCard">
+  <div ref="taskCard" class="task-card">
     <!--    header-->
     <div class="header">
       <ToolTip content="Add profile photo">
-        <IconBase width="3rem" height="3rem" box-view="0 0 48 48" class="avatar cursor">
+        <IconBase box-view="0 0 48 48" class="avatar cursor" height="3rem" width="3rem">
           <Avatar/>
         </IconBase>
       </ToolTip>
       <div class="tab-navigation-bar">
         <div class="d-flex header-title">
           <div class="title cursor mrg-r-5">My Tasks</div>
-          <IconBase width="0.75rem" height="0.75rem" color="var(--gray)">
+          <IconBase color="var(--gray)" height="0.75rem" width="0.75rem">
             <Lock/>
           </IconBase>
         </div>
@@ -18,59 +18,60 @@
       </div>
     </div>
     <!--    任务区-->
-    <div class="task-main" ref="taskSwap">
+    <div ref="taskSwap" class="task-main">
       <!--      添加任务-->
-      <div class="create-item" v-show="tabValue === 'upComing'" ref="taskCreate">
+      <div v-show="tabValue === 'upComing'" ref="taskCreate" class="create-item">
         <div class="mini-icon">
-          <IconBase width="1rem" height="1rem" box-view="0 0 40 40" color="#afabac">
+          <IconBase box-view="0 0 40 40" color="#afabac" height="1rem" width="1rem">
             <Done/>
           </IconBase>
         </div>
         <div class="task-input">
-          <span class="hidden-input text-overflow" ref="hiddenInput">{{ taskValue }}</span>
-          <input class="add-task-input" v-model="taskValue"
-                 :placeholder=taskPlaceHolder
+          <span ref="hiddenInput" class="hidden-input text-overflow">{{ taskValue }}</span>
+          <input ref="taskValue" v-model="taskValue"
                  :class="{'isValue':taskValue !== ''}"
-                 @focus="taskPlaceHolder = 'What\'s the next thing on your plate?',isWhenActive = false,isProjectActive = false"
+                 :placeholder=taskPlaceHolder
+                 class="add-task-input"
                  @blur="taskPlaceHolder = 'Click here t o add a task...', isTaskActive = false"
+                 @focus="taskPlaceHolder = 'What\'s the next thing on your plate?',isWhenActive = false,isProjectActive = false"
                  @input="taskTips"
-                 ref="taskValue"
                  @keydown="chooseWhen"
           />
         </div>
         <!--        when input-->
-        <div class="task-input mg-l-5" v-show="isWhenActive">
-          <input class="add-task-input when-input" v-model="taskWhenValue"
-                 placeholder="When?"
+        <div v-show="isWhenActive" class="task-input mg-l-5">
+          <input ref="taskWhenValue" v-model="taskWhenValue"
                  :class="{'isValue':taskWhenValue !== ''}"
-                 @keydown="selectWhen"
-                 @input="searchWhen"
-                 ref="taskWhenValue"
-                 @focus="whenSelectShow = true,isProjectActive = false"
+                 class="add-task-input when-input"
+                 placeholder="When?"
                  @blur="hiddenSelect('when')"
+                 @focus="whenSelectShow = true,isProjectActive = false"
+                 @input="searchWhen"
+                 @keydown="selectWhen"
           />
         </div>
         <!--        project input-->
-        <div class="task-input mg-l-5" v-show="isProjectActive">
-          <input class="add-task-input when-input" v-model="taskProjectValue"
-                 placeholder="Which project?"
+        <div v-show="isProjectActive" class="task-input mg-l-5">
+          <input ref="taskProjectValue" v-model="taskProjectValue"
                  :class="{'isValue':taskProjectValue !== ''}"
-                 ref="taskProjectValue"
-                 @focus="projectSelectShow = true"
+                 class="add-task-input when-input"
+                 placeholder="Which project?"
                  @blur="hiddenSelect('project')"
-                 @keydown="selectProject"
+                 @focus="projectSelectShow = true"
                  @input="searchProject"
+                 @keydown="selectProject"
           />
         </div>
       </div>
       <!--      任务列表-->
-      <div class="item-main" ref="taskMain">
-        <div class="task-item" v-for="(task,index) in taskList" :key="task.id"
+      <div ref="taskMain" class="item-main">
+        <div v-for="(task,index) in taskList" :key="task.id"
              :class="{'completed-background':isDelete === index && tabValue !== 'completed'}"
+             class="task-item"
              @mouseenter="isCalendar = index" @mouseleave="isCalendar = true">
-          <div class="cursor" @click="completeTask(task,index)"
-               :class="{'completed-icon':tabValue === 'completed','mini-icon':tabValue !== 'completed'}">
-            <IconBase width="1rem" height="1rem" box-view="0 0 40 40">
+          <div :class="{'completed-icon':tabValue === 'completed','mini-icon':tabValue !== 'completed'}" class="cursor"
+               @click="completeTask(task,index)">
+            <IconBase box-view="0 0 40 40" height="1rem" width="1rem">
               <Completed v-if="tabValue === 'completed'"/>
               <Done v-else/>
             </IconBase>
@@ -78,18 +79,21 @@
           <div class="text-overflow w-100 text-start">
             <span>{{ task.title }}</span>
           </div>
-          <div v-if="task.project !== null" class="text-overflow flex-auto list-project" v-show="isDelete !== index"  :style="{'color':task.project.color}">
+          <div v-if="task.project !== null" v-show="isDelete !== index" :style="{'color':task.project.color}"
+               class="text-overflow flex-auto list-project">
             <span class="text-overflow complete-date project-color">{{ task.project.name }}</span>
           </div>
-          <div class="flex-auto mrg-l-5" v-show="isDelete !== index" @click="showCalendar(task,index)" ref="calendar">
-            <div class="calendar vsb-hidden" v-if="task.complete_date === null"
-                 :class="{'vsb-visible':isCalendar === index}">
-              <IconBase width=".75rem" height=".75rem" box-view="0 0 24 24">
+          <div v-show="isDelete !== index" :ref="'calendar'+task.id" class="flex-auto mrg-l-5"
+               @click="showCalendar(task)">
+            <div v-if="task.complete_date === ''" :class="{'vsb-visible':isCalendar === index}"
+                 class="calendar vsb-hidden">
+              <IconBase box-view="0 0 24 24" height=".75rem" width=".75rem">
                 <Calendar/>
               </IconBase>
             </div>
-            <span class="complete-date"
-                  :class="{'overdue':tabValue === 'overDue','completed':tabValue === 'completed','green':task.complete_date.endsWith('Today')}">{{
+            <span
+                :class="{'overdue':tabValue === 'overDue','completed':tabValue === 'completed','green':task.complete_date.endsWith('Today')}"
+                class="complete-date">{{
                 task.complete_date
               }}</span>
           </div>
@@ -97,22 +101,23 @@
       </div>
     </div>
     <!--    show more-->
-    <div class="show-more cursor" v-show="isShowMore" @click="overFlow = 'auto',isShowMore = false">
+    <div v-show="isShowMore" class="show-more cursor" @click="overFlow = 'auto',isShowMore = false">
       <span>Show more</span>
     </div>
   </div>
   <!--    输入框提示-->
-  <div class="input-tips" v-show="isTaskActive" ref="tips">
+  <div v-show="isTaskActive" ref="tips" class="input-tips">
     <span>Tab</span>
     to set due date or
     <span class="return">↵ Return</span>
     to create
   </div>
   <!--  whenSelection-->
-  <div class="when-select" v-show="whenSelectShow">
-    <div class="select-option cursor" v-for="(item,index) in currentWhenList"
+  <div v-show="whenSelectShow" class="when-select">
+    <div v-for="(item,index) in currentWhenList"
          :class="{'when-active':whenSelectIndex === index,'borderTop':item.value === 'none'}"
-         @mouseenter="whenSelectIndex = index" @click="selectWhen">
+         class="select-option cursor"
+         @click="selectWhen" @mouseenter="whenSelectIndex = index">
       <div>
         <span>{{ item.name }}</span>
       </div>
@@ -122,14 +127,15 @@
     </div>
   </div>
   <!--  projectSelection-->
-  <div class="project-select" v-show="projectSelectShow" ref="selectWrapper">
-    <div class="select-option cursor" v-for="(item,index) in currentProjectList" :key="item.id"
+  <div v-show="projectSelectShow" ref="selectWrapper" class="project-select">
+    <div v-for="(item,index) in currentProjectList" :key="item.id"
          :class="{'when-active':projectSelectIndex === index,'borderBottom':item.id === 0}"
-         @mouseenter="projectSelectIndex = index"
+         class="select-option cursor"
          @click="selectProject"
+         @mouseenter="projectSelectIndex = index"
     >
       <div class="text-overflow dsp-flx">
-        <icon-base v-if="item.id === 0" color="var(--gray)" class="mrg-r-5" width=".7rem" height=".7rem">
+        <icon-base v-if="item.id === 0" class="mrg-r-5" color="var(--gray)" height=".7rem" width=".7rem">
           <Lock/>
         </icon-base>
         <span>{{ item.name }}</span>
@@ -141,42 +147,10 @@
     </div>
   </div>
   <!--  date picker-->
-  <div v-if="isShowCalendar" class="date-swap" ref="datePickerSwap">
-    <div class="triangle"></div>
-    <div class="date-picker">
-      <div class="date-title">
-        <div class="start-input">
-          <div class="start-date" @click="addStartDate" v-show="dateType === 'date'">
-            <IconBase width=".75rem" height=".75rem" box-view=" 0 0 24 24">
-              <Plus/>
-            </IconBase>
-            <span>Start date</span>
-          </div>
-          <input placeholder="Start date" class="date-input" v-show="dateType === 'dateRange'" v-model="startDate"
-                 @input="changeDate()" :class="{'error':isStartError}">
-        </div>
-        <input placeholder="Due date" class="date-input" v-model="endDate" @input="changeDate()"
-               :class="{'error':isEndError}">
-      </div>
-      <DatePick :type="dateType" v-model="dateValue"></DatePick>
-      <div class="date-foot">
-        <ToolTip content="Add time">
-          <div class="time-picker">
-            <IconBase box-view="0 0 32 32">
-              <Clock/>
-            </IconBase>
-          </div>
-        </ToolTip>
-        <ToolTip content="Set to repeat">
-          <div class="time-picker">
-            <IconBase box-view="0 0 32 32">
-              <Repeat/>
-            </IconBase>
-          </div>
-        </ToolTip>
-        <div class="clear" @click="clearAll"> Clear all</div>
-      </div>
-    </div>
+  <div v-if="isShowCalendar" ref="datePickerSwap" class="date-swap1">
+    <DatePick v-model="dateValue" :type="dateType" show-icon showDate>
+      <div style="width: 2rem; height: 2rem "></div>
+    </DatePick>
   </div>
 </template>
 
@@ -191,17 +165,12 @@ import ToolTip from "@/components/common/ToolTip";
 const now = new Date()
 export default {
   name: "Tasks",
-  components: {Plus, DatePick, Calendar, Completed, TabBar, Avatar, IconBase, More, Done, Lock, Clock, Repeat,ToolTip},
+  components: {Plus, DatePick, Calendar, Completed, TabBar, Avatar, IconBase, More, Done, Lock, Clock, Repeat, ToolTip},
   data() {
     return {
-      triangle:['column','rotate(45deg)','0'],
       dateValue: '',                                      // 选择的日期
       isShowCalendar: false,                              // 日历弹窗是否显示
       dateType: 'date',                                   // 日期单选还是区间
-      isStartError: false,                                // 开始日期报错
-      isEndError: false,                                  // 结束日期报错
-      startDate: '',                                      // input 开始日期
-      endDate: '',                                        // input 结束日期
       tabValue: '',                                       // tab栏
       cache: {},                                          // 初始化的tab栏数据cache
       tabOptions: [
@@ -252,11 +221,12 @@ export default {
       projectSelectIndex: 0,                                  // 新增task project当前定位第几个
       projectSelectShow: false,                               // 新增task project selection框是否展示
       currentProjectList: [],                                 // 当前的project selection List
-      isFirstClick: true,                                     // 是否是第一次点击，日历弹窗辅助用
+      isFirstClick: false,                                     // 是否是第一次点击，日历弹窗辅助用
       currentTask: '',                                        // 日历弹窗点击对应的task
       isDateChange: false,                                     // 日历弹窗的日期是否有change
       taskCompletedNumb: 0,
-      analyzeTime: ''
+      analyzeTime: '',
+      dateValueTemp: ''
     }
   },
   emits: ['task-completed'],
@@ -313,31 +283,21 @@ export default {
         this.showMore()
       })
     },
-    // 日期变化
-    dateValue(newValue) {
-      this.isDateChange = true
-      const options = {
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-      };
-      if (this.dateType === 'date') {
-        const date = newValue && new Date(newValue);
-        this.endDate = date ? date.toLocaleDateString("zh-CN", options) : '';
-      } else {
-        const date1 = newValue[0] && new Date(newValue[0]);
-        this.startDate = date1 ? date1.toLocaleDateString("zh-CN", options) : '';
-        const date2 = newValue[1] && new Date(newValue[1]);
-        this.endDate = date2 ? date2.toLocaleDateString("zh-CN", options) : '';
-      }
-    },
     // 日历弹窗鼠标监听
     isShowCalendar(newValue) {
       if (newValue) {
         document.addEventListener("click", this.calendarOutsideClick);
+        this.dateValueTemp = this.dateValue
+        setTimeout(() => {
+          this.isFirstClick = true
+        }, 40)
       } else {
         document.removeEventListener("click", this.calendarOutsideClick);
       }
+    },
+    dateValue(newValue) {
+      this.isDateChange = this.dateValue !== this.dateValueTemp
+      this.dateType = typeof newValue === "string" ? 'date' : 'dateRange'
     },
     analyzeValue(newValue) {
       // const now = new Date()
@@ -370,25 +330,19 @@ export default {
       this.overDueCont = this.cache['overDue'].length !== 0 ? this.cache['overDue'].length : ''
       this.tabOptions[1].name = "Overdue (" + this.overDueCont + ")"
     },
-    // 添加开始日期
-    addStartDate() {
-      this.dateType = 'dateRange'
-      this.startDate = null
-      this.dateValue = this.dateValue !== '' ? [null, this.dateValue] : ['', '']
-    },
     // 弹窗外点击，如有符合要求，直接请求更改信息
     calendarOutsideClick(e) {
-      if (this.$refs.datePickerSwap && !this.$refs.datePickerSwap.contains(e.target) && !this.isFirstClick) {
+      if (this.$refs.datePickerSwap && !this.$refs.datePickerSwap.contains(e.target) && this.isFirstClick) {
         this.isShowCalendar = false;
-        this.isFirstClick = true
+        this.isFirstClick = false
         const url = "/api/update_task/"
-        if (this.dateType === 'date' && this.isDateChange) {
+        if (typeof this.dateValue === "string" && this.isDateChange) {
           const data = {'task_id': this.currentTask.id, "complete_time": this.dateValue}
           apiHttpClient.post(url, data).then(() => {
             this.updateTaskLab()
             this.isDateChange = false
           })
-        } else if (this.dateType === 'dateRange' && this.isDateChange) {
+        } else if (typeof this.dateValue === "object" && this.isDateChange) {
           const data = {
             'task_id': this.currentTask.id,
             "complete_time": this.dateValue[1],
@@ -402,77 +356,19 @@ export default {
       }
     },
     // 日历弹窗
-    showCalendar(item, index) {
+    showCalendar(item) {
       this.isShowCalendar = true
       this.currentTask = item
-      this.isFirstClick = true
-      this.isStartError = this.isEndError = false
-      setTimeout(() => {
-        this.isFirstClick = false
-        this.isDateChange = false
-      }, 400)
-      const {top} = this.$refs.calendar[index].getBoundingClientRect()
+      const div = this.$refs[`calendar${item.id}`][0]
+      const {top} = div.getBoundingClientRect()
       const main = this.$refs.taskCard.getBoundingClientRect()
-      if (window.innerHeight-428-top >= 10) {
-        this.triangle = ['column','rotate(45deg)','0']
-        this.calendarTop = top  - main.top + 38 + 'px'
-      } else {
-        this.triangle = ['column-reverse','rotate(225deg)','-.5rem']
-        this.calendarTop = top -390 - main.top + 'px'
-      }
+      this.calendarTop = top - main.top + 5 + 'px'
       if (item.start_time !== null) {
         this.dateType = 'dateRange'
         this.dateValue = [item.start_time, item.complete_time]
       } else {
         this.dateType = 'date'
-        this.dateValue = item.complete_time
-      }
-    },
-    //  清除日期
-    clearAll() {
-      this.dateValue = this.dateType === 'dateRange' ? this.dateValue = ['', ''] : this.dateValue = ''
-    },
-    // input变更日期
-    async changeDate() {
-      this.startDate = this.startDate || null;
-      this.endDate = this.endDate || null
-      let endDateIsValid = this.endDate !== null ? this.isValidDate(this.endDate) : true;
-      let startDateIsValid = this.startDate !== null ? this.isValidDate(this.startDate) : true;
-      if (endDateIsValid && startDateIsValid) {
-        if (this.compareTime(this.startDate, this.endDate)) {
-          endDateIsValid = false
-          startDateIsValid = false
-        } else {
-          this.endDate = this.endDate ? getFormatDate(this.endDate, 'end') : this.endDate
-          this.startDate = this.startDate ? getFormatDate(this.startDate, 'start') : this.startDate
-          this.dateValue = this.dateType === 'date' ? this.endDate : [this.startDate, this.endDate]
-        }
-        this.isStartError = this.isEndError = false
-      }
-      this.isStartError = !startDateIsValid
-      this.isEndError = !endDateIsValid
-    },
-    // 日期比对，changeDate函数用
-    compareTime(dateStart, dateEnd) {
-      if (dateEnd === null || dateStart === null) {
-        return false
-      } else {
-        return new Date(dateStart) > new Date(dateEnd)
-      }
-    },
-    // input验证是否是日期
-    isValidDate(value) {
-      const dateList = value.split('/')
-      if (dateList.length !== 3) {
-        return false
-      } else if (dateList[1] <= 0 || dateList[1] > 12) {
-        return false
-      } else if (dateList[2] <= 0 || dateList[1] > 31) {
-        return false
-      } else if (dateList[0] <= 0) {
-        return false
-      } else {
-        return new Date(value) !== 'Invalid Date' && !isNaN(new Date(value))
+        this.dateValue = item.complete_time ===null? '':item.complete_time
       }
     },
     // projectList恢复默认值
@@ -801,7 +697,7 @@ function formatTaskData() {
         completeDate = new Intl.DateTimeFormat('en-US', options).format(startTime) + '-' + new Intl.DateTimeFormat('en-US', options).format(completeTime);
       }
     } else {
-      completeDate = null
+      completeDate = ''
     }
     return {
       ...task,
@@ -824,130 +720,26 @@ function filterTasks(taskList, type, now) {
 
 </script>
 <style scoped>
-.start-input {
-  display: flex;
-}
-
-.date-foot {
-  height: 3.75rem;
-  padding: .75rem 1rem;
-  border-top: 1px solid #EDEAE9;
-  display: flex;
-  align-items: center;
-}
-
-.date-picker {
-  background-color: white;
-  width: fit-content;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #EDEAE9;
-  border-radius: .4rem;
-}
-
-.date-swap {
+.date-swap1 {
   position: absolute;
   top: v-bind(calendarTop);
   right: 2rem;
   /*top: 0;*/
   /*right: 0;*/
+  width: 2rem;
+  height: 2rem;
   display: flex;
   align-items: flex-end;
-  flex-direction: v-bind(triangle[0]);
+  flex-direction: column;
   z-index: 1001;
-}
-
-.triangle {
-  width: 1rem;
-  height: 1rem;
-  background-color: white;
-  transform: v-bind(triangle[1]);
-  margin-bottom: -.5rem;
-  margin-top: v-bind(triangle[2]);
-  margin-right: 1rem;
-  border-width: 1px 0 0 1px;
-  border-style: solid;
-  border-color: #EDEAE9;
-  border-radius: .1rem;
-}
-
-.clear {
-  margin-left: auto;
-  height: 2.25rem;
-  width: max-content;
-  padding: 0 1rem;
-  transition: background-color .3s;
-  line-height: 2.25rem;
-  border-radius: .4rem;
-  font-weight: 500;
-}
-
-.clear:hover {
-  background-color: rgb(248, 246, 246);
 }
 
 .green {
   color: #0d7f56;
 }
 
-.time-picker {
-  height: 100%;
-  width: 2.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color .3s;
-  border-radius: .4rem;
-  margin-right: .5rem;
-}
-
-.time-picker:hover {
-  background-color: rgb(248, 246, 246);
-}
-
-.date-input {
-  background: none;
-  padding: 0 0 0 .7rem;
-  border-radius: .4rem;
-  border: 1px solid #D0CBCB;
-  width: 7.2rem;
-  color: var(--black);
-}
-
-.date-input:focus {
-  border: 2px solid #4673D3;
-  outline: none;
-}
-
-.date-title {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 1.2rem 0 1.2rem;
-  height: 3.3rem;
-}
-
-.start-date {
-  font-weight: 600;
-  color: var(--gray);
-  display: flex;
-  align-items: center;
-  font-size: .875rem;
-  padding: .5rem .75rem;
-  border-radius: .4rem;
-  transition: background-color .3s;
-}
-
-.start-date:hover {
-  background-color: rgb(248, 246, 246);
-}
-
-.start-date span {
-  margin-left: .2rem;
-}
-
 .task-card {
-  color:var(--black);
+  color: var(--black);
   min-width: 24rem;
   height: 25rem;
   background-color: white;
@@ -1032,14 +824,6 @@ function filterTasks(taskList, type, now) {
   margin-left: 1rem;
 }
 
-.error {
-  color: red;
-}
-
-.error:focus {
-  color: red;
-}
-
 .tab-navigation-bar .title {
   text-align: left;
   font-size: 1.25rem;
@@ -1058,9 +842,8 @@ function filterTasks(taskList, type, now) {
 .tab-navigation-bar .title:hover {
   text-decoration: underline;
   text-decoration-color: var(--gray);
-  text-decoration-thickness:1px;
+  text-decoration-thickness: 1px;
 }
-
 
 
 .return {

@@ -8,7 +8,7 @@
           :model="formLabelAlign"
       >
         <el-form-item label="当前密码" class="login-form">
-          <el-input size="large"  show-password v-model="formLabelAlign.old_password"/>
+          <el-input size="large" show-password v-model="formLabelAlign.old_password"/>
         </el-form-item>
         <el-form-item label="新密码" class="login-form">
           <el-input size="large" show-password v-model="formLabelAlign.new_password1" type="password"/>

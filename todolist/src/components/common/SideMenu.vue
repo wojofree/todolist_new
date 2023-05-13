@@ -100,7 +100,7 @@ export default {
         let data = response.data.results
         data.sort((a, b) => a.id - b.id)
         this.projectList = data
-        this.$emit('projectList',this.projectList)
+        this.$emit('projectList', this.projectList)
       })
     },
     foldMenu() {
@@ -114,7 +114,7 @@ export default {
 .Menu {
   width: 15rem;
   background-color: #F9F8F8;
-  height:100%;
+  height: 100%;
   transition: width .3s;
   position: relative;
 }

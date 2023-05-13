@@ -11,7 +11,7 @@
     </div>
     <!--      内容-->
     <div class="item" @scroll="handleScroll" ref="projectItem">
-<!--       创建project-->
+      <!--       创建project-->
       <div class="item-option add-project cursor">
         <div class="item-icon icon-plus">
           <IconBase width="3rem" height="3rem" icon-color="#6d6e6f" box-view="0 0 48 48">
@@ -20,7 +20,7 @@
         </div>
         <span>Create project</span>
       </div>
-<!--      projectList-->
+      <!--      projectList-->
       <div class="item-option cursor" v-for="item in projectListCache" :key="item.id" @mouseenter="projectHover = item"
            @mouseleave="this.projectHover = ''">
         <div class="item-icon no-border" :style="{'backgroundColor':item.color}">
@@ -32,7 +32,7 @@
           <span class="project-name">{{ item.name }}</span>
           <div class="archived" v-if="item.archive">
             <icon-base box-view="0 0 24 24" width=".75rem" height=".75rem">
-              <SolidArchived />
+              <SolidArchived/>
             </icon-base>
             <span>Archived</span>
           </div>
@@ -99,7 +99,7 @@
                 </div>
               </template>
             </popover>
-            <div class="edit pop-item cursor">
+            <div class="edit pop-item cursor" @click="editProject(item)">
               <icon-base icon-color="var(--gray)" box-view="0 0 32 32">
                 <Pencil/>
               </icon-base>
@@ -116,7 +116,7 @@
                 <Archive/>
               </icon-base>
               <icon-base icon-color="var(--gray)" box-view="0 0 24 24" v-else>
-                <SolidArchived />
+                <SolidArchived/>
               </icon-base>
               <span v-if="!item.archive">Archive</span>
               <span v-else>Unarchive</span>
@@ -126,9 +126,43 @@
       </div>
     </div>
   </div>
-  <message-box>
-    <div style="width: 15rem;height: 15rem;background-color: #fff3cd"></div>
+  <new-button @click="openMessage = true">test</new-button>
+  <message-box v-model="openMessage" :icon-position="{top:'1rem',right:'1rem'}">
+    <div class="project-detail">
+      <div class="detail-title brd-bottom">
+        <span>Project details</span>
+      </div>
+      <div class="detail-main">
+        <div class="input">
+          <label>Name</label>
+          <new-input v-model="projectName"></new-input>
+        </div>
+        <div class="project-info brd-bottom">
+          <div class="input">
+            <label>Owner</label>
+            <div class="item-info">
+            <div class="user-icon">{{this.currentProject['created_by'].username[0]}}</div>
+              <span>{{this.currentProject['created_by'].username}}</span>
+            </div>
+          </div>
+          <div class="input">
+            <label>Due date</label>
+            <div>
+              <date-pick v-model="dateValue">
+                <div class="due-date">
+                  <icon-base width="1rem" height="1rem" box-view="0 0 32 32">
+                    <Calendar />
+                  </icon-base>
+                  <span>No due date</span>
+                </div>
+              </date-pick>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </message-box>
+  <DatePick v-model="dateValue"></DatePick>
 </template>
 <script setup>
 import {
@@ -145,6 +179,10 @@ import {
   SolidArchived
 } from "@/components/icons"
 import MessageBox from "@/components/common/MessageBox";
+import NewButton from "@/components/common/NewButton";
+import NewInput from "@/components/common/NewInput";
+import DatePick from "@/components/common/DateTimePicker";
+import Calendar from "@/components/icons/Calendar";
 </script>
 <script>
 import {markRaw} from 'vue'
@@ -155,38 +193,22 @@ import Popover from "@/components/common/Popover";
 import ToolTip from "@/components/common/ToolTip";
 
 export default {
+  dateValue:'',
   name: "Projects",
   components: {ToolTip, Popover, SelectBar, IconBase},
   data() {
     return {
+      dateValue:'2023-05-01',
+      currentProject:{'created_by':{username:'test'}},
+      projectName: 'test',
+      openMessage: false,
       isHover: false,
       isShadowed: false,
-      options: [
-        {'value': 'recents', "name": 'Recents'},
-        {'value': 'favorites', "name": 'Favorites'},
-      ],
+      options: [{'value': 'recents', "name": 'Recents'}, {'value': 'favorites', "name": 'Favorites'},],
       selectValue: '',
       colorList: ['#C6C4C4', '#F06A6A', '#EC8E71', '#E9BF78', '#F8DF72', '#B4CE67', '#6D9F84', '#6CBEB9', '#AEE5E2', '#5072CB', '#8B84E1', '#A96ECE', '#EDADEB', '#E277B0', '#ED9B9B', '#68696A'],
-      iconList: [{name: 'List', value: markRaw(List)}, {name: 'Bord', value: markRaw(Bord)}, {
-        name: 'TimeLine',
-        value: markRaw(TimeLine)
-      }, {name: 'People', value: markRaw(People)}, {name: 'Graph', value: markRaw(Graph)}, {
-        name: 'DarkStar',
-        value: markRaw(DarkStar)
-      }, {name: 'Gear', value: markRaw(Gear)}, {name: 'Chat', value: markRaw(Chat)}, {
-        name: 'Symbols',
-        value: markRaw(Symbols)
-      }],
-      projectIconList: {
-        List: markRaw(List),
-        Bord: markRaw(Bord),
-        TimeLine: markRaw(TimeLine),
-        People: markRaw(People),
-        Graph: markRaw(Graph),
-        DarkStar: markRaw(DarkStar),
-        Gear: markRaw(Gear),
-        Chat: markRaw(Chat),
-        Symbols: markRaw(Symbols)
+      iconList: [{name: 'List', value: markRaw(List)}, {name: 'Bord', value: markRaw(Bord)}, {name: 'TimeLine', value: markRaw(TimeLine)}, {name: 'People', value: markRaw(People)}, {name: 'Graph', value: markRaw(Graph)}, {name: 'DarkStar', value: markRaw(DarkStar)}, {name: 'Gear', value: markRaw(Gear)}, {name: 'Chat', value: markRaw(Chat)}, {name: 'Symbols', value: markRaw(Symbols)}],
+      projectIconList: {List: markRaw(List), Bord: markRaw(Bord), TimeLine: markRaw(TimeLine), People: markRaw(People), Graph: markRaw(Graph), DarkStar: markRaw(DarkStar), Gear: markRaw(Gear), Chat: markRaw(Chat), Symbols: markRaw(Symbols)
       },
       colorSelect: '',
       projectHover: '',
@@ -234,6 +256,10 @@ export default {
         const index = this.projectListCache.indexOf(project)
         this.projectListCache[index] = response.data.results
       })
+    },
+    editProject(item) {
+      this.currentProject = item
+      this.projectName = item.name
     }
   }
 }
@@ -269,7 +295,7 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: .25rem;
-  color:var(--gray);
+  color: var(--gray);
 }
 
 .archived span {
@@ -421,7 +447,7 @@ export default {
 }
 
 .color-item:hover {
-  background-image:linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0.08));
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08));
 }
 
 .color-right {
@@ -464,16 +490,92 @@ export default {
   visibility: hidden;
 }
 
-.add-project{
+.add-project {
   font-weight: 500;
-  color:var(--gray);
+  color: var(--gray);
 }
 
 .add-project:hover {
-  color:var(--black);
+  color: var(--black);
 }
 
 .icon-plus {
   color: var(--gray);
+}
+
+.project-detail {
+  width: 33rem;
+  height: 31rem;
+  background-color: white;
+  border-radius: 1rem;
+  text-align: left;
+}
+
+.detail-title {
+  padding: 1rem 1.6rem;
+}
+
+.detail-title span {
+  font-size: 1.25rem;
+  color: var(--black);
+  text-align: left;
+  font-weight: 500;
+}
+
+.input {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.input label {
+  color: var(--gray);
+  margin-bottom: .5rem;
+  font-size: .75rem;
+}
+
+.detail-main {
+  padding: 1.5rem;
+}
+
+.project-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.user-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  background-color: #f8df72;
+  border-radius: 2rem;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid lightgray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.item-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: .2rem .6rem;
+  border-radius: .3rem;
+}
+
+.item-info:hover {
+  background-color: rgb(248, 246, 246);
+}
+
+.item-info span {
+  margin-left: .5rem;
+}
+
+.due-date{
+  display: flex;
+  flex-direction: row;
+  width: 10rem;
+  color:var(--gray);
 }
 </style>

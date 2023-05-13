@@ -141,11 +141,17 @@ export default {
         {'value': 'month', "name": 'My month'},
       ],
       taskNumb: [0],
-      list: [{'name': 'Tasks', 'id': 1},{'name': 'Projects', 'id': 2},{'name': 'People', 'id': 3},{'name': 'Goals', 'id': 4}],
-      defaultList: [{'name': 'Tasks', 'id': 1},{'name': 'Projects', 'id': 2},{'name': 'People', 'id': 3},{'name': 'Goals', 'id': 4}],
+      list: [{'name': 'Tasks', 'id': 1}, {'name': 'Projects', 'id': 2}, {'name': 'People', 'id': 3}, {
+        'name': 'Goals',
+        'id': 4
+      }],
+      defaultList: [{'name': 'Tasks', 'id': 1}, {'name': 'Projects', 'id': 2}, {
+        'name': 'People',
+        'id': 3
+      }, {'name': 'Goals', 'id': 4}],
       drag: false,
       isHover: false,
-      MenuSelect: {Tasks:'half',People:'half',Projects:'half',Goals:'half'},
+      MenuSelect: {Tasks: 'half', People: 'half', Projects: 'half', Goals: 'half'},
       flex: {"Goals": "0 0 50%", "People": "0 0 50%", "Projects": "0 0 50%", "Tasks": "0 0 50%"},
       backgroundColor: '#AD7CC4',
       isOpenDrawer: false,
@@ -191,23 +197,23 @@ export default {
       };
     }
   },
-  watch:{
-    list(newValue){
-      if (this.defaultList !== newValue){
+  watch: {
+    list(newValue) {
+      if (this.defaultList !== newValue) {
         const url = "/api/update_setting/"
-        const data = {"home_card":JSON.stringify(newValue)}
-        apiHttpClient.post(url,data)
+        const data = {"home_card": JSON.stringify(newValue)}
+        apiHttpClient.post(url, data)
         this.defaultList = newValue
       }
     },
   },
   methods: {
-    changeSize(card,type){
+    changeSize(card, type) {
       this.MenuSelect[card] = type
-      this.flex[card] = type==='half'?'0 0 50%':'0 0 100%'
+      this.flex[card] = type === 'half' ? '0 0 50%' : '0 0 100%'
       const url = "/api/update_setting/"
-      const data = {"card_size":JSON.stringify(this.flex)}
-      apiHttpClient.post(url,data)
+      const data = {"card_size": JSON.stringify(this.flex)}
+      apiHttpClient.post(url, data)
     },
     taskCompletedNumb(numb) {
       this.taskNumb = numb.toString().split('')
@@ -222,8 +228,8 @@ export default {
         this.defaultList = this.list = response.data.results.home_card
         this.flex = response.data.results.card_size
         const FLEX_FULL = '0 0 100%'
-        for(let key in this.flex){
-          this.MenuSelect[key] = this.flex[key] === FLEX_FULL?'full':'half'
+        for (let key in this.flex) {
+          this.MenuSelect[key] = this.flex[key] === FLEX_FULL ? 'full' : 'half'
         }
       })
 

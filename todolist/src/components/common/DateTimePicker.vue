@@ -1,38 +1,62 @@
 <template>
-  <div class="data-pick-main-swap">
-    <!--    header-->
-    <div class="header">
-      <div class="mini-icon cursor" @click="changePage(-1)">
-        <IconBase style="transform: rotate(90deg)" box-view="-3 -3 30 30" width="1.2rem" height="1.2rem">
-          <Arrow/>
-        </IconBase>
-      </div>
-      <div class="title">
-        <SelectBar :options=monthList v-model="selectedValue" fontSize=".9rem"></SelectBar>
-      </div>
-      <div class="mini-icon cursor" @click="changePage(1)">
-        <IconBase style="transform: rotate(-90deg)" box-view="-3 -3 30 30" width="1.2rem" height="1.2rem">
-          <Arrow/>
-        </IconBase>
-      </div>
+  <div class="datepick-swap">
+    <div class="date-header" @click="handleShowDate" ref="dateHeader">
+      <slot/>
     </div>
-    <!--    星期-->
-    <div class="week">
-      <span>M</span>
-      <span>T</span>
-      <span>W</span>
-      <span>T</span>
-      <span>F</span>
-      <span>S</span>
-      <span>S</span>
-    </div>
-    <div class="date-swap">
-      <div class="date" v-for="(item) in dateList" @click="selectDays(item.date)" @mouseenter="coverDate(item.date)"
-           :class="{'pass':((cover === true || endDay !== '')&& coverStart < item.date &&  item.date < coverEnd),
+    <div class="date-main" :class="{'vsb-hidden':!showDatePick}" ref="dateMain">
+      <div class="triangle"></div>
+      <div class="date-picker">
+        <div class="date-title">
+          <div class="start-input">
+            <div class="start-date" @click="addStartDate" v-show="dateType === 'date'">
+              <IconBase width=".75rem" height=".75rem" box-view=" 0 0 24 24">
+                <Plus/>
+              </IconBase>
+              <span>Start date</span>
+            </div>
+            <input placeholder="Start date" class="date-input" v-show="dateType === 'dateRange'" v-model="inputStart"
+                   @input="changeDate()" :class="{'error':isStartError}"
+            >
+          </div>
+          <input placeholder="Due date" class="date-input" v-model="inputEnd" @input="changeDate()"
+                 :class="{'error':isEndError}"
+          >
+        </div>
+        <div class="data-pick-main-swap">
+          <!--    header-->
+          <div class="header">
+            <div class="mini-icon cursor" @click="changePage(-1)">
+              <IconBase style="transform: rotate(90deg)" box-view="-3 -3 30 30" width="1.2rem" height="1.2rem">
+                <Arrow/>
+              </IconBase>
+            </div>
+            <div class="title">
+              <SelectBar :options=monthList v-model="selectedValue" fontSize=".9rem"></SelectBar>
+            </div>
+            <div class="mini-icon cursor" @click="changePage(1)">
+              <IconBase style="transform: rotate(-90deg)" box-view="-3 -3 30 30" width="1.2rem" height="1.2rem">
+                <Arrow/>
+              </IconBase>
+            </div>
+          </div>
+          <!--    星期-->
+          <div class="week">
+            <span>M</span>
+            <span>T</span>
+            <span>W</span>
+            <span>T</span>
+            <span>F</span>
+            <span>S</span>
+            <span>S</span>
+          </div>
+          <div class="date-swap">
+            <div class="date" v-for="(item) in dateList" @click="selectDays(item.date)"
+                 @mouseenter="coverDate(item.date)"
+                 :class="{'pass':((cover === true || endDay !== '')&& coverStart < item.date &&  item.date < coverEnd),
       'date-start':((cover === true || endDay !== '')&& compare(coverStart,item.date)),
       'date-end':((cover === true || endDay !== '')&& compare(coverEnd,item.date)),
       }"
-      >
+            >
         <span class="date-span"
               :class="{'current-day':compare(currentDate,item.date),
               'gray-color':item.status !== 'current',
@@ -40,6 +64,26 @@
               'pass':((cover === true || endDay !== '')&& coverStart < item.date &&  item.date < coverEnd)
               }"
         >{{ item.day }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="date-foot">
+          <ToolTip content="Add time" v-show="showIcon">
+            <div class="time-picker cursor">
+              <IconBase box-view="0 0 32 32">
+                <Clock/>
+              </IconBase>
+            </div>
+          </ToolTip>
+          <ToolTip content="Set to repeat" v-show="showIcon">
+            <div class="time-picker cursor">
+              <IconBase box-view="0 0 32 32">
+                <Repeat/>
+              </IconBase>
+            </div>
+          </ToolTip>
+          <div class="clear cursor" @click="clearAll"> Clear all</div>
+        </div>
       </div>
     </div>
   </div>
@@ -47,14 +91,23 @@
 
 <script>
 import IconBase from "@/components/IconBase";
-import {Arrow} from "@/components/icons";
+import {Arrow, Plus, Clock, Repeat} from "@/components/icons";
 import SelectBar from "@/components/common/SelectBar";
+import ToolTip from "@/components/common/ToolTip";
 
 export default {
   name: "DatePick",
-  components: {SelectBar, Arrow, IconBase},
+  components: {ToolTip, SelectBar, Arrow, IconBase, Plus, Clock, Repeat},
   data() {
     return {
+      mainSize: ['10px', '10px'],
+      position: ['rotate(45deg)', '0', 'flex-end', 'column'],
+      showDatePick: false,
+      isEndError: false,
+      isStartError: false,
+      inputStart: '',
+      inputEnd: '',
+      dateType: 'date',
       dateList: [],      // 日期列表
       currentMonth: '',  //当前月份
       currentDate: '',   //当前日期，不更新，样式用
@@ -75,6 +128,7 @@ export default {
         hour12: false,
       },
       titleOptions: {month: 'long', year: 'numeric'},
+      firstClick: false,
     }
   },
   props: {
@@ -89,17 +143,37 @@ export default {
     type: {
       type: String,
       default: 'date'
+    },
+    showIcon: {
+      type: Boolean,
+      default: false
+    },
+    showDate: {
+      type: Boolean,
+      default: false
     }
-
   },
   created() {
+    this.showDatePick = this.showDate
+    // this.changePosition()
+    this.$nextTick(() => {
+      this.mainSize = [this.$refs.dateHeader.offsetWidth + 'px', this.$refs.dateHeader.offsetHeight + 'px']
+      this.changePosition()
+    })
+    //
+    this.dateType = this.type
     let now = new Date()
     // 判断是否有历史选择数据，更新样式
     this.currentDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     // 更新当前月份及title，根据开始日期来
+    if (this.dateType === 'date') {
+      this.inputStart = this.modelValue
+    } else {
+      this.inputStart = this.modelValue[0]
+      this.inputEnd = this.modelValue[1]
+    }
     this.getMonthList(now)
-    this.modelValue !== '' && this.modelChange()
-
+    this.modelChange()
   },
   watch: {
     // 监控选择月份变化，更新日期表
@@ -112,24 +186,86 @@ export default {
     modelValue() {
       this.modelChange()
     },
+    showDatePick(newValue) {
+      if (newValue) {
+        window.addEventListener('click', this.closeDate)
+        setTimeout(() => {
+          this.firstClick = true
+        }, 40)
+      } else {
+        window.removeEventListener('click', this.closeDate)
+      }
+    }
   },
   methods: {
+    closeDate(e) {
+      if (this.$refs.dateMain && !this.$refs.dateMain.contains(e.target) && this.firstClick) {
+        this.showDatePick = false
+        this.firstClick = false
+      }
+    },
+    handleShowDate() {
+      this.showDatePick = true
+      this.changePosition()
+    },
+    //变更位置
+    changePosition() {
+      const {top, right, bottom, left} = this.$refs.dateHeader.getBoundingClientRect()
+      const winHeight = window.innerHeight
+      const winWidth = window.innerWidth
+      if (left <= 287 && this.position[2] === 'flex-end') {
+        this.position[2] = 'flex-start'
+      } else if (winWidth - right < 287 && this.position[2] === 'flex-start') {
+        this.position[2] = 'flex-end'
+      }
+      if (top <= 383 && this.position[4] === 'column-reverse') {
+        this.position[3] = 'column'
+      } else if (winHeight - bottom < 383 && this.position[3] === 'column') {
+        this.position[3] = 'column-reverse'
+        this.position[0] = 'rotate(225deg)'
+        this.position[1] = '-.5rem'
+      }
+    },
+    // 添加开始日期
+    addStartDate() {
+      this.dateType = 'dateRange'
+      this.inputStart = null
+      this.emitDate(null, this.inputEnd)
+    },
     // modelValue变化时，更新样式
     modelChange() {
+      const options = {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      };
       let date = new Date()
       // 判断是否有历史选择数据，更新样式
-      if (this.type === 'dateRange') {
+      if (this.dateType === 'dateRange') {
         date = this.modelValue[0] && new Date(this.modelValue[0])
         const endDate = this.modelValue[1] && new Date(this.modelValue[1])
         this.startDay = this.coverStart = date ? new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0) : '';
-        this.endDay = this.coverEnd = endDate ? new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 0, 0, 0) : '' ;
-        if (this.compare(this.startDay,this.endDay) || date === null){
+        this.endDay = this.coverEnd = endDate ? new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 0, 0, 0) : '';
+        if (this.compare(this.startDay, this.endDay) || this.startDay === '') {
           this.coverEnd = this.coverStart = ''
         }
-      } else if (this.type === 'date') {
+        // input框修改后，cover效果保持用
+        if (this.startDay === '' && this.endDay !== '') {
+          this.cover = true
+          this.coverStart = this.coverEnd
+          this.startDay = this.endDay
+          this.endDay = ''
+          this.inputStart = null
+          this.inputEnd = this.startDay ? this.startDay.toLocaleDateString("zh-CN", options) : ''
+        } else {
+          this.inputStart = this.startDay ? this.startDay.toLocaleDateString("zh-CN", options) : ''
+          this.inputEnd = this.endDay ? this.endDay.toLocaleDateString("zh-CN", options) : ''
+        }
+      } else if (this.dateType === 'date') {
         date = this.modelValue && new Date(this.modelValue);
         this.endDay = this.startDay = date ? new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0) : '';
         this.coverEnd = this.coverStart = ''
+        this.inputEnd = this.endDay ? this.endDay.toLocaleDateString("zh-CN", options) : ''
       }
       // 更新当前月份及title，根据开始日期来
       date = (date === '' || date === null) ? new Date() : date;
@@ -139,34 +275,32 @@ export default {
     },
     // 计算选择的日期范围，改变样式用
     coverDate(date) {
-      if (this.type ==='dateRange') {
-        if (this.cover === true) {
-          if (date <= this.startDay) {
-            this.coverEnd = this.startDay
-            this.coverStart = date
-          } else {
-            this.coverStart = this.startDay
-            this.coverEnd = date
-          }
+      if (this.dateType === 'dateRange' && this.cover === true) {
+        if (date <= this.startDay) {
+          this.coverEnd = this.startDay
+          this.coverStart = date
+        } else {
+          this.coverStart = this.startDay
+          this.coverEnd = date
         }
       }
     },
     // 确定选择日期
     selectDays(item) {
-      if (this.type === 'date') {
+      if (this.dateType === 'date') {
         this.endDay = item
-        this.emitDate(item,this.endDay)
-      } else if (this.type === 'dateRange') {
+        this.emitDate(item, this.endDay)
+      } else if (this.dateType === 'dateRange') {
         if (this.startDay === '') {
           this.startDay = item
           this.cover = this.endDay === '';
-          this.emitDate(this.startDay,null)
+          this.emitDate(this.startDay, null)
         } else if (this.endDay === '') {
           this.endDay = item
           this.cover = false
         } else {
           this.startDay = item
-          this.emitDate(this.startDay,null)
+          this.emitDate(this.startDay, null)
           this.endDay = ''
           this.cover = true
           this.coverEnd = ''
@@ -177,22 +311,28 @@ export default {
           const tempDay = this.endDay
           this.endDay = this.startDay
           this.startDay = tempDay
-          this.emitDate(this.startDay,this.endDay)
+          this.emitDate(this.startDay, this.endDay)
         } else if (this.endDay >= this.startDay) {
-          this.emitDate(this.startDay,this.endDay)
+          this.emitDate(this.startDay, this.endDay)
         }
       }
     },
-    emitDate(startDay, endDay) {
+    emitDate(startDayTemp, endDayTemp) {
+      let endDay = endDayTemp
+      let startDay = startDayTemp
       let endDateString = endDay;
-      if (endDay !==null){
-       const newEndDate = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate(), 23, 59, 59)
+      let startDateString = startDay;
+      if (endDay !== null) {
+        endDay = new Date(endDayTemp)
+        const newEndDate = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate(), 23, 59, 59)
         endDateString = newEndDate.toLocaleString('zh-CH', this.fullOptions).replace(/\//g, '-')
       }
-      const startDateString = startDay.toLocaleString('zh-CH', this.options).replace(/\//g, '-')
-      if(this.type ==='dateRange'){
+      if (startDay !== null) {
+        startDateString = startDay.toLocaleString('zh-CH', this.options).replace(/\//g, '-')
+      }
+      if (this.dateType === 'dateRange') {
         this.$emit('update:modelValue', [startDateString, endDateString])
-      }else{
+      } else {
         this.$emit('update:modelValue', endDateString)
       }
     },
@@ -269,8 +409,83 @@ export default {
         })
       }
       return nextMonthDays
-    }
+    },
+    // input变更日期
+    async changeDate() {
+      this.inputStart = this.inputStart || null;
+      this.inputEnd = this.inputEnd || null
+      let endDateIsValid = this.inputEnd !== null ? this.isValidDate(this.inputEnd) : true;
+      let startDateIsValid = this.inputStart !== null ? this.isValidDate(this.inputStart) : true;
+      if (endDateIsValid && startDateIsValid) {
+        if (this.compareTime(this.inputStart, this.inputEnd)) {
+          endDateIsValid = false
+          startDateIsValid = false
+        } else {
+          this.emitDate(this.inputStart, this.inputEnd)
+        }
+        if (this.inputStart === null && this.inputEnd === null) {
+          this.cover = false
+        } else if (this.inputStart === null || this.inputEnd === null) {
+          this.cover = true
+          const date = this.inputStart === null ? this.inputEnd : this.inputStart
+          this.startDay = this.coverEnd = this.coverStart = new Date(date)
+        }
+        this.isStartError = this.isEndError = false
+      }
+      this.isStartError = !startDateIsValid
+      this.isEndError = !endDateIsValid
+    },
+    // input验证是否是日期
+    isValidDate(value) {
+      const dateList = value.split('/')
+      if (dateList.length !== 3) {
+        return false
+      } else if (dateList[1] <= 0 || dateList[1] > 12) {
+        return false
+      } else if (dateList[2] <= 0 || dateList[1] > 31) {
+        return false
+      } else if (dateList[0] <= 0) {
+        return false
+      } else {
+        return new Date(value) !== 'Invalid Date' && !isNaN(new Date(value))
+      }
+    },
+    // 日期比对，changeDate函数用
+    compareTime(dateStart, dateEnd) {
+      if (dateEnd === null || dateStart === null) {
+        return false
+      } else {
+        return new Date(dateStart) > new Date(dateEnd)
+      }
+    },
+    //  清除日期
+    async clearAll() {
+      this.emitDate(null, null)
+      this.inputEnd = this.inputStart = this.startDay = this.endDay = this.coverStart = this.coverEnd = ''
+      this.cover = false
+    },
   }
+}
+
+// 更改时间格式
+function getFormatDate(date, type) {
+  const fullOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }
+  const newDateTemp = new Date(date)
+  let newDate;
+  if (type === 'end') {
+    newDate = new Date(newDateTemp.getFullYear(), newDateTemp.getMonth(), newDateTemp.getDate(), 23, 59, 59)
+  } else {
+    newDate = new Date(newDateTemp.getFullYear(), newDateTemp.getMonth(), newDateTemp.getDate(), 0, 0, 0)
+  }
+  return newDate.toLocaleString('zh-CH', fullOptions).replace(/\//g, '-')
 }
 </script>
 
@@ -398,5 +613,140 @@ export default {
 
 .date-end {
   background: linear-gradient(to right, #BBCAF2 50%, #fff 50%);
+}
+
+.date-picker {
+  background-color: white;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #EDEAE9;
+  border-radius: .4rem;
+}
+
+.start-date {
+  font-weight: 600;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  font-size: .875rem;
+  padding: .5rem .75rem;
+  border-radius: .4rem;
+  transition: background-color .3s;
+}
+
+.start-date:hover {
+  background-color: rgb(248, 246, 246);
+}
+
+.start-date span {
+  margin-left: .2rem;
+}
+
+.date-title {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.2rem 0 1.2rem;
+  height: 3.3rem;
+}
+
+.start-input {
+  display: flex;
+}
+
+.date-input {
+  background: none;
+  padding: 0 0 0 .7rem;
+  border-radius: .4rem;
+  border: 1px solid #D0CBCB;
+  width: 7.2rem;
+  color: var(--black);
+}
+
+.date-input:focus {
+  border: 2px solid #4673D3;
+  outline: none;
+}
+
+.error {
+  color: red;
+}
+
+.error:focus {
+  color: red;
+}
+
+.date-foot {
+  height: 3.75rem;
+  padding: .75rem 1rem;
+  border-top: 1px solid #EDEAE9;
+  display: flex;
+  align-items: center;
+}
+
+.time-picker {
+  height: 100%;
+  width: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .3s;
+  border-radius: .4rem;
+  margin-right: .5rem;
+}
+
+.time-picker:hover {
+  background-color: rgb(248, 246, 246);
+}
+
+.clear {
+  margin-left: auto;
+  height: 2.25rem;
+  width: max-content;
+  padding: 0 1rem;
+  transition: background-color .3s;
+  line-height: 2.25rem;
+  border-radius: .4rem;
+  font-weight: 500;
+}
+
+.clear:hover {
+  background-color: rgb(248, 246, 246);
+}
+
+
+.datepick-swap {
+  display: flex;
+  width: v-bind(mainSize [0]);
+  height: v-bind(mainSize [1]);
+  flex-direction: v-bind(position [3]);
+  align-items: v-bind(position [2]);
+}
+
+.triangle {
+  width: 1rem;
+  height: 1rem;
+  background-color: white;
+  transform: v-bind(position [0]);
+  margin-bottom: -.5rem;
+  margin-top: v-bind(position [1]);
+  margin-right: 1rem;
+  margin-left: 1rem;
+  border-width: 1px 0 0 1px;
+  border-style: solid;
+  border-color: #EDEAE9;
+  border-radius: .1rem;
+}
+
+.vsb-hidden {
+  visibility: hidden;
+}
+
+.date-main {
+  display: flex;
+  flex-direction: v-bind(position [3]);
+  align-items: v-bind(position [2]);
+  margin-bottom: .5rem;
 }
 </style>

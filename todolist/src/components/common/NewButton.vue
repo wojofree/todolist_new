@@ -1,24 +1,22 @@
 <template>
-<div class="new-button">
-  <slot />
-</div>
+  <div class="new-button">
+    <slot/>
+  </div>
 </template>
 
 <script>
 export default {
   name: "NewButton",
-  data(){
-    return {
-
-    }
+  data() {
+    return {}
   },
-  props:{
-    backgroundStyle:{
-      type:String,
-      default:'white'
+  props: {
+    backgroundStyle: {
+      type: String,
+      default: 'white'
     },
-    borderStyle:{
-      type:String,
+    borderStyle: {
+      type: String,
       default: 'none'
     }
   },
@@ -28,7 +26,7 @@ export default {
 </script>
 
 <style scoped>
-.new-button{
+.new-button {
   margin-left: auto;
   width: max-content;
   height: max-content;
@@ -37,8 +35,8 @@ export default {
   border-radius: .4rem;
   font-weight: 500;
   background-color: v-bind(backgroundStyle);
-  border:v-bind(borderStyle);
-  cursor:pointer;
+  border: v-bind(borderStyle);
+  cursor: pointer;
 }
 
 .new-button:hover {

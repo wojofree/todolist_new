@@ -36,8 +36,10 @@ import Symbols from './Symbols'
 import SolidStar from './SolidStar'
 import SolidArchived from './SolidArchived'
 import XIcon from './XIcon'
+import BigCalendar from './BigCalendar'
 
 export {
+    BigCalendar,
     XIcon,
     SolidArchived,
     SolidStar,

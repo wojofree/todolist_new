@@ -1,35 +1,27 @@
 <template>
-<popover>
-  <template #main>
-    <div style="width: 5rem;height: 5rem;background-color: #fff3cd;">点这里</div>
-  </template>
-  <template #pop>
-    <div class="item">item1</div>
-    <div class="item">item2</div>
-    <popover pop-position="side" hover-control direction="flex-start">>
-      <template #main>
-      <div class="item">item3</div>
-  </template>
-      <template #pop>
-        <div style="width: 10rem;height: 10rem;background-color: #fff3cd;"></div>
-      </template>
-    </popover>
-    <div class="item">item4</div>
-  </template>
-</popover>
+  <div style="position: absolute;top: 400px;right: 30px">
+  <date-pick type="date" v-model="date">
+    <div style="width: 5rem;height: 3rem;background-color: #fff3cd"></div>
+  </date-pick>
+  </div>
+  {{date}}
+  <new-button @click="date = [null,'2023/05/11']" class="test">test</new-button>
 </template>
 
 <script>
 import Popover from "@/components/common/Popover";
+import DatePick from "@/components/common/DateTimePicker";
+import NewButton from "@/components/common/NewButton";
+
 export default {
   name: "test",
-  components: {Popover},
-  data(){
+  components: {NewButton, DatePick, Popover},
+  data() {
     return {
-      isPopShow:false
+      date: null
     }
   },
-  methods:{
+  methods: {
     show() {
       this.isPopShow = true
     },
@@ -41,7 +33,7 @@ export default {
 </script>
 
 <style scoped>
-.item{
+.item {
   width: 15rem;
   height: 3rem;
   line-height: 3rem;
@@ -50,5 +42,9 @@ export default {
 
 .item:hover {
   background-color: #8c8c8b;
+}
+.test{
+  position: absolute;
+  left: 10rem;
 }
 </style>

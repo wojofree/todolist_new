@@ -7,6 +7,7 @@
       </div>
       <div class="main">
         <router-view v-if="isRouterAlive" :user="user" :projectList="projectList"/>
+<!--        <router-view v-if="isRouterAlive"/>-->
       </div>
     </div>
   </div>

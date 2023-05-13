@@ -45,7 +45,7 @@ export default {
           left: ''
         }
       },
-      isFirstClick:false
+      isFirstClick: false
     }
   },
   props: {
@@ -72,28 +72,28 @@ export default {
         this.modelStyle.rtl.width = this.modelStyle.ltr.width = this.width
         this.modelStyle.rtl.right = this.modelStyle.ltr.left = this.modelStyle.btt.bottom = this.modelStyle.ttb.top = 0
         this.modelStyle.btt.height = this.modelStyle.ttb.height = this.height
-        document.addEventListener("click",this.close)
-        setTimeout(()=>{
+        document.addEventListener("click", this.close)
+        setTimeout(() => {
           this.isFirstClick = true
-        },10)
+        }, 10)
       } else {
         this.modelStyle.rtl.width = this.modelStyle.ltr.width = this.modelStyle.btt.height = this.modelStyle.ttb.height = 0
         this.modelStyle.rtl.right = this.modelStyle.ltr.left = this.modelStyle.btt.bottom = this.modelStyle.ttb.top = '-35px'
-        document.removeEventListener("click",this.close)
+        document.removeEventListener("click", this.close)
       }
     }
   },
   async created() {
-      if (this.modelValue) {
-        this.modelStyle.rtl.width = this.modelStyle.ltr.width = this.width
-        this.modelStyle.btt.height = this.modelStyle.ttb.height = this.height
-        this.modelStyle.rtl.right = this.modelStyle.ltr.left = this.modelStyle.btt.bottom = this.modelStyle.ttb.top = 0
-      }else {
-        this.modelStyle.rtl.width = this.modelStyle.ltr.width = this.modelStyle.btt.height = this.modelStyle.ttb.height = 0
-        this.modelStyle.rtl.right = this.modelStyle.ltr.left = this.modelStyle.btt.bottom = this.modelStyle.ttb.top = '-35px'
-      }
+    if (this.modelValue) {
+      this.modelStyle.rtl.width = this.modelStyle.ltr.width = this.width
+      this.modelStyle.btt.height = this.modelStyle.ttb.height = this.height
+      this.modelStyle.rtl.right = this.modelStyle.ltr.left = this.modelStyle.btt.bottom = this.modelStyle.ttb.top = 0
+    } else {
+      this.modelStyle.rtl.width = this.modelStyle.ltr.width = this.modelStyle.btt.height = this.modelStyle.ttb.height = 0
+      this.modelStyle.rtl.right = this.modelStyle.ltr.left = this.modelStyle.btt.bottom = this.modelStyle.ttb.top = '-35px'
+    }
   },
-  methods:{
+  methods: {
     close(e) {
       if (this.$refs.drawerSwap && !this.$refs.drawerSwap.contains(e.target) && this.isFirstClick) {
         this.isFirstClick = false

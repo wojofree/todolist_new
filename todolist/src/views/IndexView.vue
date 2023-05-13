@@ -1,5 +1,5 @@
 <template>
-      <HomeView></HomeView>
+  <HomeView></HomeView>
 </template>
 
 <script>
@@ -10,8 +10,7 @@ export default {
     SideMenu
   },
   data() {
-    return {
-    }
+    return {}
   },
   methods: {
     menuFold() {

@@ -1,7 +1,7 @@
 <template>
   <div class="projects-card" @mouseenter="isHover = true" @mouseleave="isHover = false">
     <div>
-<!--      卡片header-->
+      <!--      卡片header-->
       <div class="header" :class="{'header-shadow':isShadowed}">
         <div class="title">
           People
@@ -10,14 +10,14 @@
           <SelectBar :options=options v-model="selectValue" :set-value="options[0]"></SelectBar>
         </div>
       </div>
-<!--      内容-->
+      <!--      内容-->
     </div>
   </div>
 </template>
 
 <script>
 import IconBase from "@/components/IconBase";
-import {More, TinyPlus,List} from "@/components/icons"
+import {More, TinyPlus, List} from "@/components/icons"
 import SelectBar from "@/components/common/SelectBar";
 import {apiHttpClient} from "@/app/app.service";
 
@@ -45,8 +45,8 @@ export default {
       this.projectList = data
     })
   },
-  methods:{
-    handleScroll () {
+  methods: {
+    handleScroll() {
       const item = this.$refs.projectItem
       this.isShadowed = item.scrollTop > 2;
     }
@@ -76,7 +76,7 @@ export default {
   box-shadow: 0 5px 10px 0 rgba(109, 110, 111, 0.18);
 }
 
-.header-shadow{
+.header-shadow {
   box-shadow: 0 2px 10px 0 rgba(109, 110, 111, 0.1);
 }
 

@@ -3,7 +3,8 @@
     <div class="popover-main" @click="showPop" @mouseenter="hoverShow" ref="popoverMain" @mouseleave="hoverClose">
       <slot name="main"></slot>
     </div>
-    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent" @mouseenter="hoverShow" @click="closePop" @mouseleave="hoverClose" >
+    <div class="popover-content" :class="{'vis-hidden':!isPopShow}" ref="popoverContent" @mouseenter="hoverShow"
+         @click="closePop" @mouseleave="hoverClose">
       <slot name="pop"></slot>
     </div>
   </div>

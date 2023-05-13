@@ -1,5 +1,5 @@
 <template>
-<div class="goals-card">1212</div>
+  <div class="goals-card">1212</div>
 </template>
 
 <script>

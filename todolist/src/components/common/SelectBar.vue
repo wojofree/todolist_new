@@ -1,7 +1,7 @@
 <template>
   <div class="select-bar" ref="contentWrap">
     <div class="disp-block">
-      <div class="select cursor" @click="this.openSelect = !this.openSelect"  ref="title">
+      <div class="select cursor" @click="this.openSelect = !this.openSelect" ref="title">
         <div class="flex">
           <span>{{ modelValue.name }}</span>
           <IconBase width=".75rem" height=".75rem" box-view="0 0 24 24">
@@ -31,12 +31,12 @@ export default {
     return {
       openSelect: false,
       isSelect: '',
-      titleWidth:'2rem'
+      titleWidth: '2rem'
     }
   },
   props: {
     modelValue: {
-      type: [String, Number,Date,Object],
+      type: [String, Number, Date, Object],
       default: '11'
     },
     options: {
@@ -50,7 +50,7 @@ export default {
     },
     fontSize: {
       type: String,
-      default:'.75rem'
+      default: '.75rem'
     }
   },
   created() {
@@ -60,18 +60,18 @@ export default {
       this.selectOption(this.modelValue)
     }
   },
-  watch:{
+  watch: {
     openSelect(newVal) {
-    if (newVal) {
-      document.addEventListener("click", this.handleOutsideClick);
-    } else {
-      document.removeEventListener("click", this.handleOutsideClick);
+      if (newVal) {
+        document.addEventListener("click", this.handleOutsideClick);
+      } else {
+        document.removeEventListener("click", this.handleOutsideClick);
       }
     },
   },
   mounted() {
     // 监听，除了点击自己，点击其他地方将自身隐藏
-    this.$nextTick(()=>{
+    this.$nextTick(() => {
       this.titleWidth = this.$refs.title.offsetWidth + 'px'
     })
 
@@ -87,7 +87,7 @@ export default {
       this.isSelect = item.value
       this.openSelect = false
       this.$emit('update:modelValue', item)
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.titleWidth = this.$refs.title.offsetWidth + 'px'
       })
     }
@@ -136,7 +136,7 @@ import {Arrow, Right} from "@/components/icons"
 }
 
 .flex span {
-    width: max-content;
+  width: max-content;
 }
 
 .select:hover {
