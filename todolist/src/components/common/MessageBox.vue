@@ -2,11 +2,13 @@
   <div class="message-swap" v-show="openMessage">
     <div class="background" v-if="overLay"></div>
     <div class="message-main" ref="messageMain">
-      <slot/>
-      <div class="x-icon cursor" @click="closeMessage">
-        <icon-base box-view="0 0 32 32" width="1rem" height="1rem">
-          <XIcon/>
-        </icon-base>
+      <div class="message">
+        <div class="x-icon cursor" @click="closeMessage">
+          <icon-base box-view="0 0 32 32" width="1rem" height="1rem">
+            <XIcon/>
+          </icon-base>
+        </div>
+          <slot/>
       </div>
     </div>
   </div>
@@ -38,7 +40,7 @@ export default {
     },
     iconPosition: {
       type: Object,
-      default: {top:'.5rem',right:'.5rem'}
+      default: {top:'2rem',right:'.5rem'}
     }
   },
   watch: {
@@ -59,7 +61,7 @@ export default {
     }
   },
   created() {
-    this.iconTop = this.iconPosition.top
+    this.iconTop = '-'+this.iconPosition.top
     this.iconRight = this.iconPosition.right
     this.openMessage = this.modelValue
   },
@@ -89,17 +91,28 @@ export default {
 }
 
 .message-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: fixed;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 100002;
+  width: 100%;
 }
 
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+
 .x-icon {
-  position: absolute;
-  top: v-bind(iconTop);
-  right: v-bind(iconRight);
+  z-index: 1000;
+  margin-bottom: v-bind(iconTop);
+  margin-right: v-bind(iconRight);
   width: 1.75rem;
   height: 1.75rem;
   display: flex;

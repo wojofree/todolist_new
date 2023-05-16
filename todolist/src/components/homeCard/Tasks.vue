@@ -152,6 +152,10 @@
       <div style="width: 2rem; height: 2rem "></div>
     </DatePick>
   </div>
+  <message-box v-model="openTaskMessage">
+    <edit-task></edit-task>
+  </message-box>
+
 </template>
 
 <script>
@@ -161,13 +165,19 @@ import TabBar from "@/components/common/TabBar";
 import {apiHttpClient} from "@/app/app.service";
 import DatePick from "@/components/common/DateTimePicker";
 import ToolTip from "@/components/common/ToolTip";
+import MessageBox from "@/components/common/MessageBox";
+import EditTask from "@/components/homeCard/messageBox/editTask";
 
 const now = new Date()
 export default {
   name: "Tasks",
-  components: {Plus, DatePick, Calendar, Completed, TabBar, Avatar, IconBase, More, Done, Lock, Clock, Repeat, ToolTip},
+  components: {
+    EditTask,
+    MessageBox,
+    Plus, DatePick, Calendar, Completed, TabBar, Avatar, IconBase, More, Done, Lock, Clock, Repeat, ToolTip},
   data() {
     return {
+      openTaskMessage:true,
       dateValue: '',                                      // 选择的日期
       isShowCalendar: false,                              // 日历弹窗是否显示
       dateType: 'date',                                   // 日期单选还是区间

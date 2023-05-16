@@ -126,7 +126,8 @@
       </div>
     </div>
   </div>
-  <message-box v-model="openMessage" :icon-position="{top:'1rem',right:'1rem'}">
+<!--  修改project 弹窗-->
+  <message-box v-model="openMessage" :icon-position="{top:'2.5rem',right:'1rem'}">
     <div class="project-detail">
       <div class="detail-title brd-bottom">
         <span>Project details</span>
@@ -159,7 +160,7 @@
                         </icon-base>
                       </div>
                       <span>{{ dateInput }}</span>
-                      <div class="x-icon" :class="{'vsb-hidden':!isDueDateHover}" @click="dateInput=''">
+                      <div class="x-icon" v-show="isDueDateHover && dateInput !== 'No due date'" @click="stopPropagation">
                         <icon-base>
                           <XCircle />
                         </icon-base>
@@ -185,6 +186,7 @@
       </div>
     </div>
   </message-box>
+<!--  修改project弹窗内日期选择-->
   <DatePick v-model="dateValue"></DatePick>
 </template>
 <script setup>
@@ -306,7 +308,7 @@ export default {
         if(!isEqual(data,this.projectValueTemp)) {
           const url = '/api/update_project/'
           if(typeof this.dateValue === "string" || this.dateValue === null){
-            data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue}
+            data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue,start_time:this.dateValue}
           } else {
             data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue[1],start_time:this.dateValue[0]}
           }
@@ -318,6 +320,10 @@ export default {
     }
   },
   methods: {
+    stopPropagation(event) {
+      event.stopPropagation()
+      this.dateValue = null
+    },
     getDateInput(newValue) {
       const options = {
         year: "numeric",
