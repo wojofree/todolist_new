@@ -1,9 +1,9 @@
 <template>
-  <div class="datepick-swap">
+  <div class="datepick-swap" ref="dateMain">
     <div class="date-header" @click="handleShowDate" ref="dateHeader">
       <slot/>
     </div>
-    <div class="date-main" :class="{'vsb-hidden':!showDatePick}" ref="dateMain">
+    <div class="date-main" :class="{'vsb-hidden':!showDatePick}">
       <div class="triangle"></div>
       <div class="date-picker">
         <div class="date-title">
@@ -151,9 +151,14 @@ export default {
     showDate: {
       type: Boolean,
       default: false
+    },
+    startPosition: {
+      type: String,
+      default:'flex-end'
     }
   },
   created() {
+    this.position[2] = this.startPosition
     this.showDatePick = this.showDate
     // this.changePosition()
     this.$nextTick(() => {
@@ -167,7 +172,7 @@ export default {
     this.currentDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     // 更新当前月份及title，根据开始日期来
     if (this.dateType === 'date') {
-      this.inputStart = this.modelValue
+      this.inputEnd = this.modelValue
     } else {
       this.inputStart = this.modelValue[0]
       this.inputEnd = this.modelValue[1]
@@ -184,6 +189,10 @@ export default {
       })
     },
     modelValue() {
+       this.$nextTick(() => {
+      this.mainSize = [this.$refs.dateHeader.offsetWidth + 'px', this.$refs.dateHeader.offsetHeight + 'px']
+      this.changePosition()
+    })
       this.modelChange()
     },
     showDatePick(newValue) {
@@ -230,10 +239,15 @@ export default {
     addStartDate() {
       this.dateType = 'dateRange'
       this.inputStart = null
-      this.emitDate(null, this.inputEnd)
+      if(this.inputEnd !== ''){
+        this.emitDate(null, this.inputEnd)
+      } else {
+        this.emitDate(null,null)
+      }
     },
     // modelValue变化时，更新样式
     modelChange() {
+      this.dateType = (typeof this.modelValue === "string" || this.modelValue=== null)? 'date' : 'dateRange'
       const options = {
         year: "numeric",
         month: "numeric",
@@ -552,6 +566,7 @@ function getFormatDate(date, type) {
   width: 2.25rem;
   height: 1.75rem;
   font-size: .75rem;
+  text-align: center;
 }
 
 .date-swap {
@@ -576,9 +591,10 @@ function getFormatDate(date, type) {
   display: block;
   box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0);
-  z-index: 100;
+  z-index: 100001;
   position: relative;
   margin: auto;
+  text-align: center;
 }
 
 .current-day {
@@ -722,6 +738,7 @@ function getFormatDate(date, type) {
   height: v-bind(mainSize [1]);
   flex-direction: v-bind(position [3]);
   align-items: v-bind(position [2]);
+  z-index: 1000;
 }
 
 .triangle {
@@ -747,6 +764,8 @@ function getFormatDate(date, type) {
   display: flex;
   flex-direction: v-bind(position [3]);
   align-items: v-bind(position [2]);
-  margin-bottom: .5rem;
+  margin-bottom: .6rem;
+  margin-top: .2rem;
+  z-index: 10000;
 }
 </style>

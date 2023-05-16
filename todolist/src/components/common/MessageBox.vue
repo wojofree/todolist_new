@@ -106,9 +106,11 @@ export default {
   align-items: center;
   justify-content: center;
   border-radius: .4rem;
+  color:var(--gray);
 }
 
 .x-icon:hover {
   background-color: rgb(248, 246, 246);
+  color:var(--black);
 }
 </style>

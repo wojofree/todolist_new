@@ -5,7 +5,10 @@
     </div>
     <div class="tips-swap" v-show="isHover">
       <div class="triangle"></div>
-      <div class="content">{{ content }}</div>
+      <div class="content">
+       <div class="header" v-if="header !=='header'">{{ header }}</div>
+       <span>{{ content }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -17,8 +20,8 @@ export default {
     return {
       triangle: ['column', 'rotate(45deg)', '-.5rem', '0'],
       isHover: false,
-      width: '3rem',
-      height: '3rem'
+      width: '2rem',
+      height: '2rem'
     }
   },
   created() {
@@ -31,11 +34,15 @@ export default {
     content: {
       type: String,
       default: 'Content'
+    },
+    header: {
+      type: String,
+      default: 'header'
     }
-
   },
   watch: {
     isHover(newValue) {
+      this.height = this.$refs.slotMain.offsetHeight + 'px'
       if (newValue) {
         const height = this.$refs.slotMain.offsetHeight
         const {top} = this.$refs.slotMain.getBoundingClientRect()
@@ -54,7 +61,7 @@ export default {
 .tooltip-main {
   display: flex;
   flex-direction: v-bind(triangle [0]);
-  width: v-bind(width);
+  width: max-content;
   height: v-bind(height);
   align-items: center;
 }
@@ -89,5 +96,12 @@ export default {
   border-radius: .3rem;
   color: white;
   font-size: .7rem;
+  max-width: 14rem;
+}
+
+.header {
+  padding-bottom: .5rem;
+  margin-bottom: .5rem;
+  border-bottom: 1px solid white;
 }
 </style>

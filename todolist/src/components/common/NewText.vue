@@ -1,16 +1,16 @@
 <template>
   <div class="input-swap">
-    <input v-model="inputString" class="new-input" readonly  v-if="readonly"/>
-    <input v-model="inputString" class="new-input" v-else />
-    <div class="input-icon" v-if="showIcon">
-      <slot/>
-    </div>
+    <textarea v-model="inputString" class="new-input" readonly  v-if="readonly"/>
+    <textarea v-model="inputString" class="new-input" v-else />
+<!--    <div class="input-icon" v-if="showIcon">-->
+<!--      <slot/>-->
+<!--    </div>-->
   </div>
 </template>
 
 <script>
 export default {
-  name: "NewInput",
+  name: "NewText",
   data() {
     return {
       inputString: '',
@@ -22,13 +22,13 @@ export default {
       type: String,
       default: ''
     },
-    showIcon: {
-      type: Boolean,
-      default: false
-    },
     readonly: {
       type: Boolean,
       default: false
+    },
+    height: {
+      type: String,
+      default: '10rem'
     }
   },
   watch: {
@@ -41,7 +41,6 @@ export default {
   },
   created() {
     this.inputString = this.modelValue
-    this.mrgLeft = this.showIcon?'2.55rem':'.375rem'
   },
 }
 </script>
@@ -51,25 +50,18 @@ export default {
   background-color: white;
   border-radius: .375rem;
   padding: .375rem .75rem;
-  padding-left: v-bind(mrgLeft);
-  padding-right: .75rem;
-  padding-top: .375rem;
-  padding-bottom: .375rem;
   color: var(--black);
   border: 1px solid #cfcbcb;
   font-size: .875rem;
   width: 100%;
+  height: v-bind(height);
+  resize:none;
+  z-index: 100;
 }
 
 .new-input:focus {
   outline: 2px solid #4673D2;
   border: 1px solid #4673D2;
-}
-
-.input-icon {
-  position: absolute;
-  left: .375rem;
-  top:.2rem;
 }
 
 .input-swap {
