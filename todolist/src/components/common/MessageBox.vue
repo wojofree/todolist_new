@@ -107,7 +107,6 @@ export default {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 100002;
-  width: 100%;
 }
 
 .message {

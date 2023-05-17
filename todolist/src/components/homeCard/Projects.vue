@@ -43,7 +43,7 @@
             <div :class="{'vsb-hidden':projectHover !== item}" class="project-more">
               <ToolTip content="Show options">
                 <div class="more cursor">
-                  <icon-base box-view="0 0 24 24">
+                  <icon-base box-view="0 0 32 32">
                     <More/>
                   </icon-base>
                 </div>

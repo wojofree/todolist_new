@@ -1,7 +1,9 @@
 <template>
   <div class="input-swap">
-    <input v-model="inputString" class="new-input" readonly  v-if="readonly"/>
-    <input v-model="inputString" class="new-input" v-else />
+    <input v-model="inputString" class="new-input" readonly  v-if="readonly" @focus="handleFocus"
+      @blur="handleBlur" />
+    <input v-model="inputString" class="new-input" v-else @focus="handleFocus"
+      @blur="handleBlur" />
     <div class="input-icon" v-if="showIcon">
       <slot/>
     </div>
@@ -29,20 +31,32 @@ export default {
     readonly: {
       type: Boolean,
       default: false
+    },
+    weight: {
+      type: String,
+      default:'normal'
     }
   },
   watch: {
     inputString(newValue) {
       this.$emit('update:modelValue', newValue)
     },
-    modelValue(newvalue) {
-      this.inputString = newvalue
+    modelValue(newValue) {
+      this.inputString = newValue
     }
   },
   created() {
     this.inputString = this.modelValue
-    this.mrgLeft = this.showIcon?'2.55rem':'.375rem'
+    this.mrgLeft = this.showIcon?'2.55rem':'.75rem'
   },
+  methods: {
+    handleFocus(){
+      this.$emit('focus')
+    },
+    handleBlur() {
+      this.$emit('blur')
+    }
+  }
 }
 </script>
 
@@ -57,8 +71,8 @@ export default {
   padding-bottom: .375rem;
   color: var(--black);
   border: 1px solid #cfcbcb;
-  font-size: .875rem;
   width: 100%;
+  font-weight: v-bind(weight);
 }
 
 .new-input:focus {

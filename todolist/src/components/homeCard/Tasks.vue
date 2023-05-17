@@ -76,7 +76,7 @@
               <Done v-else/>
             </IconBase>
           </div>
-          <div class="text-overflow w-100 text-start">
+          <div class="text-overflow w-100 text-start cursor" @click="currentTask = task,openTaskMessage = true">
             <span>{{ task.title }}</span>
           </div>
           <div v-if="task.project !== null" v-show="isDelete !== index" :style="{'color':task.project.color}"
@@ -153,7 +153,7 @@
     </DatePick>
   </div>
   <message-box v-model="openTaskMessage" hiddenIcon>
-    <edit-task  :taskData="currentTask"></edit-task>
+    <edit-task  :taskData="currentTask" @close="test"></edit-task>
   </message-box>
 
 </template>
@@ -177,7 +177,7 @@ export default {
     Plus, DatePick, Calendar, Completed, TabBar, Avatar, IconBase, More, Done, Lock, Clock, Repeat, ToolTip},
   data() {
     return {
-      openTaskMessage:true,
+      openTaskMessage:false,
       dateValue: '',                                      // 选择的日期
       isShowCalendar: false,                              // 日历弹窗是否显示
       dateType: 'date',                                   // 日期单选还是区间
@@ -322,6 +322,10 @@ export default {
     }
   },
   methods: {
+    test(){
+      this.openTaskMessage = false
+      console.log(this.openTaskMessage)
+    },
     getCompletedTaskNumb(time) {
       const completedList = this.cache.completed
       let i = 0

@@ -1,67 +1,96 @@
 <template>
   <div class="edit-task-swap">
     <div class="edit-header">
-        <div class="button">
-          <icon-base width=".75rem" height=".75rem">
-            <Right/>
-          </icon-base>
-          <span>Mark complete</span>
-        </div>
+      <div class="button">
+        <icon-base height=".75rem" width=".75rem">
+          <Right/>
+        </icon-base>
+        <span>Mark complete</span>
+      </div>
       <div class="icons">
         <div class="icon-item">
-          <icon-base box-view="0 0 32 32" width="1rem" height="1rem">
-            <Like />
+          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+            <Like/>
           </icon-base>
         </div>
         <div class="icon-item">
-          <icon-base box-view="0 0 32 32"  width="1rem" height="1rem">
-            <Clip />
+          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+            <Clip/>
           </icon-base>
         </div>
         <div class="icon-item">
-          <icon-base box-view="0 0 32 32"  width="1rem" height="1rem">
-            <SubTask />
+          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+            <SubTask/>
           </icon-base>
         </div>
         <div class="icon-item">
-          <icon-base box-view="0 0 32 32"  width="1rem" height="1rem">
-            <Link />
+          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+            <Link/>
           </icon-base>
         </div>
         <div class="icon-item">
-          <icon-base box-view="0 0 32 32"  width="1rem" height="1rem">
-            <Expand />
+          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+            <Expand/>
           </icon-base>
         </div>
         <div class="icon-item">
-          <icon-base box-view="0 0 32 32"  width="1rem" height="1rem">
-            <More />
+          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+            <More/>
           </icon-base>
         </div>
-        <div class="icon-item">
-          <icon-base box-view="0 0 32 32"  width="1rem" height="1rem">
-            <XIcon />
+        <div class="icon-item" @click="close">
+          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+            <XIcon/>
           </icon-base>
         </div>
       </div>
     </div>
     <div class="public">
-        <div class="public-left">
-          <icon-base width=".75rem" height=".75rem" icon-color="var(--gray)">
-            <Lock />
-          </icon-base>
-          <span>This task is visible to members of My Workspace.</span>
-        </div>
+      <div class="public-left">
+        <icon-base height=".75rem" icon-color="var(--gray)" width=".75rem">
+          <Lock/>
+        </icon-base>
+        <span>This task is visible to members of My Workspace.</span>
+      </div>
       <div class="public-right">
         Make public
       </div>
     </div>
     <div class="task-main">
       <div class="task-title">
-        <div>
-          {{taskData.title}}
+        <div class="title" @mouseenter="showTitleInput = true">
+          {{ taskData.title }}
         </div>
-        <new-input></new-input>
+        <new-input v-show="showTitleInput" v-model="taskTitle" class="title mrg-left" weight="500"
+                   @blur="showTitleInput = titleInputFocus = false" @focus="showTitleInput = titleInputFocus = true"
+                   @mouseleave="isShowTitle"
+        ></new-input>
+      </div>
+      <div class="task-pane">
+        <div class="task-pane-item">
+          <div class="item-left">
+            <span>Assignee</span>
+          </div>
+          <div class="item-right">
+            123
+          </div>
+        </div>
+        <div class="task-pane-item">
+          <div class="item-left">
+            <span>Due date</span>
+          </div>
+          <div class="item-right">
+            123
+          </div>
+        </div>
+        <div class="task-pane-item">
+          <div class="item-left">
+            <span>Projects</span>
+          </div>
+          <div class="item-right">
+            123
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -79,18 +108,30 @@ export default {
   name: "editTask",
   data() {
     return {
-
+      taskTitle: '',
+      showTitleInput: false,
+      titleInputFocus: false
     }
   },
   props: {
     taskData: {
-      type:[String, Object, Boolean],
-      default:''
+      type: [String, Object, Boolean],
+      default: ''
     }
   },
   watch: {
     taskData(newValue) {
-      console.log(newValue)
+      this.taskTitle = newValue.title
+    }
+  },
+  methods: {
+    isShowTitle() {
+      if (!this.titleInputFocus) {
+        this.showTitleInput = false
+      }
+    },
+    close() {
+      this.$emit('close')
     }
   }
 }
@@ -99,7 +140,7 @@ export default {
 <style scoped>
 .edit-task-swap {
   background-color: white;
-  height: 10rem;
+  height: 60rem;
   width: 57rem;
 }
 
@@ -113,12 +154,12 @@ export default {
 .button {
   display: flex;
   align-items: center;
-  padding:0 .5rem;
+  padding: 0 .5rem;
   height: 1.75rem;
   background-color: white;
   border: 1px solid #EEEAE9;
   border-radius: .4rem;
-  transition: background-color .3s,  border-color .3s;
+  transition: background-color .3s, border-color .3s;
   color: var(--black);
 }
 
@@ -139,12 +180,12 @@ export default {
 .icon-item {
   width: 1.625rem;
   height: 1.625rem;
-  transition:  background-color .3s;
+  transition: background-color .3s;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: .3rem;
-  color:var(--gray);
+  color: var(--gray);
   margin-left: .5rem;
 }
 
@@ -176,5 +217,48 @@ export default {
 
 .public-right:hover {
   background-color: rgba(231, 231, 231, .7)
+}
+
+.task-main {
+  padding: 0 1.5rem;
+}
+
+.task-title {
+  position: relative;
+  margin: .5rem 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  padding: .375rem .75rem;
+  text-align: left;
+  margin-left: -0.8rem;
+  border: 1px solid white;
+}
+
+.mrg-left {
+  margin-left: -1.55rem !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 .75rem !important;
+  border: none;
+}
+
+.task-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.task-pane-item {
+  display: flex;
+}
+
+.item-left {
+  width: 7.5rem;
+  text-align: left;
+  margin-right: .5rem;
 }
 </style>
