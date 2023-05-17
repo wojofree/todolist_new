@@ -3,7 +3,7 @@
     <div class="background" v-if="overLay"></div>
     <div class="message-main" ref="messageMain">
       <div class="message">
-        <div class="x-icon cursor" @click="closeMessage">
+        <div class="x-icon cursor" @click="closeMessage"  v-show="!hiddenIcon">
           <icon-base box-view="0 0 32 32" width="1rem" height="1rem">
             <XIcon/>
           </icon-base>
@@ -41,6 +41,14 @@ export default {
     iconPosition: {
       type: Object,
       default: {top:'2rem',right:'.5rem'}
+    },
+    hiddenIcon: {
+      type:Boolean,
+      default:false,
+    },
+    data: {
+      type:[String, Object, Boolean],
+      default:''
     }
   },
   watch: {

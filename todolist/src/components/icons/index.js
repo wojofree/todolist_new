@@ -38,8 +38,16 @@ import SolidArchived from './SolidArchived'
 import XIcon from './XIcon'
 import BigCalendar from './BigCalendar'
 import XCircle from './XCircle'
+import Like from './Like'
+import SubTask from './SubTask'
+import Clip from './Clip'
+import Expand from './Expand'
 
 export {
+    Expand,
+    SubTask,
+    Clip,
+    Like,
     XCircle,
     BigCalendar,
     XIcon,

@@ -27,7 +27,6 @@ export default {
 
 <style scoped>
 .new-button {
-  margin-left: auto;
   width: max-content;
   height: max-content;
   padding: .5rem 1rem;

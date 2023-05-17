@@ -152,8 +152,8 @@
       <div style="width: 2rem; height: 2rem "></div>
     </DatePick>
   </div>
-  <message-box v-model="openTaskMessage">
-    <edit-task></edit-task>
+  <message-box v-model="openTaskMessage" hiddenIcon>
+    <edit-task  :taskData="currentTask"></edit-task>
   </message-box>
 
 </template>
@@ -278,6 +278,7 @@ export default {
     }
     // 初始化taskList
     this.taskList = this.cache.upComing
+    this.currentTask =  this.taskList[0]
     // 修改OverdueTitle
     this.getCompletedTaskNumb(this.analyzeTime)
     this.changeOverdueTitle()

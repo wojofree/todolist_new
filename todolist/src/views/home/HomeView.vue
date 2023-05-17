@@ -55,7 +55,7 @@
                   <div class="more">
                     <ToolTip content="Actions">
                       <div class="cursor more-item">
-                        <IconBase width="1.2rem" height="1.2rem" box-view="0 0 24 24" class="mag-auto">
+                        <IconBase width="1.2rem" height="1.2rem" box-view="0 0 32 32" class="mag-auto">
                           <More/>
                         </IconBase>
                       </div>
@@ -423,6 +423,7 @@ export default {
   margin-right: .5rem;
   display: flex;
   align-items: center;
+  margin-left: auto;
 }
 
 .home-button span {
