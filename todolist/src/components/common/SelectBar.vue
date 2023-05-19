@@ -12,6 +12,9 @@
     </div>
     <div class="disp-block list">
       <div class="option" v-show="openSelect">
+        <div class="option-title" v-if="optionTitle !== ''">
+          <p>{{ optionTitle }}</p>
+        </div>
         <div class="option-item cursor" v-for="item in options" @click="selectOption(item)">
           <IconBase width=".75rem" height=".75rem" box-view="0 0 32 32"
                     :class="{'vis-hidden':isSelect !== item.value}">
@@ -47,6 +50,10 @@ export default {
         {'value': 3, "name": '选项3'},
         {'value': 4, "name": '选项4'},
       ]
+    },
+    optionTitle: {
+      type:[String, Boolean],
+      default:''
     },
     fontSize: {
       type: String,
@@ -106,7 +113,7 @@ import {Arrow, Right} from "@/components/icons"
 <style scoped>
 .select-bar {
   text-align: left;
-  z-index: 100002;
+  z-index: 1000002;
   width: v-bind(titleWidth);
 }
 
@@ -150,7 +157,8 @@ import {Arrow, Right} from "@/components/icons"
 }
 
 .list {
-  z-index: 2000;
+  position: relative;
+  z-index: 20000001;
 }
 
 .select span {
@@ -168,6 +176,20 @@ import {Arrow, Right} from "@/components/icons"
   display: inline-block;
   background-color: white;
   box-shadow: 0 1px 4px 0 rgba(109, 110, 111, 0.08);
+  z-index: 200001;
+}
+
+.option-title {
+  display: flex;
+  align-items: center;
+  padding: .5rem 1rem .5rem 1.8rem;
+}
+
+.option-title p {
+  margin-bottom: 0;
+  margin-left: 1rem;
+  width: max-content;
+  font-weight: 600;
 }
 
 .option-item {

@@ -71,7 +71,7 @@
           <div class="item-left">
             <span>Assignee</span>
           </div>
-          <div class="item-right">
+          <div class="item-right" @mouseenter="showXIcon = 'assignee'" @mouseleave="showXIcon = false">
             <div class="item-info">
               <div class="user-icon">{{ taskData.assigned_to.username[0] }}</div>
               <span>{{ taskData.assigned_to.username }}</span>
@@ -82,7 +82,7 @@
               </icon-base>
             </div>
             <div style="height: 2.125rem">
-              <select-bar v-model="test" :options="sectionList"></select-bar>
+              <select-bar v-model="sectionSelect" :options="sectionList" option-title="My task"></select-bar>
             </div>
           </div>
         </div>
@@ -90,16 +90,46 @@
           <div class="item-left">
             <span>Due date</span>
           </div>
-          <div class="item-right">
-            123
+          <div class="item-right" @mouseenter="showXIcon = 'date'" @mouseleave="showXIcon = false">
+            <date-pick v-model="dateValue">
+              <div class="item-info">
+                <div class="calendar-icon">
+                  <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                    <BigCalendar/>
+                  </icon-base>
+                </div>
+                <span v-if="taskData.complete_date !== ''">{{ completeDate }}</span>
+                <span v-else>No due date</span>
+              </div>
+            </date-pick>
+            <div class="icon-item mrg-l" v-if="showXIcon === 'date'">
+              <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
+                <XIcon/>
+              </icon-base>
+            </div>
           </div>
         </div>
         <div class="task-pane-item">
           <div class="item-left">
             <span>Projects</span>
           </div>
-          <div class="item-right">
-            123
+          <div class="task-project" @mouseenter="showXIcon = 'project'" @mouseleave="showXIcon = false">
+            <tool-tip content="Click to view all tasks in this project" style="height: 1.75rem">
+              <div class="item-right hover">
+                <icon-base :icon-color="taskData.project.color" box-view="0 0 24 24" height=".75rem" width=".75rem">
+                  <Box/>
+                </icon-base>
+                <span class="mrg-l-5">{{ taskData.project.name }}</span>
+              </div>
+            </tool-tip>
+            <div style="height: 2.125rem">
+              <select-bar v-model="categorySelect" :options="categoryList"></select-bar>
+            </div>
+            <div class="icon-item mrg-l" v-if="showXIcon === 'project'">
+              <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
+                <XIcon/>
+              </icon-base>
+            </div>
           </div>
         </div>
       </div>
@@ -109,39 +139,69 @@
 
 <script setup>
 import IconBase from "@/components/IconBase";
-import {Right, Like, Clip, SubTask, Link, Expand, More, XIcon, Lock} from "@/components/icons";
+import {Right, Like, Clip, SubTask, Link, Expand, More, XIcon, Lock, BigCalendar, Box} from "@/components/icons";
 import NewInput from "@/components/common/NewInput";
 import SelectBar from "@/components/common/SelectBar";
+import ToolTip from "@/components/common/ToolTip";
+import DatePick from "@/components/common/DateTimePicker";
 </script>
 
 <script>
-
+import formatTaskData from "@/components/homeCard/js/formatTaskData"
 import {apiHttpClient} from "@/app/app.service";
 
 export default {
   name: "editTask",
   data() {
     return {
-      test:'',
+      completeDate:'',
+      showXIcon:false,
+      categorySelect: '',
+      sectionSelect: '',
       taskTitle: '',
       showTitleInput: false,
       titleInputFocus: false,
-      sectionList: [{}]
+      sectionList: [{}],
+      categoryList: [{}],
+      dateValue:''
     }
   },
   props: {
     taskData: {
       type: [String, Object, Boolean],
       default: ''
+    },
+    projectList: {
+      type: Object,
+      default: {}
     }
   },
   watch: {
     taskData(newValue) {
       this.taskTitle = newValue.title
+      this.getSection()
+      this.getCategory()
+      if(newValue.complete_time !== null){
+        if(newValue.start_time !== null){
+          this.dateValue = [newValue.start_time,newValue.complete_time]
+        } else {
+          this.dateValue = newValue.complete_time
+        }
+      } else{
+        if(newValue.start_time !== null){
+          this.dateValue = [newValue.start_time,newValue.complete_time]
+        } else {
+          this.dateValue = newValue.complete_time
+        }
+      }
+      this.completeDate = newValue.complete_date
+    },
+    dateValue(newValue) {
+      console.log(newValue)
     }
   },
   created() {
-    this.getSection()
+
   },
   methods: {
     getSection() {
@@ -151,7 +211,18 @@ export default {
         for (let index in this.sectionList) {
           this.sectionList[index].value = this.sectionList[index].id
         }
-        this.test = this.sectionList[0]
+        this.sectionSelect = this.sectionList[0]
+      })
+    },
+    getCategory() {
+      const url = "/api/get_category/"
+      const data = {project_id: this.taskData.project.id}
+      apiHttpClient.post(url, data).then((response) => {
+        this.categoryList = response.data.results
+        for (let index in this.categoryList) {
+          this.categoryList[index].value = this.categoryList[index].id
+        }
+        this.categorySelect = this.categoryList[0]
       })
     },
     isShowTitle() {
@@ -307,6 +378,7 @@ export default {
 }
 
 .item-info {
+  width: max-content;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -328,7 +400,36 @@ export default {
   align-items: center;
 }
 
+.mrg-l-5 {
+  margin-left: .5rem;
+}
+
 .mrg-l {
   margin-left: 0;
+}
+
+.calendar-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--gray);
+  border-radius: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hover {
+  padding: .2rem .6rem;
+  border-radius: .3rem;
+  transition: background-color .3s;
+}
+
+.hover:hover {
+  background-color: rgb(248, 246, 246);
+}
+
+.task-project {
+  display: flex;
+  align-items: center;
 }
 </style>
