@@ -153,7 +153,7 @@
     </DatePick>
   </div>
   <message-box v-model="openTaskMessage" hiddenIcon>
-    <edit-task  :taskData="currentTask" @close="test"></edit-task>
+    <edit-task  :taskData="currentTask" @close="openTaskMessage = false"></edit-task>
   </message-box>
 
 </template>
@@ -232,7 +232,7 @@ export default {
       projectSelectShow: false,                               // 新增task project selection框是否展示
       currentProjectList: [],                                 // 当前的project selection List
       isFirstClick: false,                                     // 是否是第一次点击，日历弹窗辅助用
-      currentTask: '',                                        // 日历弹窗点击对应的task
+      currentTask: {assigned_to:{username:''}},                                        // 日历弹窗点击对应的task
       isDateChange: false,                                     // 日历弹窗的日期是否有change
       taskCompletedNumb: 0,
       analyzeTime: '',
@@ -278,7 +278,6 @@ export default {
     }
     // 初始化taskList
     this.taskList = this.cache.upComing
-    this.currentTask =  this.taskList[0]
     // 修改OverdueTitle
     this.getCompletedTaskNumb(this.analyzeTime)
     this.changeOverdueTitle()
@@ -322,10 +321,6 @@ export default {
     }
   },
   methods: {
-    test(){
-      this.openTaskMessage = false
-      console.log(this.openTaskMessage)
-    },
     getCompletedTaskNumb(time) {
       const completedList = this.cache.completed
       let i = 0

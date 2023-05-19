@@ -283,8 +283,9 @@ export default {
       }
       // 更新当前月份及title，根据开始日期来
       date = (date === '' || date === null) ? new Date() : date;
+      const selectDate = new Date(date.getFullYear(), date.getMonth(), 1)
       this.currentMonth = date
-      this.selectedValue = {name: new Intl.DateTimeFormat('en-US', this.titleOptions).format(date), value: date}
+      this.selectedValue = {name: new Intl.DateTimeFormat('en-US', this.titleOptions).format(date), value: selectDate}
       this.getDays(this.currentMonth)
     },
     // 计算选择的日期范围，改变样式用
@@ -342,7 +343,9 @@ export default {
         endDateString = newEndDate.toLocaleString('zh-CH', this.fullOptions).replace(/\//g, '-')
       }
       if (startDay !== null) {
-        startDateString = startDay.toLocaleString('zh-CH', this.options).replace(/\//g, '-')
+        startDay = new Date(startDay)
+        const newStartDate = new Date(startDay.getFullYear(), startDay.getMonth(), startDay.getDate(), 0, 0, 0)
+        startDateString = newStartDate.toLocaleString('zh-CH', this.options).replace(/\//g, '-')
       }
       if (this.dateType === 'dateRange') {
         this.$emit('update:modelValue', [startDateString, endDateString])

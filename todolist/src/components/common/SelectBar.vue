@@ -54,11 +54,7 @@ export default {
     }
   },
   created() {
-    if (this.modelValue === '') {
-      this.selectOption(this.options[0])
-    } else {
-      this.selectOption(this.modelValue)
-    }
+    this.getDefaultSelect()
   },
   watch: {
     openSelect(newVal) {
@@ -68,15 +64,24 @@ export default {
         document.removeEventListener("click", this.handleOutsideClick);
       }
     },
+    options(){
+      this.getDefaultSelect()
+    }
   },
   mounted() {
     // 监听，除了点击自己，点击其他地方将自身隐藏
     this.$nextTick(() => {
       this.titleWidth = this.$refs.title.offsetWidth + 'px'
     })
-
   },
   methods: {
+    getDefaultSelect() {
+      if (this.modelValue === '') {
+        this.selectOption(this.options[0])
+      } else {
+        this.selectOption(this.modelValue)
+      }
+    },
     handleOutsideClick(e) {
       if (this.$refs.contentWrap && !this.$refs.contentWrap.contains(e.target)) {
         this.openSelect = false;
@@ -101,7 +106,7 @@ import {Arrow, Right} from "@/components/icons"
 <style scoped>
 .select-bar {
   text-align: left;
-  z-index: 1000;
+  z-index: 100002;
   width: v-bind(titleWidth);
 }
 

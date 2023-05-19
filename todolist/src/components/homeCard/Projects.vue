@@ -150,7 +150,7 @@
             <div ref="dueDate">
               <date-pick v-model="dateValue" start-position="flex-start">
                 <div class="due-date-swap">
-                  <tool-tip content="Let the team know when this project should be finished." header="Due date">
+                  <tool-tip :content="tipContext" header="Due date">
                     <div class="due-date"
                          @click="showDateInput = true,dateInput = dateInput!=='No due date'?dateInput:''"
                          @mouseenter="isDueDateHover = true" @mouseleave="isDueDateHover = false">
@@ -225,6 +225,7 @@ export default {
   components: {ToolTip, Popover, SelectBar, IconBase},
   data() {
     return {
+      tipContext:'Let the team know when this project should be finished.',
       isDueDateHover:false,
       currentProjectIndex:'',
       projectContext:'',
@@ -264,7 +265,8 @@ export default {
       projectHover: '',
       projectListCache: [],
       firstClick: false,
-      projectValueTemp:{}
+      projectValueTemp:{},
+      dateColor:'var(--gray)'
     }
   },
   props: {
@@ -294,6 +296,7 @@ export default {
       } else {
         if (this.dateInput === '' || this.dateInput === ' - ' || this.dateInput === null) {
           this.dateInput = 'No due date'
+          this.tipContext = 'Let the team know when this project should be finished.'
           this.dateValue = null
         }
         window.removeEventListener("click", this.handleDateInput)
@@ -308,9 +311,11 @@ export default {
         if(!isEqual(data,this.projectValueTemp)) {
           const url = '/api/update_project/'
           if(typeof this.dateValue === "string" || this.dateValue === null){
-            data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue,start_time:this.dateValue}
+            data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue,start_time:null}
+            console.log(data)
           } else {
             data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue[1],start_time:this.dateValue[0]}
+            console.log(data)
           }
           apiHttpClient.post(url,data).then((response)=>{
             this.projectListCache[this.currentProjectIndex] = response.data.results
@@ -323,6 +328,7 @@ export default {
     stopPropagation(event) {
       event.stopPropagation()
       this.dateValue = null
+      this.tipContext = 'Let the team know when this project should be finished.'
     },
     getDateInput(newValue) {
       const options = {
@@ -330,14 +336,30 @@ export default {
         month: "numeric",
         day: "numeric",
       };
+      const now = new Date()
+      const today = new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0)
       if (typeof newValue === "string") {
         this.dateInput = newValue ? new Date(newValue).toLocaleDateString("zh-CN", options) : ''
+        if(new Date(newValue) < today){
+          this.dateColor = '#c92f54'
+        } else {
+          this.dateColor = 'var(--gray)'
+        }
+        this.tipContext = this.dateInput
       } else if(newValue === null){
         this.dateInput = 'No due date'
+        this.tipContext = 'Let the team know when this project should be finished.'
+        this.dateColor = 'var(--gray)'
       } else {
         const dateStart = newValue[0] ? new Date(newValue[0]).toLocaleDateString("zh-CN", options) : ''
         const dateEnd = newValue[1] ? new Date(newValue[1]).toLocaleDateString("zh-CN", options) : ''
         this.dateInput = dateStart + ' - ' + dateEnd
+        this.tipContext = this.dateInput
+        if(new Date(newValue[1]) < today && dateEnd !== ''){
+          this.dateColor = '#c92f54'
+        } else {
+          this.dateColor = 'var(--gray)'
+        }
       }
     },
     handleDateInput(e) {
@@ -724,7 +746,7 @@ function isEqual(obj1, obj2) {
   display: flex;
   flex-direction: row;
   align-items: center;
-  color: var(--gray);
+  color: v-bind(dateColor);
   padding: .2rem .375rem;
   width: max-content;
   border-radius: .4rem;
@@ -742,7 +764,7 @@ function isEqual(obj1, obj2) {
 .calendar-icon {
   width: 1.75rem;
   height: 1.75rem;
-  border: 1px dashed var(--gray);
+  border: 1px dashed v-bind(dateColor);
   border-radius: 2rem;
   display: flex;
   align-items: center;
@@ -768,6 +790,7 @@ function isEqual(obj1, obj2) {
 .x-icon {
   margin-left: .5rem;
   transition: color .3s;
+  color:var(--gray);
 }
 
 .x-icon:hover {

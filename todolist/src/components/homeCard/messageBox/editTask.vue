@@ -72,7 +72,18 @@
             <span>Assignee</span>
           </div>
           <div class="item-right">
-            123
+            <div class="item-info">
+              <div class="user-icon">{{ taskData.assigned_to.username[0] }}</div>
+              <span>{{ taskData.assigned_to.username }}</span>
+            </div>
+            <div class="icon-item mrg-l">
+              <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
+                <XIcon/>
+              </icon-base>
+            </div>
+            <div style="height: 2.125rem">
+              <select-bar v-model="test" :options="sectionList"></select-bar>
+            </div>
           </div>
         </div>
         <div class="task-pane-item">
@@ -100,17 +111,22 @@
 import IconBase from "@/components/IconBase";
 import {Right, Like, Clip, SubTask, Link, Expand, More, XIcon, Lock} from "@/components/icons";
 import NewInput from "@/components/common/NewInput";
+import SelectBar from "@/components/common/SelectBar";
 </script>
 
 <script>
+
+import {apiHttpClient} from "@/app/app.service";
 
 export default {
   name: "editTask",
   data() {
     return {
+      test:'',
       taskTitle: '',
       showTitleInput: false,
-      titleInputFocus: false
+      titleInputFocus: false,
+      sectionList: [{}]
     }
   },
   props: {
@@ -124,7 +140,20 @@ export default {
       this.taskTitle = newValue.title
     }
   },
+  created() {
+    this.getSection()
+  },
   methods: {
+    getSection() {
+      const url = "/api/get_all_section/"
+      apiHttpClient.get(url).then((response) => {
+        this.sectionList = response.data.results
+        for (let index in this.sectionList) {
+          this.sectionList[index].value = this.sectionList[index].id
+        }
+        this.test = this.sectionList[0]
+      })
+    },
     isShowTitle() {
       if (!this.titleInputFocus) {
         this.showTitleInput = false
@@ -140,7 +169,7 @@ export default {
 <style scoped>
 .edit-task-swap {
   background-color: white;
-  height: 60rem;
+  height: 40rem;
   width: 57rem;
 }
 
@@ -254,11 +283,52 @@ export default {
 
 .task-pane-item {
   display: flex;
+  align-items: center;
+  margin: .3rem 0;
 }
 
 .item-left {
   width: 7.5rem;
   text-align: left;
   margin-right: .5rem;
+}
+
+.user-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  background-color: #f8df72;
+  border-radius: 2rem;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid lightgray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: .2rem .6rem;
+  border-radius: .3rem;
+  transition: background-color .3s;
+}
+
+.item-info:hover {
+  background-color: rgb(248, 246, 246);
+}
+
+.item-info span {
+  margin-left: .5rem;
+}
+
+.item-right {
+  display: flex;
+  align-items: center;
+}
+
+.mrg-l {
+  margin-left: 0;
 }
 </style>

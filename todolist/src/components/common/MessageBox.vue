@@ -1,5 +1,5 @@
 <template>
-  <div class="message-swap" v-show="openMessage">
+  <div class="message-swap" :class="{'vsb-hidden':!openMessage}">
     <div class="background" v-if="overLay"></div>
     <div class="message-main" ref="messageMain">
       <div class="message">
@@ -65,6 +65,8 @@ export default {
         setTimeout(() => {
           this.firstClick = true
         }, 40)
+      } else {
+        this.closeMessage()
       }
     }
   },
@@ -132,5 +134,8 @@ export default {
 .x-icon:hover {
   background-color: rgb(248, 246, 246);
   color:var(--black);
+}
+.vsb-hidden{
+  visibility: hidden;
 }
 </style>
