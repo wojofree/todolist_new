@@ -3,7 +3,7 @@
     <input v-model="inputString" class="new-input" readonly  v-if="readonly" @focus="handleFocus"
       @blur="handleBlur" />
     <input v-model="inputString" class="new-input" v-else @focus="handleFocus"
-      @blur="handleBlur" />
+      @blur="handleBlur" ref="input" />
     <div class="input-icon" v-if="showIcon">
       <slot/>
     </div>
@@ -55,7 +55,13 @@ export default {
     },
     handleBlur() {
       this.$emit('blur')
-    }
+    },
+    // handleInput(){
+    //   this.$emit('input','keyi')
+    // },
+    // handleKeydown() {
+    //   this.$emit('keydown')
+    // }
   }
 }
 </script>

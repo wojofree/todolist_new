@@ -499,15 +499,15 @@ export default {
     },
     // project选择时，上下键附带滚动
     scrollToActiveOption() {
-      const activeOption = this.$refs.selectWrapper.querySelector('.when-active')
       const selectWrapper = this.$refs.selectWrapper
-      // 如果没有活动元素，则返回
-      // 计算选项的偏移量和容器滚动的距离
-      const optionTop = activeOption.offsetTop
+      const activeOption = this.$refs.selectWrapper.querySelector('.when-active')
       const optionHeight = activeOption.offsetHeight
-      const wrapperHeight = selectWrapper.clientHeight
-      // 将页面滚动到正确的位置
-      selectWrapper.scrollTop = optionTop - (wrapperHeight - optionHeight) / 2
+      if(this.projectSelectIndex>5){
+        console.log(optionHeight*(this.projectSelectIndex-5))
+        selectWrapper.scrollTop = optionHeight*(this.projectSelectIndex-5)
+      } else if(this.projectSelectIndex === 0) {
+        selectWrapper.scrollTop = 0
+      }
     },
     // when搜索，更新列表
     searchWhen() {

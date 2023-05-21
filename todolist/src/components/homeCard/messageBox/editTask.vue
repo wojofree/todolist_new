@@ -102,33 +102,60 @@
                 <span v-else>No due date</span>
               </div>
             </date-pick>
-            <div class="icon-item mrg-l" v-if="showXIcon === 'date'">
+            <div v-if="showXIcon === 'date'" class="icon-item mrg-l">
               <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
                 <XIcon/>
               </icon-base>
             </div>
           </div>
         </div>
-        <div class="task-pane-item">
-          <div class="item-left">
+        <div class="task-pane-item align">
+          <div class="item-left mrg-top-5">
             <span>Projects</span>
           </div>
-          <div class="task-project" @mouseenter="showXIcon = 'project'" @mouseleave="showXIcon = false">
-            <tool-tip content="Click to view all tasks in this project" style="height: 1.75rem">
-              <div class="item-right hover">
-                <icon-base :icon-color="taskData.project.color" box-view="0 0 24 24" height=".75rem" width=".75rem">
-                  <Box/>
-                </icon-base>
-                <span class="mrg-l-5">{{ taskData.project.name }}</span>
+          <div>
+            <div class="task-project" @mouseenter="showXIcon = 'project'" @mouseleave="showXIcon = false">
+              <div v-if="taskData.project !== null" class="dsp-flx">
+                <tool-tip content="Click to view all tasks in this project" style="height: 1.75rem">
+                  <div class="item-right hover">
+                    <icon-base :icon-color="taskData.project.color" box-view="0 0 24 24" height=".75rem" width=".75rem">
+                      <Box/>
+                    </icon-base>
+                    <span class="mrg-l-5">{{ taskData.project.name }}</span>
+                  </div>
+                </tool-tip>
+                <div style="height: 2.125rem">
+                  <select-bar v-model="categorySelect" :options="categoryList"></select-bar>
+                </div>
+                <div v-if="showXIcon === 'project'" class="icon-item mrg-l">
+                  <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
+                    <XIcon/>
+                  </icon-base>
+                </div>
               </div>
-            </tool-tip>
-            <div style="height: 2.125rem">
-              <select-bar v-model="categorySelect" :options="categoryList"></select-bar>
             </div>
-            <div class="icon-item mrg-l" v-if="showXIcon === 'project'">
-              <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
-                <XIcon/>
-              </icon-base>
+            <div v-show="!showAddInput" class="select-project" @click="showAdd">
+              <span>Add to projects</span>
+            </div>
+            <new-input v-show="showAddInput" ref="projectInput" v-model="searchWords" @input="search"
+                       @keydown="keySelectProject"></new-input>
+            <div v-show="projectSelectShow" ref="projectWrapper" class="project-select">
+              <div v-for="(item,index) in currentProjectList" :key="item.id"
+                   :class="{'when-active':projectSelectIndex === index,'borderBottom':item.id === 0}"
+                   class="select-option cursor"
+                   @click="keySelectProject"
+                   @mouseenter="projectSelectIndex = index"
+              >
+                <div class="text-overflow dsp-flx">
+                  <span>{{ item.name }}</span>
+                </div>
+              </div>
+              <div v-if="this.currentProjectList.length === 0" class="create-project">
+                <icon-base box-view=" 0 0 32 32" icon-color="#4069C3">
+                  <MiniPlus/>
+                </icon-base>
+                <span>Create project for '{{ searchWords }}'</span>
+              </div>
             </div>
           </div>
         </div>
@@ -139,7 +166,20 @@
 
 <script setup>
 import IconBase from "@/components/IconBase";
-import {Right, Like, Clip, SubTask, Link, Expand, More, XIcon, Lock, BigCalendar, Box} from "@/components/icons";
+import {
+  Right,
+  Like,
+  Clip,
+  SubTask,
+  Link,
+  Expand,
+  More,
+  XIcon,
+  Lock,
+  BigCalendar,
+  Box,
+  MiniPlus
+} from "@/components/icons";
 import NewInput from "@/components/common/NewInput";
 import SelectBar from "@/components/common/SelectBar";
 import ToolTip from "@/components/common/ToolTip";
@@ -154,8 +194,13 @@ export default {
   name: "editTask",
   data() {
     return {
-      completeDate:'',
-      showXIcon:false,
+      showAddInput: false,
+      searchWords: '',
+      projectSelectIndex: 0,
+      currentProjectList: [],
+      projectSelectShow: true,
+      completeDate: '',
+      showXIcon: false,
       categorySelect: '',
       sectionSelect: '',
       taskTitle: '',
@@ -163,7 +208,7 @@ export default {
       titleInputFocus: false,
       sectionList: [{}],
       categoryList: [{}],
-      dateValue:''
+      dateValue: ''
     }
   },
   props: {
@@ -180,30 +225,91 @@ export default {
     taskData(newValue) {
       this.taskTitle = newValue.title
       this.getSection()
-      this.getCategory()
-      if(newValue.complete_time !== null){
-        if(newValue.start_time !== null){
-          this.dateValue = [newValue.start_time,newValue.complete_time]
+      if (newValue.project !== null) {
+        this.getCategory()
+      }
+
+      if (newValue.complete_time !== null) {
+        if (newValue.start_time !== null) {
+          this.dateValue = [newValue.start_time, newValue.complete_time]
         } else {
           this.dateValue = newValue.complete_time
         }
-      } else{
-        if(newValue.start_time !== null){
-          this.dateValue = [newValue.start_time,newValue.complete_time]
+      } else {
+        if (newValue.start_time !== null) {
+          this.dateValue = [newValue.start_time, newValue.complete_time]
         } else {
           this.dateValue = newValue.complete_time
         }
       }
       this.completeDate = newValue.complete_date
+      this.currentProjectList = this.projectList
     },
     dateValue(newValue) {
-      console.log(newValue)
+      let task;
+      if (newValue === null) {
+        task = {complete_time: null, start_time: null}
+      } else if (typeof newValue === "string") {
+        task = {complete_time: newValue, start_time: null}
+      } else {
+        task = {complete_time: newValue[1], start_time: newValue[0]}
+      }
+      task = formatTaskData()(task)
+      this.completeDate = task.complete_date
+      if (this.completeDate === '') {
+        this.completeDate = 'No due date'
+      }
     }
   },
   created() {
 
   },
   methods: {
+    showAdd() {
+      this.showAddInput = true
+      this.$nextTick(() => {
+        this.$refs.projectInput.$refs.input.focus()
+      })
+    },
+    search() {
+      this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+    },
+    keySelectProject() {
+      if (event.keyCode) {
+        switch (event.keyCode) {
+            // 跳转到project选择
+          case 9: // Tab键
+          case 13: // Enter键
+
+            break;
+          case 40: // 下箭头
+            this.projectSelectIndex = (this.projectSelectIndex + 1) % this.currentProjectList.length
+            this.searchWords = this.currentProjectList[this.projectSelectIndex].name
+              this.scrollToActiveOption()
+            break;
+          case 38: // 上箭头
+            this.projectSelectIndex = (this.currentProjectList.length + this.projectSelectIndex - 1) % this.currentProjectList.length
+            this.searchWords = this.currentProjectList[this.projectSelectIndex].name
+              this.scrollToActiveOption()
+            break;
+          default:
+            break;
+        }
+      } else { //鼠标点击选择
+        this.searchWords = this.currentProjectList[this.projectSelectIndex].name
+      }
+    },
+    // project选择时，上下键附带滚动
+    scrollToActiveOption() {
+      const selectWrapper = this.$refs.projectWrapper
+      const activeOption = this.$refs.projectWrapper.querySelector('.when-active')
+      const optionHeight = activeOption.offsetHeight
+      if(this.projectSelectIndex>5){
+        selectWrapper.scrollTop = optionHeight*(this.projectSelectIndex-5)
+      } else if(this.projectSelectIndex === 0) {
+        selectWrapper.scrollTop = 0
+      }
+    },
     getSection() {
       const url = "/api/get_all_section/"
       apiHttpClient.get(url).then((response) => {
@@ -241,7 +347,7 @@ export default {
 .edit-task-swap {
   background-color: white;
   height: 40rem;
-  width: 57rem;
+  width: 40rem;
 }
 
 .edit-header {
@@ -431,5 +537,65 @@ export default {
 .task-project {
   display: flex;
   align-items: center;
+}
+
+.select-project {
+  max-width: max-content;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: .2rem .5rem;
+  border-radius: .3rem;
+  color: var(--gray);
+}
+
+.select-project:hover {
+  background-color: rgb(248, 246, 246);
+  color: var(--black);
+}
+
+.project-select {
+  width: 27.5rem;
+  border-radius: .5rem;
+  max-height: 15rem;
+  overflow-y: auto;
+  border: 2px solid #F3F1F1;
+  background-color: white;
+  z-index: 1000;
+  box-shadow: 0 1px 4px 0 rgba(109, 110, 111, 0.08);
+}
+
+.select-option {
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem 1rem;
+  transition: background-color .3s;
+}
+
+.when-active {
+  background-color: #F9F8F8;
+}
+
+.dsp-flx {
+  display: flex;
+  align-items: center;
+}
+
+.create-project {
+  display: flex;
+  align-items: center;
+  padding: .5rem 1.5rem;
+  color: #4069C3;
+}
+
+.create-project span {
+  margin-left: .5rem;
+}
+
+.align{
+  align-items: flex-start;
+}
+
+.mrg-top-5 {
+  margin-top: .5rem;
 }
 </style>

@@ -42,8 +42,10 @@ import Like from './Like'
 import SubTask from './SubTask'
 import Clip from './Clip'
 import Expand from './Expand'
+import MiniPlus from './MiniPlus'
 
 export {
+    MiniPlus,
     Expand,
     SubTask,
     Clip,
