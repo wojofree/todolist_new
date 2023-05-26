@@ -1,9 +1,9 @@
 <template>
   <div class="input-swap">
     <input v-model="inputString" class="new-input" readonly  v-if="readonly" @focus="handleFocus"
-      @blur="handleBlur" />
+      @blur="handleBlur" :placeholder="placeholder" />
     <input v-model="inputString" class="new-input" v-else @focus="handleFocus"
-      @blur="handleBlur" ref="input" />
+      @blur="handleBlur" ref="input" :placeholder="placeholder" />
     <div class="input-icon" v-if="showIcon">
       <slot/>
     </div>
@@ -20,6 +20,10 @@ export default {
     }
   },
   props: {
+    placeholder: {
+      type:String,
+      default:''
+    },
     modelValue: {
       type: String,
       default: ''

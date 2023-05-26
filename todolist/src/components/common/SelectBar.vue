@@ -15,7 +15,7 @@
         <div class="option-title" v-if="optionTitle !== ''">
           <p>{{ optionTitle }}</p>
         </div>
-        <div class="option-item cursor" v-for="item in options" @click="selectOption(item)">
+        <div class="option-item cursor" v-for="item in options" @click="selectOption(item)" :class="{'selected':isSelect === item.value}">
           <IconBase width=".75rem" height=".75rem" box-view="0 0 32 32"
                     :class="{'vis-hidden':isSelect !== item.value}">
             <Right/>
@@ -113,7 +113,7 @@ import {Arrow, Right} from "@/components/icons"
 <style scoped>
 .select-bar {
   text-align: left;
-  z-index: 1000002;
+  z-index: 100002;
   width: v-bind(titleWidth);
 }
 
@@ -205,6 +205,10 @@ import {Arrow, Right} from "@/components/icons"
 }
 
 .option-item:hover {
+  background-color: rgb(248, 246, 246);
+}
+
+.selected {
   background-color: rgb(248, 246, 246);
 }
 </style>

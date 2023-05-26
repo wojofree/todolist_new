@@ -52,6 +52,7 @@ function formatTaskData() {
     return {
       ...task,
       complete_date: completeDate,
+      complete_date1: completeDate,
     };
   };
 }

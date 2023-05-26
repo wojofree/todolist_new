@@ -209,6 +209,7 @@ export default {
   methods: {
     closeDate(e) {
       if (this.$refs.dateMain && !this.$refs.dateMain.contains(e.target) && this.firstClick) {
+        this.$emit('show',false)
         this.showDatePick = false
         this.firstClick = false
       }

@@ -10,9 +10,11 @@
       <div class="tab-navigation-bar">
         <div class="d-flex header-title">
           <div class="title cursor mrg-r-5">My Tasks</div>
-          <IconBase color="var(--gray)" height="0.75rem" width="0.75rem">
-            <Lock/>
-          </IconBase>
+          <tool-tip content="Task you add here are private to you unless you add collaborators or add the task to a shared project">
+            <IconBase color="var(--gray)" height="0.75rem" width="0.75rem">
+              <Lock/>
+            </IconBase>
+          </tool-tip>
         </div>
         <TabBar v-model="tabValue" :options=tabOptions></TabBar>
       </div>
@@ -79,9 +81,12 @@
           <div class="text-overflow w-100 text-start cursor" @click="currentTask = task,openTaskMessage = true">
             <span>{{ task.title }}</span>
           </div>
-          <div v-if="task.project !== null" v-show="isDelete !== index" :style="{'color':task.project.color}"
+          <div v-for="(item,projectIndex) in task.project" v-show="isDelete !== index && projectIndex<2" :style="{'color':item.color}"
                class="text-overflow flex-auto list-project">
-            <span class="text-overflow complete-date project-color">{{ task.project.name }}</span>
+            <span class="text-overflow complete-date project-color">{{ item.name }}</span>
+          </div>
+          <div v-if="task.project.length>=3" class="text-overflow flex-auto list-project" style="background-color: #E7E5E4">
+            <span class="text-overflow complete-date project-color">...</span>
           </div>
           <div v-show="isDelete !== index" :ref="'calendar'+task.id" class="flex-auto mrg-l-5"
                @click="showCalendar(task)">
@@ -153,7 +158,7 @@
     </DatePick>
   </div>
   <message-box v-model="openTaskMessage" hiddenIcon>
-    <edit-task  :taskData="currentTask" @close="openTaskMessage = false" :project-list="projectList"></edit-task>
+    <edit-task  :taskData="currentTask" @close="openTaskMessage = false" :project-list="projectList" @updateTask="changeTask"></edit-task>
   </message-box>
 
 </template>
@@ -322,6 +327,15 @@ export default {
     }
   },
   methods: {
+    changeTask(item){
+      for(let index in this.taskList){
+        if(this.taskList[index].id === item.id){
+          this.taskList[index] = item
+          let type = item.completed
+          this.changeTab(type,index)
+        }
+      }
+    },
     getCompletedTaskNumb(time) {
       const completedList = this.cache.completed
       let i = 0
@@ -530,7 +544,11 @@ export default {
       this.isDelete = index
       const url = "/api/update_task/"
       apiHttpClient.post(url, {'task_id': task.id, "completed": type}).then(() => {
-        const task = this.taskList[index]
+        this.changeTab(type,index)
+      })
+    },
+    changeTab(type,index){
+      const task = this.taskList[index]
         const completeTime = new Date(task.complete_time)
         // const now = new Date()
         let outTime = 400
@@ -558,7 +576,6 @@ export default {
             this.getCompletedTaskNumb(this.analyzeTime)
           }
         })
-      })
     },
     // 更新tab时间,前端展现更改
     async updateTaskLab() {
@@ -1016,10 +1033,11 @@ function filterTasks(taskList, type, now) {
   max-width: 6rem;
   background-color: currentColor;
   border-radius: .9rem;
-  height: 1.5rem;
+  height: 1.4rem;
   padding: .3rem .7rem;
   display: flex;
   align-items: center;
   color: #4351B1;
+  margin-left: .3rem;
 }
 </style>

@@ -1,11 +1,12 @@
 <template>
   <div class="edit-task-swap">
     <div class="edit-header">
-      <div class="button">
+      <div :class="{'completed':currentTaskData.completed}" class="button" @click="changeTask('completed')">
         <icon-base height=".75rem" width=".75rem">
           <Right/>
         </icon-base>
-        <span>Mark complete</span>
+        <span v-if="!currentTaskData.completed">Mark complete</span>
+        <span v-else>Completed</span>
       </div>
       <div class="icons">
         <div class="icon-item">
@@ -59,7 +60,7 @@
     <div class="task-main">
       <div class="task-title">
         <div class="title" @mouseenter="showTitleInput = true">
-          {{ taskData.title }}
+          {{ taskTitle }}
         </div>
         <new-input v-show="showTitleInput" v-model="taskTitle" class="title mrg-left" weight="500"
                    @blur="showTitleInput = titleInputFocus = false" @focus="showTitleInput = titleInputFocus = true"
@@ -73,8 +74,8 @@
           </div>
           <div class="item-right" @mouseenter="showXIcon = 'assignee'" @mouseleave="showXIcon = false">
             <div class="item-info">
-              <div class="user-icon">{{ taskData.assigned_to.username[0] }}</div>
-              <span>{{ taskData.assigned_to.username }}</span>
+              <div class="user-icon">{{ currentTaskData.assigned_to.username[0] }}</div>
+              <span>{{ currentTaskData.assigned_to.username }}</span>
             </div>
             <div class="icon-item mrg-l">
               <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
@@ -91,18 +92,18 @@
             <span>Due date</span>
           </div>
           <div class="item-right" @mouseenter="showXIcon = 'date'" @mouseleave="showXIcon = false">
-            <date-pick v-model="dateValue">
+            <date-pick v-model="dateValue" startPosition="flex-start" @show="updateDate">
               <div class="item-info">
                 <div class="calendar-icon">
                   <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
                     <BigCalendar/>
                   </icon-base>
                 </div>
-                <span v-if="taskData.complete_date !== ''">{{ completeDate }}</span>
+                <span v-if="currentTaskData.complete_date !== ''" class="date-color">{{ completeDate }}</span>
                 <span v-else>No due date</span>
               </div>
             </date-pick>
-            <div v-if="showXIcon === 'date'" class="icon-item mrg-l">
+            <div v-if="showXIcon === 'date'" class="icon-item mrg-l" @click="dateValue=null,updateDate(false)">
               <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
                 <XIcon/>
               </icon-base>
@@ -114,32 +115,34 @@
             <span>Projects</span>
           </div>
           <div>
-            <div class="task-project" @mouseenter="showXIcon = 'project'" @mouseleave="showXIcon = false">
-              <div v-if="taskData.project !== null" class="dsp-flx">
+            <div class="task-project">
+              <div v-for="item in currentTaskData.project" class="dsp-flx" @mouseenter="showXIcon = item.id"
+                   @mouseleave="showXIcon = false">
                 <tool-tip content="Click to view all tasks in this project" style="height: 1.75rem">
                   <div class="item-right hover">
-                    <icon-base :icon-color="taskData.project.color" box-view="0 0 24 24" height=".75rem" width=".75rem">
+                    <icon-base :icon-color="item.color" box-view="0 0 24 24" height=".75rem"
+                               width=".75rem">
                       <Box/>
                     </icon-base>
-                    <span class="mrg-l-5">{{ taskData.project.name }}</span>
+                    <span class="mrg-l-5">{{ item.name }}</span>
                   </div>
                 </tool-tip>
-                <div style="height: 2.125rem">
-                  <select-bar v-model="categorySelect" :options="categoryList"></select-bar>
+                <div v-if="compare(categoryList[item.id],[])" style="height: 2.125rem">
+                  <select-bar v-model="categorySelect[item.id]" :options="categoryList[item.id]"></select-bar>
                 </div>
-                <div v-if="showXIcon === 'project'" class="icon-item mrg-l">
+                <div v-if="showXIcon === item.id" class="icon-item mrg-l" @click="removeProject(item.id)">
                   <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
                     <XIcon/>
                   </icon-base>
                 </div>
               </div>
             </div>
-            <div v-show="!showAddInput" class="select-project" @click="showAdd">
+            <div class="select-project" @click="showAdd" v-show="!showAddInput">
               <span>Add to projects</span>
             </div>
             <new-input v-show="showAddInput" ref="projectInput" v-model="searchWords" @input="search"
-                       @keydown="keySelectProject"></new-input>
-            <div v-show="projectSelectShow" ref="projectWrapper" class="project-select">
+                       @keydown="keySelectProject" @blur="hiddenAddInput" placeholder="Add task to a project..."></new-input>
+            <div v-show="showAddInput" ref="projectWrapper" class="project-select">
               <div v-for="(item,index) in currentProjectList" :key="item.id"
                    :class="{'when-active':projectSelectIndex === index,'borderBottom':item.id === 0}"
                    class="select-option cursor"
@@ -148,6 +151,12 @@
               >
                 <div class="text-overflow dsp-flx">
                   <span>{{ item.name }}</span>
+                  <div v-if="item.archive" class="archived">
+                    <icon-base box-view="0 0 24 24" height=".75rem" width=".75rem">
+                      <SolidArchived/>
+                    </icon-base>
+                    <span>Archived</span>
+                  </div>
                 </div>
               </div>
               <div v-if="this.currentProjectList.length === 0" class="create-project">
@@ -167,6 +176,7 @@
 <script setup>
 import IconBase from "@/components/IconBase";
 import {
+  SolidArchived,
   Right,
   Like,
   Clip,
@@ -194,6 +204,7 @@ export default {
   name: "editTask",
   data() {
     return {
+      dateColor: 'var(--gray)',
       showAddInput: false,
       searchWords: '',
       projectSelectIndex: 0,
@@ -201,14 +212,17 @@ export default {
       projectSelectShow: true,
       completeDate: '',
       showXIcon: false,
-      categorySelect: '',
+      categorySelect: {},
       sectionSelect: '',
       taskTitle: '',
       showTitleInput: false,
       titleInputFocus: false,
       sectionList: [{}],
-      categoryList: [{}],
-      dateValue: ''
+      categoryList: {},
+      dateValue: '',
+      sectionSelectTemp: {},
+      showDate: '',
+      currentTaskData: {assigned_to: {username: ''}, project: {color: '', name: '', id: ''}}
     }
   },
   props: {
@@ -222,11 +236,17 @@ export default {
     }
   },
   watch: {
-    taskData(newValue) {
+    async taskData(newValue) {
+      this.currentTaskData = newValue
       this.taskTitle = newValue.title
       this.getSection()
       if (newValue.project !== null) {
-        this.getCategory()
+        for (let item of newValue.project) {
+          const categoryTemp = await this.getCategory(item.id)
+          const project_id = item.id
+          this.categoryList[project_id] = categoryTemp
+          this.categorySelect[project_id] = categoryTemp[0]
+        }
       }
 
       if (newValue.complete_time !== null) {
@@ -247,26 +267,97 @@ export default {
     },
     dateValue(newValue) {
       let task;
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
+      const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)
       if (newValue === null) {
         task = {complete_time: null, start_time: null}
       } else if (typeof newValue === "string") {
         task = {complete_time: newValue, start_time: null}
+        this.dateColor = new Date(newValue) < today ? '#c92f54' : 'var(--black)'
+        this.dateColor = new Date(newValue).getTime() === todayEnd.getTime() ? '#0d7f56' : this.dateColor
       } else {
         task = {complete_time: newValue[1], start_time: newValue[0]}
+        this.dateColor = new Date(newValue[1]) < today ? '#c92f54' : 'var(--black)'
+        this.dateColor = new Date(newValue[1]).getTime() === todayEnd.getTime() ? '#0d7f56' : this.dateColor
       }
       task = formatTaskData()(task)
       this.completeDate = task.complete_date
       if (this.completeDate === '') {
         this.completeDate = 'No due date'
       }
+    },
+    sectionSelect(newValue) {
+      const isEmptyObject = Object.keys(newValue).length === 0;
+      if (newValue !== this.sectionSelectTemp && !isEmptyObject) {
+        this.changeTask('section')
+      }
+    },
+    showTitleInput(newValue) {
+      if (!newValue && this.taskTitle !== this.currentTaskData.title) {
+        this.changeTask('title')
+      }
     }
   },
   created() {
-
   },
   methods: {
+    removeProject(project_id) {
+      const url = '/api/update_task/'
+      const data = {task_id: this.currentTaskData.id, project_id: project_id, remove: true}
+      apiHttpClient.post(url, data).then(() => {
+        for (let index in this.currentTaskData.project) {
+          if (this.currentTaskData.project[index].id === project_id) {
+            this.currentTaskData.project.splice(index, 1)
+          }
+        }
+      })
+    },
+    compare(item1, item2) {
+      const _ = require('lodash');
+      return !_.isEqual(item1, item2)
+    },
+    updateDate(item) {
+      if (!item) {
+        this.changeTask('date')
+      }
+    },
+    async changeTask(type) {
+      const url = '/api/update_task/'
+      if (type === 'completed') {
+        const data = {completed: !this.currentTaskData.completed, task_id: this.currentTaskData.id}
+        await apiHttpClient.post(url, data).then(() => {
+          this.currentTaskData.completed = !this.currentTaskData.completed
+        })
+      } else if (type === 'section') {
+        const data = {section_id: this.sectionSelect.id, task_id: this.currentTaskData.id}
+        await apiHttpClient.post(url, data).then(() => {
+          this.currentTaskData.section = this.sectionSelect.id
+        })
+      } else if (type === 'date') {
+        let data = {task_id: this.currentTaskData.id}
+        if (typeof this.dateValue === "string" || this.dateValue === null) {
+          data = {task_id: this.currentTaskData.id, complete_time: this.dateValue, start_time: null}
+        } else {
+          data = {task_id: this.currentTaskData.id, complete_time: this.dateValue[1], start_time: this.dateValue[0]}
+        }
+        await apiHttpClient.post(url, data).then(() => {
+          this.currentTaskData.complete_time = data.complete_time
+          this.currentTaskData.start_time = data.start_time
+        })
+      } else if (type === 'title') {
+        const data = {task_id: this.currentTaskData.id, title: this.taskTitle}
+        await apiHttpClient.post(url, data).then(() => {
+          this.currentTaskData.title = this.taskTitle
+        })
+      }
+      this.currentTaskData = await formatTaskData()(this.currentTaskData)
+      await this.$emit('updateTask', this.currentTaskData)
+    },
     showAdd() {
+      this.searchWords = null
       this.showAddInput = true
+      this.currentProjectList =  this.projectList
       this.$nextTick(() => {
         this.$refs.projectInput.$refs.input.focus()
       })
@@ -280,33 +371,46 @@ export default {
             // 跳转到project选择
           case 9: // Tab键
           case 13: // Enter键
-
+              this.addProject()
             break;
           case 40: // 下箭头
             this.projectSelectIndex = (this.projectSelectIndex + 1) % this.currentProjectList.length
             this.searchWords = this.currentProjectList[this.projectSelectIndex].name
-              this.scrollToActiveOption()
+            this.scrollToActiveOption()
             break;
           case 38: // 上箭头
             this.projectSelectIndex = (this.currentProjectList.length + this.projectSelectIndex - 1) % this.currentProjectList.length
             this.searchWords = this.currentProjectList[this.projectSelectIndex].name
-              this.scrollToActiveOption()
+            this.scrollToActiveOption()
             break;
           default:
             break;
         }
       } else { //鼠标点击选择
-        this.searchWords = this.currentProjectList[this.projectSelectIndex].name
+        this.addProject()
       }
+    },
+    hiddenAddInput() {
+      setTimeout(()=>{
+        this.showAddInput = false
+      },100)
+    },
+    addProject() {
+      const url = '/api/update_task/'
+              const data = {task_id:this.currentTaskData.id,project_id:[this.currentProjectList[this.projectSelectIndex].id]}
+              apiHttpClient.post(url,data).then(()=>{
+                this.currentTaskData.project.push(this.currentProjectList[this.projectSelectIndex])
+                this.showAddInput = false
+              })
     },
     // project选择时，上下键附带滚动
     scrollToActiveOption() {
       const selectWrapper = this.$refs.projectWrapper
       const activeOption = this.$refs.projectWrapper.querySelector('.when-active')
       const optionHeight = activeOption.offsetHeight
-      if(this.projectSelectIndex>5){
-        selectWrapper.scrollTop = optionHeight*(this.projectSelectIndex-5)
-      } else if(this.projectSelectIndex === 0) {
+      if (this.projectSelectIndex > 5) {
+        selectWrapper.scrollTop = optionHeight * (this.projectSelectIndex - 5)
+      } else if (this.projectSelectIndex === 0) {
         selectWrapper.scrollTop = 0
       }
     },
@@ -316,20 +420,24 @@ export default {
         this.sectionList = response.data.results
         for (let index in this.sectionList) {
           this.sectionList[index].value = this.sectionList[index].id
+          if (this.sectionList[index].id === this.currentTaskData.section) {
+            this.sectionSelect = this.sectionList[index]
+          }
         }
-        this.sectionSelect = this.sectionList[0]
+        this.sectionSelectTemp = this.sectionSelect
       })
     },
-    getCategory() {
+    async getCategory(id) {
       const url = "/api/get_category/"
-      const data = {project_id: this.taskData.project.id}
-      apiHttpClient.post(url, data).then((response) => {
-        this.categoryList = response.data.results
-        for (let index in this.categoryList) {
-          this.categoryList[index].value = this.categoryList[index].id
+      const data = {project_id: id}
+      let List;
+      await apiHttpClient.post(url, data).then((response) => {
+        List = response.data.results
+        for (let index in List) {
+          List[index].value = List[index].id
         }
-        this.categorySelect = this.categoryList[0]
       })
+      return await List
     },
     isShowTitle() {
       if (!this.titleInputFocus) {
@@ -370,6 +478,12 @@ export default {
 }
 
 .button:hover {
+  background-color: #E0F5ED;
+  border-color: #58A182;
+  color: #11724D;
+}
+
+.completed {
   background-color: #E0F5ED;
   border-color: #58A182;
   color: #11724D;
@@ -501,6 +615,10 @@ export default {
   margin-left: .5rem;
 }
 
+.date-color {
+  color: v-bind(dateColor);
+}
+
 .item-right {
   display: flex;
   align-items: center;
@@ -517,11 +635,12 @@ export default {
 .calendar-icon {
   width: 1.75rem;
   height: 1.75rem;
-  border: 1px solid var(--gray);
+  border: 1px solid v-bind(dateColor);
   border-radius: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: v-bind(dateColor);
 }
 
 .hover {
@@ -536,14 +655,15 @@ export default {
 
 .task-project {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
 }
 
 .select-project {
   max-width: max-content;
   font-size: .75rem;
   font-weight: 600;
-  padding: .2rem .5rem;
+  padding: .2rem .6rem;
   border-radius: .3rem;
   color: var(--gray);
 }
@@ -591,11 +711,23 @@ export default {
   margin-left: .5rem;
 }
 
-.align{
+.align {
   align-items: flex-start;
 }
 
 .mrg-top-5 {
   margin-top: .5rem;
+}
+
+.archived {
+  display: flex;
+  align-items: center;
+  color: var(--gray);
+  margin-left: 1.5rem;
+}
+
+.archived span {
+  font-size: .75rem;
+  margin-left: .25rem;
 }
 </style>

@@ -312,10 +312,8 @@ export default {
           const url = '/api/update_project/'
           if(typeof this.dateValue === "string" || this.dateValue === null){
             data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue,start_time:null}
-            console.log(data)
           } else {
             data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue[1],start_time:this.dateValue[0]}
-            console.log(data)
           }
           apiHttpClient.post(url,data).then((response)=>{
             this.projectListCache[this.currentProjectIndex] = response.data.results
