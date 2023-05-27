@@ -547,7 +547,7 @@ function getFormatDate(date, type) {
   height: 2rem;
   width: auto;
   margin-right: -1.2rem;
-
+  min-width: 5rem;
 }
 
 .title span {

@@ -76,7 +76,6 @@ export default {
     }
   },
   mounted() {
-    // 监听，除了点击自己，点击其他地方将自身隐藏
     this.$nextTick(() => {
       this.titleWidth = this.$refs.title.offsetWidth + 'px'
     })

@@ -1,24 +1,40 @@
 <template>
-  <div style="position: absolute;top: 400px;right: 30px">
-  <date-pick type="date" v-model="date">
-    <div style="width: 5rem;height: 3rem;background-color: #fff3cd"></div>
-  </date-pick>
-  </div>
-  {{date}}
-  <new-button @click="date = [null,'2023/05/11']" class="test">test</new-button>
+<draggable v-model="list" v-bind="dragOptions" class="home-card">
+<transition-group type="transition">
+  <div style="background-color: #fff3cd;width: 3rem;height: 3rem"></div>
+  <div style="background-color:black;width: 3rem;height: 3rem"></div>
+  <div style="background-color: blue;width: 3rem;height: 3rem"></div>
+  <div style="background-color: lightgray;width: 3rem;height: 3rem"></div>
+</transition-group>
+</draggable>
+
 </template>
 
 <script>
 import Popover from "@/components/common/Popover";
 import DatePick from "@/components/common/DateTimePicker";
 import NewButton from "@/components/common/NewButton";
-
+import {VueDraggableNext} from 'vue-draggable-next'
 export default {
   name: "test",
-  components: {NewButton, DatePick, Popover},
+  components: {NewButton, DatePick, Popover, draggable:VueDraggableNext},
   data() {
     return {
-      date: null
+      date: null,
+      list:[{'name': 'Tasks', 'id': 1}, {'name': 'Projects', 'id': 2}, {'name': 'People', 'id': 3}, {
+        'name': 'Goals',
+        'id': 4
+      }]
+    }
+  },
+  computed:{
+    dragOptions() {
+      return {
+        animation: 200,
+        group: "description",
+        disabled: false,
+        ghostClass: "ghost"
+      };
     }
   },
   methods: {

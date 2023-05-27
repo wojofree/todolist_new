@@ -1,5 +1,6 @@
 <template>
   <div class="edit-task-swap">
+<!--    弹窗表头-->
     <div class="edit-header">
       <div :class="{'completed':currentTaskData.completed}" class="button" @click="changeTask('completed')">
         <icon-base height=".75rem" width=".75rem">
@@ -58,6 +59,7 @@
       </div>
     </div>
     <div class="task-main">
+<!--      task title-->
       <div class="task-title">
         <div class="title" @mouseenter="showTitleInput = true">
           {{ taskTitle }}
@@ -67,6 +69,7 @@
                    @mouseleave="isShowTitle"
         ></new-input>
       </div>
+<!--      task Assignee-->
       <div class="task-pane">
         <div class="task-pane-item">
           <div class="item-left">
@@ -87,6 +90,7 @@
             </div>
           </div>
         </div>
+<!--        task date-->
         <div class="task-pane-item">
           <div class="item-left">
             <span>Due date</span>
@@ -110,6 +114,7 @@
             </div>
           </div>
         </div>
+<!--        task project-->
         <div class="task-pane-item align">
           <div class="item-left mrg-top-5">
             <span>Projects</span>
@@ -137,11 +142,13 @@
                 </div>
               </div>
             </div>
-            <div class="select-project" @click="showAdd" v-show="!showAddInput">
+            <div v-show="!showAddInput" class="select-project" @click="showAdd">
               <span>Add to projects</span>
             </div>
-            <new-input v-show="showAddInput" ref="projectInput" v-model="searchWords" @input="search"
-                       @keydown="keySelectProject" @blur="hiddenAddInput" placeholder="Add task to a project..."></new-input>
+            <new-input v-show="showAddInput" ref="projectInput" v-model="searchWords"
+                       placeholder="Add task to a project..."
+                       @blur="hiddenAddInput" @input="search"
+                       @keydown="keySelectProject"></new-input>
             <div v-show="showAddInput" ref="projectWrapper" class="project-select">
               <div v-for="(item,index) in currentProjectList" :key="item.id"
                    :class="{'when-active':projectSelectIndex === index,'borderBottom':item.id === 0}"
@@ -159,7 +166,7 @@
                   </div>
                 </div>
               </div>
-              <div v-if="this.currentProjectList.length === 0" class="create-project">
+              <div v-if="this.currentProjectList.length === 0" class="create-project" @click="createProject">
                 <icon-base box-view=" 0 0 32 32" icon-color="#4069C3">
                   <MiniPlus/>
                 </icon-base>
@@ -236,19 +243,24 @@ export default {
     }
   },
   watch: {
+    // 打开弹窗，数据更新
     async taskData(newValue) {
       this.currentTaskData = newValue
       this.taskTitle = newValue.title
+      // 获取Section
       this.getSection()
+      // 获取project对应的category
+      let projectIDList = []
       if (newValue.project !== null) {
         for (let item of newValue.project) {
-          const categoryTemp = await this.getCategory(item.id)
-          const project_id = item.id
-          this.categoryList[project_id] = categoryTemp
-          this.categorySelect[project_id] = categoryTemp[0]
+          projectIDList.push(item.id)
+        }
+        this.categoryList = await this.getCategory(projectIDList, 'many')
+        for (let item of projectIDList) {
+          this.categorySelect[item] = this.categoryList[item][0]
         }
       }
-
+      // 日期更新
       if (newValue.complete_time !== null) {
         if (newValue.start_time !== null) {
           this.dateValue = [newValue.start_time, newValue.complete_time]
@@ -265,6 +277,7 @@ export default {
       this.completeDate = newValue.complete_date
       this.currentProjectList = this.projectList
     },
+    // 日期更新
     dateValue(newValue) {
       let task;
       const now = new Date()
@@ -281,18 +294,21 @@ export default {
         this.dateColor = new Date(newValue[1]) < today ? '#c92f54' : 'var(--black)'
         this.dateColor = new Date(newValue[1]).getTime() === todayEnd.getTime() ? '#0d7f56' : this.dateColor
       }
+      // 日期格式更新
       task = formatTaskData()(task)
-      this.completeDate = task.complete_date
+      this.currentTaskData.complete_date = this.completeDate = task.complete_date
       if (this.completeDate === '') {
         this.completeDate = 'No due date'
       }
     },
+    // section选择
     sectionSelect(newValue) {
       const isEmptyObject = Object.keys(newValue).length === 0;
       if (newValue !== this.sectionSelectTemp && !isEmptyObject) {
         this.changeTask('section')
       }
     },
+    // title更新
     showTitleInput(newValue) {
       if (!newValue && this.taskTitle !== this.currentTaskData.title) {
         this.changeTask('title')
@@ -302,6 +318,10 @@ export default {
   created() {
   },
   methods: {
+    createProject(){
+
+    },
+    // 删除project
     removeProject(project_id) {
       const url = '/api/update_task/'
       const data = {task_id: this.currentTaskData.id, project_id: project_id, remove: true}
@@ -313,28 +333,34 @@ export default {
         }
       })
     },
+    // 对比
     compare(item1, item2) {
       const _ = require('lodash');
       return !_.isEqual(item1, item2)
     },
+    // 更新日期
     updateDate(item) {
       if (!item) {
         this.changeTask('date')
       }
     },
+    // 变更task
     async changeTask(type) {
       const url = '/api/update_task/'
+      // 完成或取消完成日期
       if (type === 'completed') {
         const data = {completed: !this.currentTaskData.completed, task_id: this.currentTaskData.id}
         await apiHttpClient.post(url, data).then(() => {
           this.currentTaskData.completed = !this.currentTaskData.completed
         })
       } else if (type === 'section') {
+        // 更改section
         const data = {section_id: this.sectionSelect.id, task_id: this.currentTaskData.id}
         await apiHttpClient.post(url, data).then(() => {
           this.currentTaskData.section = this.sectionSelect.id
         })
       } else if (type === 'date') {
+        // 更新日期
         let data = {task_id: this.currentTaskData.id}
         if (typeof this.dateValue === "string" || this.dateValue === null) {
           data = {task_id: this.currentTaskData.id, complete_time: this.dateValue, start_time: null}
@@ -346,32 +372,37 @@ export default {
           this.currentTaskData.start_time = data.start_time
         })
       } else if (type === 'title') {
+        // 更新title
         const data = {task_id: this.currentTaskData.id, title: this.taskTitle}
         await apiHttpClient.post(url, data).then(() => {
           this.currentTaskData.title = this.taskTitle
         })
       }
+      // 更新日期格式
       this.currentTaskData = await formatTaskData()(this.currentTaskData)
       await this.$emit('updateTask', this.currentTaskData)
     },
+    // 添加project
     showAdd() {
       this.searchWords = null
       this.showAddInput = true
-      this.currentProjectList =  this.projectList
+      this.currentProjectList = this.projectList
       this.$nextTick(() => {
         this.$refs.projectInput.$refs.input.focus()
       })
     },
+    // project搜索
     search() {
       this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
     },
+    // project 键盘操作
     keySelectProject() {
       if (event.keyCode) {
         switch (event.keyCode) {
             // 跳转到project选择
           case 9: // Tab键
           case 13: // Enter键
-              this.addProject()
+            this.addProject()
             break;
           case 40: // 下箭头
             this.projectSelectIndex = (this.projectSelectIndex + 1) % this.currentProjectList.length
@@ -391,17 +422,23 @@ export default {
       }
     },
     hiddenAddInput() {
-      setTimeout(()=>{
+      setTimeout(() => {
         this.showAddInput = false
-      },100)
+      }, 100)
     },
-    addProject() {
+    // 添加project
+    async addProject() {
       const url = '/api/update_task/'
-              const data = {task_id:this.currentTaskData.id,project_id:[this.currentProjectList[this.projectSelectIndex].id]}
-              apiHttpClient.post(url,data).then(()=>{
-                this.currentTaskData.project.push(this.currentProjectList[this.projectSelectIndex])
-                this.showAddInput = false
-              })
+      const project_id = this.currentProjectList[this.projectSelectIndex].id
+      const data = {task_id: this.currentTaskData.id, project_id: [project_id]}
+      apiHttpClient.post(url, data).then(() => {
+        this.currentTaskData.project.push(this.currentProjectList[this.projectSelectIndex])
+        this.showAddInput = false
+      })
+      // 获取刚添加的project的category
+      const categoryTemp = await this.getCategory(project_id, 'single')
+      this.categoryList[project_id] = categoryTemp
+      this.categorySelect[project_id] = categoryTemp[0]
     },
     // project选择时，上下键附带滚动
     scrollToActiveOption() {
@@ -414,6 +451,7 @@ export default {
         selectWrapper.scrollTop = 0
       }
     },
+    // 获取section
     getSection() {
       const url = "/api/get_all_section/"
       apiHttpClient.get(url).then((response) => {
@@ -427,15 +465,27 @@ export default {
         this.sectionSelectTemp = this.sectionSelect
       })
     },
-    async getCategory(id) {
+    // 获取getCategory
+    async getCategory(id, type) {
       const url = "/api/get_category/"
-      const data = {project_id: id}
+      let data;
+      if (type === 'many') {
+        data = {project_id: id, 'many': true}
+      } else {
+        data = {project_id: id}
+      }
       let List;
       await apiHttpClient.post(url, data).then((response) => {
-        List = response.data.results
-        for (let index in List) {
-          List[index].value = List[index].id
-        }
+        List = response.data.results;
+        Array.from(List).forEach((item) => {
+          if (type === 'many') {
+            for (let i in item) {
+              item[i].value = item[i].id;
+            }
+          } else {
+            item.value = item.id;
+          }
+        });
       })
       return await List
     },

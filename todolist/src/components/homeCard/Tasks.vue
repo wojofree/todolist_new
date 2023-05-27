@@ -324,9 +324,10 @@ export default {
         this.analyzeTime = new Date(now.getFullYear(), 1, 1, 0, 0, 0)
       }
       this.getCompletedTaskNumb(this.analyzeTime)
-    }
+    },
   },
   methods: {
+    // 通过弹窗更新task
     changeTask(item){
       for(let index in this.taskList){
         if(this.taskList[index].id === item.id){
@@ -336,6 +337,7 @@ export default {
         }
       }
     },
+    // 更新完成的数量
     getCompletedTaskNumb(time) {
       const completedList = this.cache.completed
       let i = 0

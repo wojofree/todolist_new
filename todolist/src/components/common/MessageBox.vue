@@ -1,5 +1,5 @@
 <template>
-  <div class="message-swap" :class="{'vsb-hidden':!openMessage}">
+  <div class="message-swap" v-show="openMessage">
     <div class="background" v-if="overLay"></div>
     <div class="message-main" ref="messageMain">
       <div class="message">

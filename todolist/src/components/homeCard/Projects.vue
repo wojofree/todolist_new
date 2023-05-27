@@ -323,6 +323,7 @@ export default {
     }
   },
   methods: {
+    // 防止点击溢出当前组件
     stopPropagation(event) {
       event.stopPropagation()
       this.dateValue = null
