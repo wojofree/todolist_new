@@ -54,7 +54,7 @@
   <div class="pop">
     <Popover ref="projectPopover" @close="closePop">
       <template #main>
-        <div class="project-more" style="background-color: red" ></div>
+        <div class="project-more"></div>
       </template>
       <template #pop>
         <div class="share pop-item cursor">
