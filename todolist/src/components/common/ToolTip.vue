@@ -59,6 +59,7 @@ export default {
 
 <style scoped>
 .tooltip-main {
+  /*position: relative;*/
   display: flex;
   flex-direction: v-bind(triangle [0]);
   width: max-content;

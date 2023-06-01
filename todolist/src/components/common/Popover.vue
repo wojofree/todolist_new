@@ -21,7 +21,7 @@ export default {
       marWidth: '',
       marHeight: '',
       flexDirection: 'column',
-      alignItems: ''
+      alignItems: '',
     }
   },
   props: {
@@ -40,11 +40,12 @@ export default {
     clickClose: {
       type: Boolean,
       default: true
-    }
+    },
   },
   watch: {
     isPopShow(newValue) {
       if (newValue) {
+        this.getPosition()
         document.addEventListener('click', this.closePop)
       } else {
         document.removeEventListener('click', this.closePop)
@@ -75,15 +76,18 @@ export default {
     hoverClose() {
       if (this.hoverControl) {
         this.isPopShow = false;
+        this.$emit('close',true)
       }
     },
     closePop(e) {
       if (!this.clickClose) {
         if (this.$refs.popSwap && !this.$refs.popSwap.contains(e.target)) {
           this.isPopShow = false;
+          this.$emit('close',true)
         }
       } else {
         this.isPopShow = false;
+        this.$emit('close',true)
       }
     },
     showPop() {
@@ -93,6 +97,8 @@ export default {
       }, 30)
     },
     getPosition() {
+      this.alignItems = this.direction
+      this.flexDirection = 'column'
       const width = this.$refs.popoverContent.offsetWidth
       const height = this.$refs.popoverContent.offsetHeight
       const {left, right, top, bottom} = this.$refs.popoverMain.getBoundingClientRect()
@@ -123,6 +129,7 @@ export default {
 }
 
 .pop-swap {
+  /*position: relative;*/
   display: flex;
   align-items: v-bind(alignItems);
   flex-direction: v-bind(flexDirection);
@@ -146,7 +153,7 @@ export default {
   border: 1px solid #EDEAE9;
   border-radius: .4rem;
   box-shadow: 0 1px 4px 0 rgba(109, 110, 111, 0.08);
-  z-index: 100001;
+  z-index: 1000001;
 }
 
 .vis-hidden {

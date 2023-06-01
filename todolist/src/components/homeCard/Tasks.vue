@@ -354,7 +354,7 @@ export default {
     },
     // 更新overDue title
     changeOverdueTitle() {
-      this.overDueCont = this.cache['overDue'].length !== 0 ? this.cache['overDue'].length : ''
+      this.overDueCont = this.cache['overDue'].length !== 0 ? this.cache['overDue'].length : 0
       this.tabOptions[1].name = "Overdue (" + this.overDueCont + ")"
     },
     // 弹窗外点击，如有符合要求，直接请求更改信息

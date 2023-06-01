@@ -1,6 +1,6 @@
 <template>
   <div class="edit-task-swap">
-<!--    弹窗表头-->
+    <!--    弹窗表头-->
     <div class="edit-header">
       <div :class="{'completed':currentTaskData.completed}" class="button" @click="changeTask('completed')">
         <icon-base height=".75rem" width=".75rem">
@@ -59,7 +59,7 @@
       </div>
     </div>
     <div class="task-main">
-<!--      task title-->
+      <!--      task title-->
       <div class="task-title">
         <div class="title" @mouseenter="showTitleInput = true">
           {{ taskTitle }}
@@ -69,7 +69,7 @@
                    @mouseleave="isShowTitle"
         ></new-input>
       </div>
-<!--      task Assignee-->
+      <!--      task Assignee-->
       <div class="task-pane">
         <div class="task-pane-item">
           <div class="item-left">
@@ -90,7 +90,7 @@
             </div>
           </div>
         </div>
-<!--        task date-->
+        <!--        task date-->
         <div class="task-pane-item">
           <div class="item-left">
             <span>Due date</span>
@@ -114,7 +114,7 @@
             </div>
           </div>
         </div>
-<!--        task project-->
+        <!--        task project-->
         <div class="task-pane-item align">
           <div class="item-left mrg-top-5">
             <span>Projects</span>
@@ -132,7 +132,7 @@
                     <span class="mrg-l-5">{{ item.name }}</span>
                   </div>
                 </tool-tip>
-                <div v-if="compare(categoryList[item.id],[])" style="height: 2.125rem">
+                <div  style="height: 2.125rem" @click="changeCategory(item.id)">
                   <select-bar v-model="categorySelect[item.id]" :options="categoryList[item.id]"></select-bar>
                 </div>
                 <div v-if="showXIcon === item.id" class="icon-item mrg-l" @click="removeProject(item.id)">
@@ -220,6 +220,7 @@ export default {
       completeDate: '',
       showXIcon: false,
       categorySelect: {},
+      oldCategorySelect: {},
       sectionSelect: '',
       taskTitle: '',
       showTitleInput: false,
@@ -257,7 +258,7 @@ export default {
         }
         this.categoryList = await this.getCategory(projectIDList, 'many')
         for (let item of projectIDList) {
-          this.categorySelect[item] = this.categoryList[item][0]
+          this.oldCategorySelect[item] = this.categorySelect[item] = this.categoryList[item][0]
         }
       }
       // 日期更新
@@ -318,8 +319,26 @@ export default {
   created() {
   },
   methods: {
-    createProject(){
-
+    changeCategory(project_id) {
+      console.log(this.oldCategorySelect[project_id])
+      const currentCategory = this.categorySelect[project_id]
+      console.log(currentCategory)
+    },
+    async createProject() {
+      const url = "/api/create_project/"
+      let project_id;
+      await apiHttpClient.post(url, {name: this.searchWords}).then((res) => {
+        const urlTwo = '/api/update_task/'
+        project_id = res.data.results.id
+        const data = {task_id: this.currentTaskData.id, project_id: [project_id]}
+        apiHttpClient.post(urlTwo, data).then(() => {
+          this.currentTaskData.project.push(res.data.results)
+          this.showAddInput = false
+        })
+      })
+      const categoryTemp = await this.getCategory(project_id, 'single')
+      this.categoryList[project_id] = categoryTemp
+      this.oldCategorySelect[project_id] = this.categorySelect[project_id] = categoryTemp[0]
     },
     // 删除project
     removeProject(project_id) {
@@ -393,7 +412,12 @@ export default {
     },
     // project搜索
     search() {
-      this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+      setTimeout(()=>{
+        if(this.searchWords !== null){
+        this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+      }
+        },40)
+
     },
     // project 键盘操作
     keySelectProject() {
@@ -402,7 +426,12 @@ export default {
             // 跳转到project选择
           case 9: // Tab键
           case 13: // Enter键
-            this.addProject()
+              if(this.currentProjectList.length !==0){
+                this.addProject()
+              } else {
+                this.createProject()
+              }
+
             break;
           case 40: // 下箭头
             this.projectSelectIndex = (this.projectSelectIndex + 1) % this.currentProjectList.length
@@ -438,7 +467,7 @@ export default {
       // 获取刚添加的project的category
       const categoryTemp = await this.getCategory(project_id, 'single')
       this.categoryList[project_id] = categoryTemp
-      this.categorySelect[project_id] = categoryTemp[0]
+      this.oldCategorySelect[project_id] = this.categorySelect[project_id] = categoryTemp[0]
     },
     // project选择时，上下键附带滚动
     scrollToActiveOption() {
@@ -476,16 +505,16 @@ export default {
       }
       let List;
       await apiHttpClient.post(url, data).then((response) => {
-        List = response.data.results;
-        Array.from(List).forEach((item) => {
+        List = response.data.results
+        for(let index in List){
           if (type === 'many') {
-            for (let i in item) {
-              item[i].value = item[i].id;
+            for (let i in List[index]) {
+              List[index][i].value = List[index][i].id
             }
           } else {
-            item.value = item.id;
+            List[index].value = List[index].id
           }
-        });
+        }
       })
       return await List
     },

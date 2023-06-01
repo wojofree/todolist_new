@@ -1,5 +1,5 @@
 <template>
-  <div class="projects-card" @mouseenter="isHover = true" @mouseleave="isHover = false">
+  <div ref="projectCard" class="projects-card" @mouseenter="isHover = true" @mouseleave="isHover = false">
     <!--      卡片header-->
     <div :class="{'header-shadow':isShadowed}" class="header">
       <div class="title">
@@ -21,8 +21,9 @@
         <span>Create project</span>
       </div>
       <!--      projectList-->
-      <div v-for="(item,index) in projectListCache" :key="item.id" class="item-option cursor" @mouseenter="projectHover = item"
-           @mouseleave="this.projectHover = ''">
+      <div v-for="(item,index) in projectListCache" :key="item.id" :class="{'hover-background':showMore === item.id}"
+           class="item-option cursor" @mouseenter="projectHover = item"
+           @mouseleave="projectHover = ''">
         <div :style="{'backgroundColor':item.color}" class="item-icon no-border">
           <IconBase box-view="0 0 24 24" class="mag-auto" height="1.5rem" width="1.5rem">
             <component :is="this.projectIconList[item.icon]"></component>
@@ -38,95 +39,101 @@
           </div>
         </div>
         <!--        projcect选项-->
-        <Popover>
-          <template #main>
-            <div :class="{'vsb-hidden':projectHover !== item}" class="project-more">
-              <ToolTip content="Show options">
-                <div class="more cursor">
-                  <icon-base box-view="0 0 32 32">
-                    <More/>
-                  </icon-base>
-                </div>
-              </ToolTip>
-            </div>
-          </template>
-          <template #pop>
-            <div class="share pop-item cursor">
-              <icon-base box-view="0 0 32 32" icon-color="var(--gray)">
-                <WorkSpace/>
-              </icon-base>
-              <span>Share...</span>
-            </div>
-            <div class="favorite pop-item cursor" @click="changeProject(item,{'favorite':!item.favorite})">
-              <icon-base v-if="!item.favorite" box-view="0 0 32 32" icon-color="var(--gray)">
-                <Star/>
-              </icon-base>
-              <icon-base v-else box-view="0 0 1000 1000" icon-color="#F06A6A">
-                <SolidStar/>
-              </icon-base>
-              <span v-if="!item.favorite">Add to favorites</span>
-              <span v-else>Remove from favorites</span>
-            </div>
-            <!--            颜色设置-->
-            <popover :click-close="false" direction="flex-start" hover-control pop-position="side">
-              <template #main>
-                <div class="set-color pop-item cursor" @mouseenter="this.colorSelect = item.color">
-                  <div :style="{'backgroundColor':item.color}" class="color-icon"></div>
-                  <span>Set color&icon</span>
-                  <icon-base style="transform: rotate(-90deg)">
-                    <Arrow/>
-                  </icon-base>
-                </div>
-              </template>
-              <template #pop>
-                <div class="set-color">
-                  <div class="color-selection brd-bottom">
-                    <label v-for="color in colorList" :style="{'color':color}" class="color-item cursor"
-                           @click="changeColor(item,{'color':color})">
-                      <icon-base v-show="colorSelect === color" class="color-right" height=".7rem" width=".7rem">
-                        <Right/>
-                      </icon-base>
-                    </label>
-                  </div>
-                  <div class="icon-selection">
-                    <div v-for="icon in iconList" :class="{'icon-back':icon.name === item.icon}"
-                         class="icon-option cursor" @click="changeProject(item,{'icon':icon.name})">
-                      <icon-base box-view="0 0 24 24" height="1.5rem" width="1.5rem">
-                        <component :is="icon.value"></component>
-                      </icon-base>
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </popover>
-            <div class="edit pop-item cursor" @click="editProject(item,index)">
-              <icon-base box-view="0 0 32 32" icon-color="var(--gray)">
-                <Pencil/>
-              </icon-base>
-              <span>Edit project details</span>
-            </div>
-            <div class="copy pop-item cursor">
-              <icon-base box-view="0 0 32 32" icon-color="var(--gray)">
-                <Link/>
-              </icon-base>
-              <span>Copy project link</span>
-            </div>
-            <div class="archive pop-item cursor" @click="changeProject(item,{'archive':!item.archive})">
-              <icon-base v-if="!item.archive" box-view="0 0 32 32" icon-color="var(--gray)">
-                <Archive/>
-              </icon-base>
-              <icon-base v-else box-view="0 0 24 24" icon-color="var(--gray)">
-                <SolidArchived/>
-              </icon-base>
-              <span v-if="!item.archive">Archive</span>
-              <span v-else>Unarchive</span>
-            </div>
-          </template>
-        </Popover>
+        <div :ref="'project'+item.id" :class="{'vsb-hidden':projectHover !== item && showMore !== item.id}"
+             class="project-more" @click="showPopover(item,index)">
+          <div class="more cursor">
+            <icon-base box-view="0 0 32 32">
+              <More/>
+            </icon-base>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-<!--  修改project 弹窗-->
+  <!--  修改project 菜单栏-->
+  <div class="pop">
+    <Popover ref="projectPopover" @close="closePop">
+      <template #main>
+        <div class="project-more" style="background-color: red" ></div>
+      </template>
+      <template #pop>
+        <div class="share pop-item cursor">
+          <icon-base box-view="0 0 32 32" icon-color="var(--gray)">
+            <WorkSpace/>
+          </icon-base>
+          <span>Share...</span>
+        </div>
+        <div class="favorite pop-item cursor"
+             @click="changeProject(currentProject,{'favorite':!currentProject.favorite})">
+          <icon-base v-if="!currentProject.favorite" box-view="0 0 32 32" icon-color="var(--gray)">
+            <Star/>
+          </icon-base>
+          <icon-base v-else box-view="0 0 1000 1000" icon-color="#F06A6A">
+            <SolidStar/>
+          </icon-base>
+          <span v-if="!currentProject.favorite">Add to favorites</span>
+          <span v-else>Remove from favorites</span>
+        </div>
+        <!--            颜色设置-->
+        <popover :click-close="false" direction="flex-start" hover-control pop-position="side"
+                 @mouseenter="colorHover = true" @mouseleave="colorHover = false">
+          <template #main>
+            <div :class="{'color-hover':colorHover}" class="set-color pop-item cursor"
+                 @mouseenter="this.colorSelect = currentProject.color">
+              <div :style="{'backgroundColor':currentProject.color}" class="color-icon"></div>
+              <span>Set color&icon</span>
+              <icon-base style="transform: rotate(-90deg)">
+                <Arrow/>
+              </icon-base>
+            </div>
+          </template>
+          <template #pop>
+            <div class="set-color">
+              <div class="color-selection brd-bottom">
+                <label v-for="color in colorList" :style="{'color':color}" class="color-item cursor"
+                       @click="changeColor(currentProject,{'color':color})">
+                  <icon-base v-show="colorSelect === color" class="color-right" height=".7rem" width=".7rem">
+                    <Right/>
+                  </icon-base>
+                </label>
+              </div>
+              <div class="icon-selection">
+                <div v-for="icon in iconList" :class="{'icon-back':icon.name === currentProject.icon}"
+                     class="icon-option cursor" @click="changeProject(currentProject,{'icon':icon.name})">
+                  <icon-base box-view="0 0 24 24" height="1.5rem" width="1.5rem">
+                    <component :is="icon.value"></component>
+                  </icon-base>
+                </div>
+              </div>
+            </div>
+          </template>
+        </popover>
+        <div class="edit pop-item cursor" @click="editProject(currentProject)">
+          <icon-base box-view="0 0 32 32" icon-color="var(--gray)">
+            <Pencil/>
+          </icon-base>
+          <span>Edit project details</span>
+        </div>
+        <div class="copy pop-item cursor">
+          <icon-base box-view="0 0 32 32" icon-color="var(--gray)">
+            <Link/>
+          </icon-base>
+          <span>Copy project link</span>
+        </div>
+        <div class="archive pop-item cursor" @click="changeProject(currentProject,{'archive':!currentProject.archive})">
+          <icon-base v-if="!currentProject.archive" box-view="0 0 32 32" icon-color="var(--gray)">
+            <Archive/>
+          </icon-base>
+          <icon-base v-else box-view="0 0 24 24" icon-color="var(--gray)">
+            <SolidArchived/>
+          </icon-base>
+          <span v-if="!currentProject.archive">Archive</span>
+          <span v-else>Unarchive</span>
+        </div>
+      </template>
+    </Popover>
+  </div>
+  <!--  修改project 弹窗-->
   <message-box v-model="openMessage" :icon-position="{top:'2.5rem',right:'1rem'}">
     <div class="project-detail">
       <div class="detail-title brd-bottom">
@@ -160,9 +167,10 @@
                         </icon-base>
                       </div>
                       <span>{{ dateInput }}</span>
-                      <div class="x-icon" v-show="isDueDateHover && dateInput !== 'No due date'" @click="stopPropagation">
+                      <div v-show="isDueDateHover && dateInput !== 'No due date'" class="x-icon"
+                           @click="stopPropagation">
                         <icon-base>
-                          <XCircle />
+                          <XCircle/>
                         </icon-base>
                       </div>
                     </div>
@@ -180,13 +188,13 @@
           </div>
         </div>
         <div class="context">
-            <div class="context-header">Project context</div>
+          <div class="context-header">Project context</div>
           <new-text v-model="projectContext"></new-text>
-          </div>
+        </div>
       </div>
     </div>
   </message-box>
-<!--  修改project弹窗内日期选择-->
+  <!--  修改project弹窗内日期选择-->
   <DatePick v-model="dateValue"></DatePick>
 </template>
 <script setup>
@@ -225,10 +233,10 @@ export default {
   components: {ToolTip, Popover, SelectBar, IconBase},
   data() {
     return {
-      tipContext:'Let the team know when this project should be finished.',
-      isDueDateHover:false,
-      currentProjectIndex:'',
-      projectContext:'',
+      tipContext: 'Let the team know when this project should be finished.',
+      isDueDateHover: false,
+      currentProjectIndex: '',
+      projectContext: '',
       showDateInput: false,
       dateInput: 'No due date',
       dateValue: '2023-05-05 0:0:0',
@@ -265,8 +273,11 @@ export default {
       projectHover: '',
       projectListCache: [],
       firstClick: false,
-      projectValueTemp:{},
-      dateColor:'var(--gray)'
+      projectValueTemp: {},
+      dateColor: 'var(--gray)',
+      popPosition: ['1px','-200px'],
+      showMore: '',
+      colorHover: false,
     }
   },
   props: {
@@ -278,6 +289,7 @@ export default {
   watch: {
     projectList(item) {
       this.projectListCache = item
+
     },
     selectValue(newValue) {
       if (newValue.value === 'recents') {
@@ -305,17 +317,29 @@ export default {
     dateValue(newValue) {
       this.getDateInput(newValue)
     },
-    openMessage(newValue){
-      if(!newValue){
-        let data ={name:this.projectName,context:this.projectContext,dateValue:this.dateValue}
-        if(!isEqual(data,this.projectValueTemp)) {
+    openMessage(newValue) {
+      if (!newValue) {
+        let data = {name: this.projectName, context: this.projectContext, dateValue: this.dateValue}
+        if (!isEqual(data, this.projectValueTemp)) {
           const url = '/api/update_project/'
-          if(typeof this.dateValue === "string" || this.dateValue === null){
-            data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue,start_time:null}
+          if (typeof this.dateValue === "string" || this.dateValue === null) {
+            data = {
+              project_id: this.currentProject.id,
+              name: this.projectName,
+              context: this.projectContext,
+              completed_time: this.dateValue,
+              start_time: null
+            }
           } else {
-            data = {project_id:this.currentProject.id,name:this.projectName,context:this.projectContext,completed_time:this.dateValue[1],start_time:this.dateValue[0]}
+            data = {
+              project_id: this.currentProject.id,
+              name: this.projectName,
+              context: this.projectContext,
+              completed_time: this.dateValue[1],
+              start_time: this.dateValue[0]
+            }
           }
-          apiHttpClient.post(url,data).then((response)=>{
+          apiHttpClient.post(url, data).then((response) => {
             this.projectListCache[this.currentProjectIndex] = response.data.results
           })
         }
@@ -323,6 +347,27 @@ export default {
     }
   },
   methods: {
+    closePop(item) {
+      if (item) {
+        this.showMore = false
+        this.popPosition = ['0px', '-200px']
+      }
+    },
+    async showPopover(item, index) {
+      setTimeout(()=>{
+        const div = this.$refs[`project${item.id}`][0]
+        const projectItem = div.getBoundingClientRect()
+        const main = this.$refs.projectCard.getBoundingClientRect()
+        this.popPosition = [projectItem.top - main.top + 10 + 'px', projectItem.left - main.left + 10 + 'px']
+        this.showMore = item.id
+      },20)
+      setTimeout(() => {
+        this.$refs.projectPopover.isPopShow = true
+      }, 40)
+      this.currentProjectIndex = index
+      this.currentProject = item
+
+    },
     // 防止点击溢出当前组件
     stopPropagation(event) {
       event.stopPropagation()
@@ -336,16 +381,16 @@ export default {
         day: "numeric",
       };
       const now = new Date()
-      const today = new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0)
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
       if (typeof newValue === "string") {
         this.dateInput = newValue ? new Date(newValue).toLocaleDateString("zh-CN", options) : ''
-        if(new Date(newValue) < today){
+        if (new Date(newValue) < today) {
           this.dateColor = '#c92f54'
         } else {
           this.dateColor = 'var(--gray)'
         }
         this.tipContext = this.dateInput
-      } else if(newValue === null){
+      } else if (newValue === null) {
         this.dateInput = 'No due date'
         this.tipContext = 'Let the team know when this project should be finished.'
         this.dateColor = 'var(--gray)'
@@ -354,7 +399,7 @@ export default {
         const dateEnd = newValue[1] ? new Date(newValue[1]).toLocaleDateString("zh-CN", options) : ''
         this.dateInput = dateStart + ' - ' + dateEnd
         this.tipContext = this.dateInput
-        if(new Date(newValue[1]) < today && dateEnd !== ''){
+        if (new Date(newValue[1]) < today && dateEnd !== '') {
           this.dateColor = '#c92f54'
         } else {
           this.dateColor = 'var(--gray)'
@@ -384,13 +429,13 @@ export default {
       }
       const url = "/api/update_project/"
       data['project_id'] = project.id
+      const index = this.projectListCache.findIndex(item => item.id === project.id)
       apiHttpClient.post(url, data).then((response) => {
-        const index = this.projectListCache.indexOf(project)
         this.projectListCache[index] = response.data.results
+        this.currentProject = response.data.results
       })
     },
-    editProject(item,index) {
-      this.currentProjectIndex = index
+    editProject(item) {
       this.currentProject = item
       this.projectName = item.name
       this.projectContext = item.context
@@ -402,14 +447,14 @@ export default {
           this.getDateInput([item.start_time, item.completed_time])
           this.dateValue = [item.start_time, item.completed_time]
         }
-      }else if(item.start_time !== null) {
+      } else if (item.start_time !== null) {
         this.getDateInput([item.start_time, item.completed_time])
         this.dateValue = [item.start_time, item.completed_time]
       } else {
-        this.dateValue= null
+        this.dateValue = null
       }
       this.openMessage = true
-      this.projectValueTemp = {name:this.projectName,context:this.projectContext,dateValue:this.dateValue}
+      this.projectValueTemp = {name: this.projectName, context: this.projectContext, dateValue: this.dateValue}
     }
   }
 }
@@ -544,6 +589,14 @@ function isEqual(obj1, obj2) {
   background-color: #F9F8F8;
 }
 
+.hover-background {
+  background-color: #F9F8F8 !important;
+}
+
+.color-hover {
+  background-color: rgba(231, 231, 231, .5) !important;
+}
+
 .pop-item {
   width: 15rem;
   height: 2.75rem;
@@ -561,6 +614,12 @@ function isEqual(obj1, obj2) {
 
 .pop-item span {
   margin-left: .7rem;
+}
+
+.pop {
+  position: absolute;
+  top: v-bind(popPosition [0]);
+  left: v-bind(popPosition [1]);
 }
 
 .project-more {
@@ -654,7 +713,7 @@ function isEqual(obj1, obj2) {
 .add-project {
   font-weight: 500;
   color: var(--gray);
-  transition:  color .3s;
+  transition: color .3s;
 }
 
 .add-project:hover {
@@ -789,10 +848,10 @@ function isEqual(obj1, obj2) {
 .x-icon {
   margin-left: .5rem;
   transition: color .3s;
-  color:var(--gray);
+  color: var(--gray);
 }
 
 .x-icon:hover {
-  color:var(--black);
+  color: var(--black);
 }
 </style>
