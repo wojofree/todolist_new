@@ -41,8 +41,7 @@
       <!--    卡片-->
       <draggable v-model="list" v-bind="dragOptions" class="home-card">
         <transition-group type="transition">
-          <div v-for="(element,index) in list" :key="element.id" class="card-item" @mouseenter="isHover = index"
-               @mouseleave="isHover = false" :style="{'flex':this.flex[element.name]}">
+          <div v-for="element in list" :key="element.id" class="card-item" :style="{'flex':this.flex[element.name]}">
             <component :is="element.name" v-if="element.name === 'Tasks'" :projectList="projectList"
                        :analyzeValue="analyzeValue" @task-completed="taskCompletedNumb"></component>
             <component :is="element.name" v-else-if="element.name === 'Projects'"
@@ -65,14 +64,14 @@
                 <template #pop>
                   <!--                  task 角标菜单-->
                   <div class="pop-main">
-                    <div class="task-pop" @click="changeSize(element.name,'half')">
+                    <div class="task-pop cursor" @click="changeSize(element.name,'half')">
                       <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
                                 :class="{'vis-hidden':this.MenuSelect[element.name] === 'full'}">
                         <Right/>
                       </IconBase>
                       <span class="size-control">Half size</span>
                     </div>
-                    <div class="task-pop brd-bottom"
+                    <div class="task-pop brd-bottom cursor"
                          @click="changeSize(element.name,'full')">
                       <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
                                 :class="{'vis-hidden':this.MenuSelect[element.name] === 'half'}">
@@ -80,13 +79,13 @@
                       </IconBase>
                       <span class="size-control">Full size</span>
                     </div>
-                    <div class="task-pop brd-bottom" v-if="element.name === 'Tasks'">
+                    <div class="task-pop brd-bottom cursor" v-if="element.name === 'Tasks'">
                       <IconBase width="1rem" height="1rem" icon-color="var(--gray)" box-view="0 0 32 32">
                         <Eye/>
                       </IconBase>
                       <span>View all my tasks</span>
                     </div>
-                    <div class="task-pop trash">
+                    <div class="task-pop trash cursor">
                       <IconBase width="1rem" height="1rem" box-view="0 0 32 32">
                         <Trash/>
                       </IconBase>
@@ -150,7 +149,6 @@ export default {
         'id': 3
       }, {'name': 'Goals', 'id': 4}],
       drag: false,
-      isHover: false,
       MenuSelect: {Tasks: 'half', People: 'half', Projects: 'half', Goals: 'half'},
       flex: {"Goals": "0 0 50%", "People": "0 0 50%", "Projects": "0 0 50%", "Tasks": "0 0 50%"},
       backgroundColor: '#AD7CC4',

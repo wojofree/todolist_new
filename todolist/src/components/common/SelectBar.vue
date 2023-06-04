@@ -73,6 +73,14 @@ export default {
     },
     options(){
       this.getDefaultSelect()
+    },
+    modelValue(newValue) {
+      if(newValue.value !== undefined){
+        this.$nextTick(()=>{
+          this.titleWidth = this.$refs.title.offsetWidth + 'px'
+          this.selectOption(newValue)
+        })
+      }
     }
   },
   mounted() {

@@ -52,7 +52,7 @@ export default {
           this.triangle = ['column', 'rotate(45deg)', '-.5rem', '0']
         }
       }
-    }
+    },
   }
 }
 </script>
@@ -63,7 +63,7 @@ export default {
   display: flex;
   flex-direction: v-bind(triangle [0]);
   width: max-content;
-  height: v-bind(height);
+  /*height: v-bind(height);*/
   align-items: center;
 }
 
@@ -86,23 +86,24 @@ export default {
   margin: auto;
   margin-bottom: v-bind(triangle [2]);
   margin-top: v-bind(triangle [3]);
-  background-color: var(--gray);
+  background-color: #363639;
 }
 
 .content {
-  background-color: var(--gray);
+  background-color: #363639;
   width: fit-content;
   height: fit-content;
   padding: .5rem;
   border-radius: .3rem;
   color: white;
   font-size: .7rem;
-  max-width: 14rem;
+  max-width: 12rem;
 }
 
 .header {
   padding-bottom: .5rem;
   margin-bottom: .5rem;
   border-bottom: 1px solid white;
+  font-weight: 700;
 }
 </style>

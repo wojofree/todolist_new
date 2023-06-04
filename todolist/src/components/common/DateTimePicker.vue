@@ -1,6 +1,6 @@
 <template>
   <div class="datepick-swap" ref="dateMain">
-    <div class="date-header" @click="handleShowDate" ref="dateHeader">
+    <div class="date-header cursor" @click="handleShowDate" ref="dateHeader">
       <slot/>
     </div>
     <div class="date-main" :class="{'vsb-hidden':!showDatePick}">
@@ -742,7 +742,7 @@ function getFormatDate(date, type) {
   height: v-bind(mainSize [1]);
   flex-direction: v-bind(position [3]);
   align-items: v-bind(position [2]);
-  z-index: 1000;
+  z-index: 100000001;
 }
 
 .triangle {

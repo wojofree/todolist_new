@@ -43,8 +43,10 @@ import SubTask from './SubTask'
 import Clip from './Clip'
 import Expand from './Expand'
 import MiniPlus from './MiniPlus'
+import Project from './Project'
 
 export {
+    Project,
     MiniPlus,
     Expand,
     SubTask,

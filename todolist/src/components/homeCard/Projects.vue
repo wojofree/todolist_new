@@ -134,7 +134,7 @@
     </Popover>
   </div>
   <!--  修改project 弹窗-->
-  <message-box v-model="openMessage" :icon-position="{top:'2.5rem',right:'1rem'}">
+  <message-box v-model="openMessage" :icon-position="{top:'2.5rem',right:'-29.5rem'}">
     <div class="project-detail">
       <div class="detail-title brd-bottom">
         <span>Project details</span>
@@ -213,7 +213,6 @@ import {
   BigCalendar
 } from "@/components/icons"
 import MessageBox from "@/components/common/MessageBox";
-import NewButton from "@/components/common/NewButton";
 import NewInput from "@/components/common/NewInput";
 import DatePick from "@/components/common/DateTimePicker";
 import NewText from "@/components/common/NewText";
@@ -278,6 +277,7 @@ export default {
       popPosition: ['1px','-200px'],
       showMore: '',
       colorHover: false,
+      orgProjectList:''
     }
   },
   props: {
@@ -288,8 +288,7 @@ export default {
   },
   watch: {
     projectList(item) {
-      this.projectListCache = item
-
+      this.orgProjectList = this.projectListCache = item
     },
     selectValue(newValue) {
       if (newValue.value === 'recents') {
@@ -339,8 +338,9 @@ export default {
               start_time: this.dateValue[0]
             }
           }
+          const index = this.orgProjectList.findIndex(item => item.id === this.currentProject.id)
           apiHttpClient.post(url, data).then((response) => {
-            this.projectListCache[this.currentProjectIndex] = response.data.results
+            this.orgProjectList[index] = this.projectListCache[this.currentProjectIndex] = response.data.results
           })
         }
       }
@@ -424,15 +424,16 @@ export default {
       }
     },
     changeProject(project, data) {
-      if (!data.favorite && this.selectValue.value === 'favorites') {
+      if (data.favorite === false && this.selectValue.value === 'favorites') {
         this.projectListCache = this.projectListCache.filter(item => item !== project);
       }
       const url = "/api/update_project/"
       data['project_id'] = project.id
       const index = this.projectListCache.findIndex(item => item.id === project.id)
+      const index2 = this.orgProjectList.findIndex(item => item.id === project.id)
       apiHttpClient.post(url, data).then((response) => {
-        this.projectListCache[index] = response.data.results
-        this.currentProject = response.data.results
+        this.orgProjectList[index2] = this.currentProject = this.projectListCache[index] = response.data.results
+        // 跨组件更新，通过同一引用对象
       })
     },
     editProject(item) {

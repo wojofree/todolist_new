@@ -10,7 +10,8 @@
       <div class="tab-navigation-bar">
         <div class="d-flex header-title">
           <div class="title cursor mrg-r-5">My Tasks</div>
-          <tool-tip content="Task you add here are private to you unless you add collaborators or add the task to a shared project">
+          <tool-tip
+              content="Task you add here are private to you unless you add collaborators or add the task to a shared project.">
             <IconBase color="var(--gray)" height="0.75rem" width="0.75rem">
               <Lock/>
             </IconBase>
@@ -81,14 +82,16 @@
           <div class="text-overflow w-100 text-start cursor" @click="currentTask = task,openTaskMessage = true">
             <span>{{ task.title }}</span>
           </div>
-          <div v-for="(item,projectIndex) in task.project" v-show="isDelete !== index && projectIndex<2" :style="{'color':item.color}"
+          <div v-for="(item,projectIndex) in task.project" v-show="isDelete !== index && projectIndex<2"
+               :style="{'color':item.color}"
                class="text-overflow flex-auto list-project">
             <span class="text-overflow complete-date project-color">{{ item.name }}</span>
           </div>
-          <div v-if="task.project.length>=3" class="text-overflow flex-auto list-project" style="background-color: #E7E5E4">
+          <div v-if="task.project.length>=3" class="text-overflow flex-auto list-project"
+               style="background-color: #E7E5E4">
             <span class="text-overflow complete-date project-color">...</span>
           </div>
-          <div v-show="isDelete !== index" :ref="'calendar'+task.id" class="flex-auto mrg-l-5"
+          <div v-show="isDelete !== index" :ref="'calendar'+task.id" class="flex-auto mrg-l-5 cursor"
                @click="showCalendar(task)">
             <div v-if="task.complete_date === ''" :class="{'vsb-visible':isCalendar === index}"
                  class="calendar vsb-hidden">
@@ -157,10 +160,10 @@
       <div style="width: 2rem; height: 2rem "></div>
     </DatePick>
   </div>
-  <message-box v-model="openTaskMessage" hiddenIcon>
-    <edit-task  :taskData="currentTask" @close="openTaskMessage = false" :project-list="projectList" @updateTask="changeTask"></edit-task>
+  <message-box v-model="openTaskMessage" hiddenIcon card-width="70%" card-height="85%" max-width="60rem">
+    <edit-task :project-list="projectList" :taskData="currentTask" @close="openTaskMessage = false"
+               @updateTask="changeTask"></edit-task>
   </message-box>
-
 </template>
 
 <script>
@@ -180,10 +183,11 @@ export default {
   components: {
     EditTask,
     MessageBox,
-    Plus, DatePick, Calendar, Completed, TabBar, Avatar, IconBase, More, Done, Lock, Clock, Repeat, ToolTip},
+    Plus, DatePick, Calendar, Completed, TabBar, Avatar, IconBase, More, Done, Lock, Clock, Repeat, ToolTip
+  },
   data() {
     return {
-      openTaskMessage:false,
+      openTaskMessage: false,
       dateValue: '',                                      // 选择的日期
       isShowCalendar: false,                              // 日历弹窗是否显示
       dateType: 'date',                                   // 日期单选还是区间
@@ -238,11 +242,11 @@ export default {
       projectSelectShow: false,                               // 新增task project selection框是否展示
       currentProjectList: [],                                 // 当前的project selection List
       isFirstClick: false,                                     // 是否是第一次点击，日历弹窗辅助用
-      currentTask: {assigned_to:{username:''},project:{color:'',name:'',id:''}},                                        // 日历弹窗点击对应的task
+      currentTask: {assigned_to: {username: ''}, project: {color: '', name: '', id: ''}},                                        // 日历弹窗点击对应的task
       isDateChange: false,                                     // 日历弹窗的日期是否有change
       taskCompletedNumb: 0,
       analyzeTime: '',
-      dateValueTemp: ''
+      dateValueTemp: '',
     }
   },
   emits: ['task-completed'],
@@ -259,7 +263,7 @@ export default {
   async created() {
     // 获取taskList
     // const now = new Date()
-    const day = now.getDate() === 0 ? 7 : now.getDay()
+    const day = now.getDay() === 0 ? 7 : now.getDay()
     this.analyzeTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1, 0, 0, 0)
     this.whenList = formatWhenOption(this.whenList)
     this.currentWhenList = this.defaultWhenList = formatWhenOption(this.defaultWhenList)
@@ -292,6 +296,21 @@ export default {
     })
   },
   watch: {
+    projectList: {
+      deep: true,
+      handler(newVal) {
+        if (newVal.length !== 0 && this.taskList !== undefined) {
+          this.taskList.forEach(task => {
+            task.project.forEach((project, index) => {
+              const foundProject = this.projectList.find(p => p.id === project.id);
+              if (foundProject) {
+                task.project[index] = foundProject;
+              }
+            })
+          })
+        }
+      }
+    },
     // 切换tab
     tabValue() {
       this.taskList = this.cache[this.tabValue]
@@ -318,7 +337,7 @@ export default {
     analyzeValue(newValue) {
       // const now = new Date()
       if (newValue.value === 'week') {
-        const day = now.getDate() === 0 ? 7 : now.getDay()
+        const day = now.getDay() === 0 ? 7 : now.getDay()
         this.analyzeTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1, 0, 0, 0)
       } else {
         this.analyzeTime = new Date(now.getFullYear(), 1, 1, 0, 0, 0)
@@ -328,12 +347,12 @@ export default {
   },
   methods: {
     // 通过弹窗更新task
-    changeTask(item){
-      for(let index in this.taskList){
-        if(this.taskList[index].id === item.id){
+    changeTask(item) {
+      for (let index in this.taskList) {
+        if (this.taskList[index].id === item.id) {
           this.taskList[index] = item
           let type = item.completed
-          this.changeTab(type,index)
+          this.changeTab(type, index)
         }
       }
     },
@@ -395,7 +414,7 @@ export default {
         this.dateValue = [item.start_time, item.complete_time]
       } else {
         this.dateType = 'date'
-        this.dateValue = item.complete_time ===null? '':item.complete_time
+        this.dateValue = item.complete_time === null ? '' : item.complete_time
       }
     },
     // projectList恢复默认值
@@ -518,10 +537,9 @@ export default {
       const selectWrapper = this.$refs.selectWrapper
       const activeOption = this.$refs.selectWrapper.querySelector('.when-active')
       const optionHeight = activeOption.offsetHeight
-      if(this.projectSelectIndex>5){
-        console.log(optionHeight*(this.projectSelectIndex-5))
-        selectWrapper.scrollTop = optionHeight*(this.projectSelectIndex-5)
-      } else if(this.projectSelectIndex === 0) {
+      if (this.projectSelectIndex > 5) {
+        selectWrapper.scrollTop = optionHeight * (this.projectSelectIndex - 5)
+      } else if (this.projectSelectIndex === 0) {
         selectWrapper.scrollTop = 0
       }
     },
@@ -546,38 +564,38 @@ export default {
       this.isDelete = index
       const url = "/api/update_task/"
       apiHttpClient.post(url, {'task_id': task.id, "completed": type}).then(() => {
-        this.changeTab(type,index)
+        this.changeTab(type, index)
       })
     },
-    changeTab(type,index){
+    changeTab(type, index) {
       const task = this.taskList[index]
-        const completeTime = new Date(task.complete_time)
-        // const now = new Date()
-        let outTime = 400
-        let tab = "upComing"
-        if (type) {
-          tab = "completed"
-          task.completed_time = now
-          this.taskCompletedNumb = this.taskCompletedNumb + 1
-          this.$emit('task-completed', this.taskCompletedNumb)
-        } else {
-          outTime = 0
-          task.completed_time = null
-          if (completeTime < now && task.complete_time !== null) {
-            tab = "overDue"
-          }
+      const completeTime = new Date(task.complete_time)
+      // const now = new Date()
+      let outTime = 400
+      let tab = "upComing"
+      if (type) {
+        tab = "completed"
+        task.completed_time = now
+        this.taskCompletedNumb = this.taskCompletedNumb + 1
+        this.$emit('task-completed', this.taskCompletedNumb)
+      } else {
+        outTime = 0
+        task.completed_time = null
+        if (completeTime < now && task.complete_time !== null) {
+          tab = "overDue"
         }
-        setTimeout(() => {
-          this.taskList.splice(index, 1)
-          this.cache[tab].unshift(task)
-          this.isDelete = ''
-          this.changeOverdueTitle()
-        }, outTime)
-        this.$nextTick(() => {
-          if (!type) {
-            this.getCompletedTaskNumb(this.analyzeTime)
-          }
-        })
+      }
+      setTimeout(() => {
+        this.taskList.splice(index, 1)
+        this.cache[tab].unshift(task)
+        this.isDelete = ''
+        this.changeOverdueTitle()
+      }, outTime)
+      this.$nextTick(() => {
+        if (!type) {
+          this.getCompletedTaskNumb(this.analyzeTime)
+        }
+      })
     },
     // 更新tab时间,前端展现更改
     async updateTaskLab() {
@@ -640,7 +658,7 @@ function getFormatDate(date, type) {
 function formatWhenOption(whenList) {
   let now = new Date()
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0)
-  const day = now.getDate() === 0 ? 7 : now.getDay()
+  const day = now.getDay() === 0 ? 7 : now.getDay()
   const nextWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 8 - day, 0, 0, 0)
   let optionList = []
   for (let i = 0; i <= 6; i++) {
@@ -702,7 +720,7 @@ function filterTasks(taskList, type, now) {
   display: flex;
   align-items: flex-end;
   flex-direction: column;
-  z-index: 1001;
+  z-index: 10000001;
 }
 
 .green {

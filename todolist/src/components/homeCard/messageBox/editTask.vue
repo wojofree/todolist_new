@@ -2,7 +2,7 @@
   <div class="edit-task-swap">
     <!--    弹窗表头-->
     <div class="edit-header">
-      <div :class="{'completed':currentTaskData.completed}" class="button" @click="changeTask('completed')">
+      <div :class="{'completed':currentTaskData.completed}" class="button cursor" @click="changeTask('completed')">
         <icon-base height=".75rem" width=".75rem">
           <Right/>
         </icon-base>
@@ -10,41 +10,67 @@
         <span v-else>Completed</span>
       </div>
       <div class="icons">
+        <tool-tip content="Like this">
+          <div class="icon-item">
+            <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+              <Like/>
+            </icon-base>
+          </div>
+        </tool-tip>
+        <tool-tip content="Add a file to this task." header="Attachments">
+          <div class="icon-item">
+            <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+              <Clip/>
+            </icon-base>
+          </div>
+        </tool-tip>
+        <tool-tip content="Add a task within this task. Subtasks can have different assignees and due dates." header="Subtasks">
+          <div class="icon-item">
+            <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+              <SubTask/>
+            </icon-base>
+          </div>
+        </tool-tip>
+        <tool-tip content="Copy task link">
+          <div class="icon-item">
+            <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+              <Link/>
+            </icon-base>
+          </div>
+        </tool-tip>
+        <tool-tip content="Full screen">
+          <div class="icon-item">
+            <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+              <Expand/>
+            </icon-base>
+          </div>
+        </tool-tip>
         <div class="icon-item">
-          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-            <Like/>
-          </icon-base>
+          <popover>
+            <template #main>
+              <tool-tip content="More actions">
+                <div class="icon-item">
+                  <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                    <More/>
+                  </icon-base>
+                </div>
+              </tool-tip>
+            </template>
+            <template #pop>
+              <div class="pop-item">
+                <icon-base box-view="0 0 32 32"><Project /></icon-base>
+                <span>Add to another project</span>
+              </div>
+            </template>
+          </popover>
         </div>
-        <div class="icon-item">
-          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-            <Clip/>
-          </icon-base>
-        </div>
-        <div class="icon-item">
-          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-            <SubTask/>
-          </icon-base>
-        </div>
-        <div class="icon-item">
-          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-            <Link/>
-          </icon-base>
-        </div>
-        <div class="icon-item">
-          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-            <Expand/>
-          </icon-base>
-        </div>
-        <div class="icon-item">
-          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-            <More/>
-          </icon-base>
-        </div>
-        <div class="icon-item" @click="close">
-          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-            <XIcon/>
-          </icon-base>
-        </div>
+        <tool-tip content="Collapse task pane">
+          <div class="icon-item" @click="close">
+            <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+              <XIcon/>
+            </icon-base>
+          </div>
+        </tool-tip>
       </div>
     </div>
     <div class="public">
@@ -54,7 +80,7 @@
         </icon-base>
         <span>This task is visible to members of My Workspace.</span>
       </div>
-      <div class="public-right">
+      <div class="public-right cursor">
         Make public
       </div>
     </div>
@@ -107,11 +133,13 @@
                 <span v-else>No due date</span>
               </div>
             </date-pick>
-            <div v-if="showXIcon === 'date'" class="icon-item mrg-l" @click="dateValue=null,updateDate(false)">
-              <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
-                <XIcon/>
-              </icon-base>
-            </div>
+            <tool-tip content="Clear due date">
+              <div v-if="showXIcon === 'date'" class="icon-item mrg-l cursor" @click="dateValue=null,updateDate(false)">
+                <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
+                  <XIcon/>
+                </icon-base>
+              </div>
+            </tool-tip>
           </div>
         </div>
         <!--        task project-->
@@ -124,7 +152,7 @@
               <div v-for="item in currentTaskData.project" class="dsp-flx" @mouseenter="showXIcon = item.id"
                    @mouseleave="showXIcon = false">
                 <tool-tip content="Click to view all tasks in this project" style="height: 1.75rem">
-                  <div class="item-right hover">
+                  <div class="item-right hover cursor">
                     <icon-base :icon-color="item.color" box-view="0 0 24 24" height=".75rem"
                                width=".75rem">
                       <Box/>
@@ -132,14 +160,16 @@
                     <span class="mrg-l-5">{{ item.name }}</span>
                   </div>
                 </tool-tip>
-                <div  style="height: 2.125rem" @click="changeCategory(item.id)">
+                <div style="height: 2.125rem" @click="changeCategory(item.id)">
                   <select-bar v-model="categorySelect[item.id]" :options="categoryList[item.id]"></select-bar>
                 </div>
-                <div v-if="showXIcon === item.id" class="icon-item mrg-l" @click="removeProject(item.id)">
-                  <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
-                    <XIcon/>
-                  </icon-base>
-                </div>
+                <tool-tip content="Remove task from this project">
+                  <div v-if="showXIcon === item.id" class="icon-item mrg-l" @click="removeProject(item.id)">
+                    <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
+                      <XIcon/>
+                    </icon-base>
+                  </div>
+                </tool-tip>
               </div>
             </div>
             <div v-show="!showAddInput" class="select-project" @click="showAdd">
@@ -183,6 +213,7 @@
 <script setup>
 import IconBase from "@/components/IconBase";
 import {
+  Project,
   SolidArchived,
   Right,
   Like,
@@ -201,6 +232,7 @@ import NewInput from "@/components/common/NewInput";
 import SelectBar from "@/components/common/SelectBar";
 import ToolTip from "@/components/common/ToolTip";
 import DatePick from "@/components/common/DateTimePicker";
+import Popover from "@/components/common/Popover";
 </script>
 
 <script>
@@ -257,8 +289,14 @@ export default {
           projectIDList.push(item.id)
         }
         this.categoryList = await this.getCategory(projectIDList, 'many')
+        this.categorySelectList = await this.getSelectCategory(projectIDList, 'many')
         for (let item of projectIDList) {
-          this.oldCategorySelect[item] = this.categorySelect[item] = this.categoryList[item][0]
+          for (let option of this.categoryList[item]) {
+            if (this.categorySelectList[item] === option.id) {
+              option.value = option.id
+              this.oldCategorySelect[item] = this.categorySelect[item] = option
+            }
+          }
         }
       }
       // 日期更新
@@ -316,18 +354,32 @@ export default {
       }
     }
   },
-  created() {
-  },
   methods: {
+    async getSelectCategory(list, type) {
+      const url = "/api/get_select_category/"
+      let data;
+      if (type === 'many') {
+        data = {'task_id': this.currentTaskData.id, 'project_id': list, 'many': true}
+      }
+      let response;
+      await apiHttpClient.post(url, data).then((res) => {
+        response = res.data.results
+      })
+      return response
+    },
     changeCategory(project_id) {
-      console.log(this.oldCategorySelect[project_id])
       const currentCategory = this.categorySelect[project_id]
-      console.log(currentCategory)
+      if (currentCategory !== this.oldCategorySelect[project_id]) {
+        const url = "/api/update_select_category/"
+        const data = {project_id: project_id, task_id: this.currentTaskData.id, category_id: currentCategory.id}
+        apiHttpClient.post(url, data)
+      }
     },
     async createProject() {
       const url = "/api/create_project/"
       let project_id;
       await apiHttpClient.post(url, {name: this.searchWords}).then((res) => {
+        this.currentProjectList = this.projectList.push(res.data.results)
         const urlTwo = '/api/update_task/'
         project_id = res.data.results.id
         const data = {task_id: this.currentTaskData.id, project_id: [project_id]}
@@ -412,11 +464,11 @@ export default {
     },
     // project搜索
     search() {
-      setTimeout(()=>{
-        if(this.searchWords !== null){
-        this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
-      }
-        },40)
+      setTimeout(() => {
+        if (this.searchWords !== null) {
+          this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+        }
+      }, 40)
 
     },
     // project 键盘操作
@@ -426,11 +478,11 @@ export default {
             // 跳转到project选择
           case 9: // Tab键
           case 13: // Enter键
-              if(this.currentProjectList.length !==0){
-                this.addProject()
-              } else {
-                this.createProject()
-              }
+            if (this.currentProjectList.length !== 0) {
+              this.addProject()
+            } else {
+              this.createProject()
+            }
 
             break;
           case 40: // 下箭头
@@ -506,7 +558,7 @@ export default {
       let List;
       await apiHttpClient.post(url, data).then((response) => {
         List = response.data.results
-        for(let index in List){
+        for (let index in List) {
           if (type === 'many') {
             for (let i in List[index]) {
               List[index][i].value = List[index][i].id
@@ -533,8 +585,10 @@ export default {
 <style scoped>
 .edit-task-swap {
   background-color: white;
-  height: 40rem;
-  width: 40rem;
+  height: 100%;
+  max-width: 57rem;
+  min-width: 30rem;
+  width: 100%;
 }
 
 .edit-header {
@@ -570,6 +624,7 @@ export default {
 
 .button span {
   margin-left: .3rem;
+  font-size: .75rem;
 }
 
 .icons {
@@ -585,7 +640,8 @@ export default {
   justify-content: center;
   border-radius: .3rem;
   color: var(--gray);
-  margin-left: .5rem;
+  margin: 0 .25rem;
+  cursor: pointer;
 }
 
 .icon-item:hover {
@@ -606,12 +662,14 @@ export default {
 
 .public-left span {
   margin-left: .5rem;
+  font-size: .75rem;
 }
 
 .public-right {
   padding: 0 .5rem;
   transition: background-color .3s;
   border-radius: .3rem;
+  font-size: .75rem;
 }
 
 .public-right:hover {
@@ -745,6 +803,7 @@ export default {
   padding: .2rem .6rem;
   border-radius: .3rem;
   color: var(--gray);
+  margin-top: .5rem;
 }
 
 .select-project:hover {
@@ -808,5 +867,14 @@ export default {
 .archived span {
   font-size: .75rem;
   margin-left: .25rem;
+}
+
+.pop-item {
+  display: flex;
+}
+
+.pop-item span{
+  font-size: .875rem;
+  margin-left: .5rem;
 }
 </style>

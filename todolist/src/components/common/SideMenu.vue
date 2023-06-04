@@ -34,7 +34,7 @@
       </div>
       <!--    项目导航-->
       <!--    project title-->
-      <div class="menu-top flex">
+      <div class="menu-top flex overflow-auto">
         <div class="menu-title" @mouseenter="isTitleHover = true" @mouseleave="isTitleHover = false">
           <div class="menu-title-left cursor" @click="isSeen = !isSeen">
             <div class="rotate-90" :class="{'hover-color':isTitleHover === true,'rotate-0':isSeen === false}">

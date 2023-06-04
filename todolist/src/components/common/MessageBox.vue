@@ -1,14 +1,16 @@
 <template>
-  <div class="message-swap" v-show="openMessage">
-    <div class="background" v-if="overLay"></div>
-    <div class="message-main" ref="messageMain">
+  <div v-show="openMessage" class="message-swap">
+    <div v-if="overLay" class="background"></div>
+    <div class="message-main">
       <div class="message">
-        <div class="x-icon cursor" @click="closeMessage"  v-show="!hiddenIcon">
-          <icon-base box-view="0 0 32 32" width="1rem" height="1rem">
+        <div v-show="!hiddenIcon" class="x-icon cursor" @click="closeMessage">
+          <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
             <XIcon/>
           </icon-base>
         </div>
+        <div ref="messageMain" class="message-card">
           <slot/>
+        </div>
       </div>
     </div>
   </div>
@@ -25,8 +27,8 @@ export default {
     return {
       openMessage: false,
       firstClick: false,
-      iconTop:'',
-      iconRight:'',
+      iconTop: '',
+      iconRight: '',
     }
   },
   props: {
@@ -40,15 +42,23 @@ export default {
     },
     iconPosition: {
       type: Object,
-      default: {top:'2rem',right:'.5rem'}
+      default: {top: '2rem', right: '.5rem'}
     },
     hiddenIcon: {
-      type:Boolean,
-      default:false,
+      type: Boolean,
+      default: false,
     },
-    data: {
-      type:[String, Object, Boolean],
-      default:''
+    cardWidth:{
+      type:String,
+      default:'auto'
+    },
+    cardHeight:{
+      type:String,
+      default:'auto'
+    },
+    maxWidth:{
+      type:String,
+      default:'auto'
     }
   },
   watch: {
@@ -71,7 +81,7 @@ export default {
     }
   },
   created() {
-    this.iconTop = '-'+this.iconPosition.top
+    this.iconTop = '-' + this.iconPosition.top
     this.iconRight = this.iconPosition.right
     this.openMessage = this.modelValue
   },
@@ -109,12 +119,17 @@ export default {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 100002;
+  width: 100%;
+  height: 100%;
 }
 
 .message {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
 }
 
 
@@ -128,14 +143,20 @@ export default {
   align-items: center;
   justify-content: center;
   border-radius: .4rem;
-  color:var(--gray);
+  color: var(--gray);
 }
 
 .x-icon:hover {
   background-color: rgb(248, 246, 246);
-  color:var(--black);
+  color: var(--black);
 }
-.vsb-hidden{
-  visibility: hidden;
+
+.message-card {
+  width: v-bind(cardWidth);
+  max-width: v-bind(maxWidth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: v-bind(cardHeight);
 }
 </style>
