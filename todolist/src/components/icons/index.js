@@ -44,8 +44,16 @@ import Clip from './Clip'
 import Expand from './Expand'
 import MiniPlus from './MiniPlus'
 import Project from './Project'
+import Milestone from './Milestone'
+import Pending from './Pending'
+import Dependent from './Dependent'
+import Tag from './Tag'
 
 export {
+    Tag,
+    Dependent,
+    Pending,
+    Milestone,
     Project,
     MiniPlus,
     Expand,

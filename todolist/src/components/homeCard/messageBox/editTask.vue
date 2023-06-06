@@ -24,7 +24,8 @@
             </icon-base>
           </div>
         </tool-tip>
-        <tool-tip content="Add a task within this task. Subtasks can have different assignees and due dates." header="Subtasks">
+        <tool-tip content="Add a task within this task. Subtasks can have different assignees and due dates."
+                  header="Subtasks">
           <div class="icon-item">
             <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
               <SubTask/>
@@ -45,25 +46,93 @@
             </icon-base>
           </div>
         </tool-tip>
-        <div class="icon-item">
-          <popover>
-            <template #main>
-              <tool-tip content="More actions">
-                <div class="icon-item">
-                  <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-                    <More/>
+        <popover class="pop-main">
+          <template #main>
+            <tool-tip content="More actions">
+              <div class="icon-item">
+                <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                  <More/>
+                </icon-base>
+              </div>
+            </tool-tip>
+          </template>
+          <template #pop>
+            <div class="pop-item" @click="showAdd">
+              <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                <Project/>
+              </icon-base>
+              <span>Add to another project</span>
+            </div>
+            <div class="pop-item">
+              <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                <Milestone/>
+              </icon-base>
+              <span>Mark as milestone</span>
+            </div>
+            <div class="pop-item">
+              <icon-base box-view="0 0 32 32" class="pending-icon" height="1rem"
+                         width="1rem">
+                <Pending/>
+              </icon-base>
+              <span>Mark as approval</span>
+            </div>
+            <div class="pop-item">
+              <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                <Dependent/>
+              </icon-base>
+              <span>Mark dependent</span>
+            </div>
+            <div class="pop-item">
+              <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                <Tag/>
+              </icon-base>
+              <span>Add tags</span>
+            </div>
+            <div class="separate"></div>
+            <div class="pop-item">
+              <span class="no-marg">Duplicate task</span>
+            </div>
+            <popover :click-close="false" class="pop-subtask" direction="flex-start" hover-control
+                     pop-position="side" @mouseenter="colorHover = true"
+                     @mouseleave="colorHover = false">
+              <template #main>
+                <div :class="{'color-hover':colorHover}" class="new-pop-item">
+                  <span class="no-marg">Convert to</span>
+                  <icon-base style="transform: rotate(-90deg)">
+                    <Arrow/>
                   </icon-base>
                 </div>
-              </tool-tip>
-            </template>
-            <template #pop>
-              <div class="pop-item">
-                <icon-base box-view="0 0 32 32"><Project /></icon-base>
-                <span>Add to another project</span>
-              </div>
-            </template>
-          </popover>
-        </div>
+              </template>
+              <template #pop>
+                <div class="pop-item main-width">
+                  <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                    <SubTask/>
+                  </icon-base>
+                  <span>Subtask</span>
+                </div>
+                <div class="pop-item main-width">
+                  <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                    <Project/>
+                  </icon-base>
+                  <span>Project</span>
+                </div>
+              </template>
+            </popover>
+            <div class="pop-item">
+              <span class="no-marg">Create follow-up task</span>
+            </div>
+            <div class="pop-item">
+              <span class="no-marg">Print</span>
+            </div>
+            <div class="pop-item">
+              <span class="no-marg">Merge duplicate tasks</span>
+            </div>
+            <div class="separate"></div>
+            <div class="pop-item">
+              <span class="no-marg red-span">Delete task</span>
+            </div>
+          </template>
+        </popover>
         <tool-tip content="Collapse task pane">
           <div class="icon-item" @click="close">
             <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
@@ -111,7 +180,7 @@
                 <XIcon/>
               </icon-base>
             </div>
-            <div style="height: 2.125rem">
+            <div class="height-215">
               <select-bar v-model="sectionSelect" :options="sectionList" option-title="My task"></select-bar>
             </div>
           </div>
@@ -122,7 +191,7 @@
             <span>Due date</span>
           </div>
           <div class="item-right" @mouseenter="showXIcon = 'date'" @mouseleave="showXIcon = false">
-            <date-pick v-model="dateValue" startPosition="flex-start" @show="updateDate">
+            <date-pick v-model="dateValue" startPosition="flex-start  " @show="updateDate">
               <div class="item-info">
                 <div class="calendar-icon">
                   <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
@@ -147,7 +216,7 @@
           <div class="item-left mrg-top-5">
             <span>Projects</span>
           </div>
-          <div>
+          <div style="display: flex;flex-direction: column;">
             <div class="task-project">
               <div v-for="item in currentTaskData.project" class="dsp-flx" @mouseenter="showXIcon = item.id"
                    @mouseleave="showXIcon = false">
@@ -160,7 +229,7 @@
                     <span class="mrg-l-5">{{ item.name }}</span>
                   </div>
                 </tool-tip>
-                <div style="height: 2.125rem" @click="changeCategory(item.id)">
+                <div class="height-215" @click="changeCategory(item.id)">
                   <select-bar v-model="categorySelect[item.id]" :options="categoryList[item.id]"></select-bar>
                 </div>
                 <tool-tip content="Remove task from this project">
@@ -172,35 +241,96 @@
                 </tool-tip>
               </div>
             </div>
-            <div v-show="!showAddInput" class="select-project" @click="showAdd">
+            <div v-show="!showAddInput" class="select-project cursor" @click="showAdd">
               <span>Add to projects</span>
             </div>
-            <new-input v-show="showAddInput" ref="projectInput" v-model="searchWords"
-                       placeholder="Add task to a project..."
-                       @blur="hiddenAddInput" @input="search"
-                       @keydown="keySelectProject"></new-input>
-            <div v-show="showAddInput" ref="projectWrapper" class="project-select">
-              <div v-for="(item,index) in currentProjectList" :key="item.id"
-                   :class="{'when-active':projectSelectIndex === index,'borderBottom':item.id === 0}"
+            <div v-show="showAddInput" class="project-input">
+              <new-input ref="projectInput" v-model="searchWords"
+                         placeholder="Add task to a project..."
+                         @blur="hiddenAddInput" @input="search('project')"
+                         @keydown="keySelect('project')"></new-input>
+              <div ref="projectWrapper" class="project-select">
+                <div v-for="(item,index) in currentProjectList" :key="item.id"
+                     :class="{'when-active':projectSelectIndex === index,'borderBottom':item.id === 0}"
+                     class="select-option cursor"
+                     @click="keySelectProject"
+                     @mouseenter="projectSelectIndex = index"
+                >
+                  <div class="text-overflow dsp-flx">
+                    <span>{{ item.name }}</span>
+                    <div v-if="item.archive" class="archived">
+                      <icon-base box-view="0 0 24 24" height=".75rem" width=".75rem">
+                        <SolidArchived/>
+                      </icon-base>
+                      <span>Archived</span>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="this.currentProjectList.length === 0" class="create-project" @click="createProject">
+                  <icon-base box-view=" 0 0 32 32" icon-color="#4069C3">
+                    <MiniPlus/>
+                  </icon-base>
+                  <span>Create project for '{{ searchWords }}'</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--        tag管理-->
+        <div v-if="currentTaskData.tag.length > 0" class="task-pane-item align">
+          <div class="item-left mrg-top-5">
+            <span>Tags</span>
+          </div>
+          <div class="item-right" style="position: relative;" @mouseenter="showXIcon = 'tag'"
+               @mouseleave="showXIcon = false">
+            <!--            tag输入框-->
+            <new-input v-show="showAddTagInput" ref="tagInput" :mrgLFt="mrgLeft"
+                       v-model="searchWords"  @input="search('tag')" @keydown="keySelect('tag')"
+
+            ></new-input>
+            <!--            现有tag-->
+            <div :class="{'mrg-top-225':!showAddTagInput}" class="tag-list">
+              <div ref="tagList" class="dsp-flx">
+                <div v-for="tag in currentTaskData.tag">
+                  <tool-tip content="Click to view all tasks in this tag.">
+                    <div :style="{color:tag.color}" class="tag-item cursor">
+                      <span class="tag-span">{{ tag.name }}</span>
+                      <div class="tag-x-icon">
+                        <icon-base box-view="0 0 32 32" height=".56rem" width=".56rem">
+                          <XIcon/>
+                        </icon-base>
+                      </div>
+                    </div>
+                  </tool-tip>
+                </div>
+              </div>
+              <!--              plus 按钮-->
+              <tool-tip v-show="showXIcon === 'tag'&& !showAddTagInput" content="Add another tag">
+                <div class="add-tag cursor" @click="showAddTag()">
+                  <icon-base box-view="0 0 24 24" height=".75rem" width=".75rem">
+                    <Plus/>
+                  </icon-base>
+                </div>
+              </tool-tip>
+            </div>
+            <div ref="tagWrapper" class="project-select width-12 flex-column tag-list-position tag-list" v-show="showAddTagInput"
+                 :style="{minHeight: minTagHeight}">
+              <div v-for="(item,index) in currentTagList" :key="item.id"
+                   :class="{'when-active':tagSelectIndex === index,'borderBottom':item.id === 0}"
                    class="select-option cursor"
-                   @click="keySelectProject"
-                   @mouseenter="projectSelectIndex = index"
+                   @click="keySelectTag"
+                   @mouseenter="tagSelectIndex = index"
+                   :style="{borderLeft:'5px solid '+item.color}"
               >
                 <div class="text-overflow dsp-flx">
                   <span>{{ item.name }}</span>
-                  <div v-if="item.archive" class="archived">
-                    <icon-base box-view="0 0 24 24" height=".75rem" width=".75rem">
-                      <SolidArchived/>
-                    </icon-base>
-                    <span>Archived</span>
-                  </div>
                 </div>
               </div>
-              <div v-if="this.currentProjectList.length === 0" class="create-project" @click="createProject">
+              <div  class="create-project" @click="createTag">
                 <icon-base box-view=" 0 0 32 32" icon-color="#4069C3">
                   <MiniPlus/>
                 </icon-base>
-                <span>Create project for '{{ searchWords }}'</span>
+                <span>Create tag for '{{ searchWords }}'</span>
               </div>
             </div>
           </div>
@@ -213,6 +343,12 @@
 <script setup>
 import IconBase from "@/components/IconBase";
 import {
+  Plus,
+  Arrow,
+  Tag,
+  Dependent,
+  Pending,
+  Milestone,
   Project,
   SolidArchived,
   Right,
@@ -243,11 +379,14 @@ export default {
   name: "editTask",
   data() {
     return {
+      tagSelectIndex:'',
+      colorHover: false,
       dateColor: 'var(--gray)',
       showAddInput: false,
       searchWords: '',
       projectSelectIndex: 0,
       currentProjectList: [],
+      currentTagList: [],
       projectSelectShow: true,
       completeDate: '',
       showXIcon: false,
@@ -262,7 +401,12 @@ export default {
       dateValue: '',
       sectionSelectTemp: {},
       showDate: '',
-      currentTaskData: {assigned_to: {username: ''}, project: {color: '', name: '', id: ''}}
+      currentTaskData: {assigned_to: {username: ''}, project: {color: '', name: '', id: ''}, tag: []},
+      mrgLeft: '',
+      showAddTagInput: false,
+      tagList: {},
+      tagListPosition: [0,0,0,0],
+      minTagHeight:''
     }
   },
   props: {
@@ -274,6 +418,12 @@ export default {
       type: Object,
       default: {}
     }
+  },
+  created() {
+    const url = "/api/get_tags"
+    apiHttpClient.get(url).then((res) => {
+      this.tagList = res.data.results
+    })
   },
   watch: {
     // 打开弹窗，数据更新
@@ -355,6 +505,20 @@ export default {
     }
   },
   methods: {
+    showAddTag() {
+      this.tagSelectIndex = 0
+      this.showAddTagInput = true
+      this.searchWords = null
+      this.currentTagList = this.tagList
+      const height = this.currentTagList.length * 2.35 * 16
+      this.minTagHeight = Math.min(height,256) +'px'
+      this.mrgLeft = this.$refs.tagList.offsetWidth + 10 + 'px'
+      this.$nextTick(() => {
+        this.$refs.tagInput.$refs.input.focus()
+      })
+      this.tagListPosition = ['2.35rem', 0, 0, this.mrgLeft]
+    },
+    // 获取选中的category
     async getSelectCategory(list, type) {
       const url = "/api/get_select_category/"
       let data;
@@ -367,6 +531,7 @@ export default {
       })
       return response
     },
+    // 更新category
     changeCategory(project_id) {
       const currentCategory = this.categorySelect[project_id]
       if (currentCategory !== this.oldCategorySelect[project_id]) {
@@ -395,7 +560,7 @@ export default {
     // 删除project
     removeProject(project_id) {
       const url = '/api/update_task/'
-      const data = {task_id: this.currentTaskData.id, project_id: project_id, remove: true}
+      const data = {task_id: this.currentTaskData.id, project_id: project_id, removeProject: true}
       apiHttpClient.post(url, data).then(() => {
         for (let index in this.currentTaskData.project) {
           if (this.currentTaskData.project[index].id === project_id) {
@@ -455,6 +620,7 @@ export default {
     },
     // 添加project
     showAdd() {
+      this.projectSelectIndex = 0
       this.searchWords = null
       this.showAddInput = true
       this.currentProjectList = this.projectList
@@ -463,22 +629,31 @@ export default {
       })
     },
     // project搜索
-    search() {
+    search(type) {
       setTimeout(() => {
         if (this.searchWords !== null) {
-          this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+          if(type==='project'){
+            this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+          } else {
+            this.currentTagList = this.tagList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+            const height = this.currentTagList.length * 2.35 * 16
+            this.minTagHeight = Math.min(height,256) +'px'
+            this.minTagHeight = this.minTagHeight === '0px' ? '37.6px':this.minTagHeight
+          }
         }
       }, 40)
 
     },
     // project 键盘操作
-    keySelectProject() {
+    keySelect(type) {
+      const currentList = type === 'project' ? this.currentProjectList : this.currentTagList
+      const listIndex = type === 'project' ? this.projectSelectIndex : this.tagSelectIndex
       if (event.keyCode) {
         switch (event.keyCode) {
             // 跳转到project选择
           case 9: // Tab键
           case 13: // Enter键
-            if (this.currentProjectList.length !== 0) {
+            if (currentList.length !== 0) {
               this.addProject()
             } else {
               this.createProject()
@@ -486,14 +661,14 @@ export default {
 
             break;
           case 40: // 下箭头
-            this.projectSelectIndex = (this.projectSelectIndex + 1) % this.currentProjectList.length
-            this.searchWords = this.currentProjectList[this.projectSelectIndex].name
-            this.scrollToActiveOption()
+            this.tagSelectIndex = this.projectSelectIndex = (listIndex + 1) % currentList.length
+            this.searchWords = currentList[listIndex].name
+            this.scrollToActiveOption(type)
             break;
           case 38: // 上箭头
-            this.projectSelectIndex = (this.currentProjectList.length + this.projectSelectIndex - 1) % this.currentProjectList.length
-            this.searchWords = this.currentProjectList[this.projectSelectIndex].name
-            this.scrollToActiveOption()
+            this.tagSelectIndex = this.projectSelectIndex = (currentList.length + listIndex - 1) % currentList.length
+            this.searchWords = currentList[listIndex].name
+            this.scrollToActiveOption(type)
             break;
           default:
             break;
@@ -504,6 +679,7 @@ export default {
     },
     hiddenAddInput() {
       setTimeout(() => {
+        this.showAddTagInput = false
         this.showAddInput = false
       }, 100)
     },
@@ -522,13 +698,14 @@ export default {
       this.oldCategorySelect[project_id] = this.categorySelect[project_id] = categoryTemp[0]
     },
     // project选择时，上下键附带滚动
-    scrollToActiveOption() {
-      const selectWrapper = this.$refs.projectWrapper
-      const activeOption = this.$refs.projectWrapper.querySelector('.when-active')
+    scrollToActiveOption(type) {
+      const selectWrapper = type === 'project' ? this.$refs.projectWrapper : this.$refs.tagWrapper
+      const activeOption = selectWrapper.querySelector('.when-active')
+      const listIndex = type === 'project' ? this.projectSelectIndex : this.tagSelectIndex
       const optionHeight = activeOption.offsetHeight
-      if (this.projectSelectIndex > 5) {
-        selectWrapper.scrollTop = optionHeight * (this.projectSelectIndex - 5)
-      } else if (this.projectSelectIndex === 0) {
+      if (listIndex > 5) {
+        selectWrapper.scrollTop = optionHeight * (listIndex - 5)
+      } else if (listIndex === 0) {
         selectWrapper.scrollTop = 0
       }
     },
@@ -645,7 +822,7 @@ export default {
 }
 
 .icon-item:hover {
-  background-color: rgba(231, 231, 231, .5)
+  background-color: rgba(231, 231, 231, .5);
 }
 
 .public {
@@ -663,6 +840,10 @@ export default {
 .public-left span {
   margin-left: .5rem;
   font-size: .75rem;
+}
+
+.height-215 {
+  height: 2.125rem;
 }
 
 .public-right {
@@ -804,11 +985,18 @@ export default {
   border-radius: .3rem;
   color: var(--gray);
   margin-top: .5rem;
+  height: 1.725rem;
+  display: flex;
+  align-items: center;
 }
 
 .select-project:hover {
   background-color: rgb(248, 246, 246);
   color: var(--black);
+}
+
+.width-12 {
+  width: 12rem!important;
 }
 
 .project-select {
@@ -818,7 +1006,7 @@ export default {
   overflow-y: auto;
   border: 2px solid #F3F1F1;
   background-color: white;
-  z-index: 1000;
+  z-index: 100010;
   box-shadow: 0 1px 4px 0 rgba(109, 110, 111, 0.08);
 }
 
@@ -869,12 +1057,141 @@ export default {
   margin-left: .25rem;
 }
 
+.new-pop-item {
+  min-width: 15rem;
+  display: flex;
+  align-items: center;
+  padding: .5rem .75rem;
+  cursor: pointer;
+  justify-content: space-between;
+}
+
+.color-hover {
+  background-color: rgba(231, 231, 231, .5);
+}
+
+.new-pop-item:hover {
+  background-color: rgba(231, 231, 231, .5);
+}
+
+.main-width {
+  min-width: 11rem !important;
+}
+
 .pop-item {
+  min-width: 15rem;
+  display: flex;
+  align-items: center;
+  padding: .5rem 1.75rem .5rem .75rem;
+  cursor: pointer;
+}
+
+.pop-item:hover {
+  background-color: rgba(231, 231, 231, .5);
+}
+
+.pop-item span {
+  font-size: .875rem;
+  margin-left: .5rem;
+}
+
+.pop-main {
+  width: 2.15rem;
+  height: 1.625rem;
+  /*margin: 0 .25rem;*/
+}
+
+.separate {
+  border-bottom: 1px solid #ECE9E8;
+  margin: .25rem 0;
+}
+
+.no-marg {
+  margin-left: 0 !important;
+}
+
+.red-span {
+  color: #C82F54;
+}
+
+.tag-item {
+  margin: .2rem 0 .2rem .3rem;
+  font-size: .75rem;
+  border-radius: 1rem;
+  padding: 0 .5rem;
+  background-color: currentColor;;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.tag-span {
+  filter: grayscale(1) contrast(999) invert(1)
+}
+
+*::selection {
+  background-color: #BCD6FB !important; /* 高优先级，设置选中文字的背景色 */
+  color: #000 !important; /* 高优先级，设置选中的文字颜色 */
+}
+
+.tag-x-icon {
+  filter: grayscale(1) contrast(999) invert(1);
+  padding: .2rem;
+  margin-left: .2rem;
+  /*transition: background-color .3s;*/
+}
+
+.tag-x-icon:hover {
+  color: white;
+  background-color: var(--black);
+  border-radius: 1rem;
+  padding: .2rem;
+}
+
+.pending-icon {
+  border: 1px solid var(--black);
+  border-radius: .3rem;
+}
+
+.pop-subtask {
+  width: 15rem;
+  height: 2.315rem;
+}
+
+.project-input {
+  height: 2.225rem;
+  z-index: 1000;
+}
+
+.add-tag {
+  color: var(--black);
+  border-radius: .3rem;
+  width: 1.625rem;
+  height: 1.625rem;
+  background-color: rgba(231, 231, 231, .5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 1rem;
+}
+
+.tag-list {
+  position: absolute;
   display: flex;
 }
 
-.pop-item span{
-  font-size: .875rem;
-  margin-left: .5rem;
+.mrg-top-225 {
+  margin-top: 2.25rem;
+}
+
+.tag-option {
+  height: 2rem;
+}
+
+.tag-list-position{
+  top:v-bind(tagListPosition[0]);
+  right:v-bind(tagListPosition[1]);
+  bottom:v-bind(tagListPosition[2]);
+  left:v-bind(tagListPosition[4]);
 }
 </style>

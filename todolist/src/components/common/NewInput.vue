@@ -20,6 +20,10 @@ export default {
     }
   },
   props: {
+    mrgLFt: {
+      type:String,
+      default:'.75rem'
+    },
     placeholder: {
       type:String,
       default:''
@@ -47,11 +51,14 @@ export default {
     },
     modelValue(newValue) {
       this.inputString = newValue
+    },
+    mrgLFt(newValue){
+      this.mrgLeft = newValue
     }
   },
   created() {
     this.inputString = this.modelValue
-    this.mrgLeft = this.showIcon?'2.55rem':'.75rem'
+    this.mrgLeft = this.showIcon?'2.55rem':this.mrgLFt
   },
   methods: {
     handleFocus(){

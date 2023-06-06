@@ -1,5 +1,8 @@
 <template>
-  <div style="width: 2rem;height: 2rem;background-color: #fff3cd" @click="test">test</div>
+  <div style="width: 12rem;height: 2rem;display: flex;flex-direction: column">
+    <div style="width: 10rem;height: 2rem;background-color: #fff3cd"></div>
+    <div style="width: 10rem;height: 2rem;background-color: red"></div>
+  </div>
 </template>
 
 <script>
