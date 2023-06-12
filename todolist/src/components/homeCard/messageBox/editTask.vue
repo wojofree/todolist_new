@@ -82,7 +82,7 @@
               </icon-base>
               <span>Mark dependent</span>
             </div>
-            <div class="pop-item">
+            <div class="pop-item" @click="menuAddTag">
               <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
                 <Tag/>
               </icon-base>
@@ -251,9 +251,9 @@
                          @keydown="keySelect('project')"></new-input>
               <div ref="projectWrapper" class="project-select">
                 <div v-for="(item,index) in currentProjectList" :key="item.id"
-                     :class="{'when-active':projectSelectIndex === index,'borderBottom':item.id === 0}"
+                     :class="{'when-active':projectSelectIndex === index}"
                      class="select-option cursor"
-                     @click="keySelectProject"
+                     @click="keySelect('project')"
                      @mouseenter="projectSelectIndex = index"
                 >
                   <div class="text-overflow dsp-flx">
@@ -266,36 +266,39 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="this.currentProjectList.length === 0" class="create-project" @click="createProject">
-                  <icon-base box-view=" 0 0 32 32" icon-color="#4069C3">
+                <div v-if="this.currentProjectList.length === 0 && !isUsed" class="create-project" @click="createProject">
+                  <icon-base box-view=" 0 0 32 32" height=".9rem" icon-color="#4069C3" width=".9rem">
                     <MiniPlus/>
                   </icon-base>
-                  <span>Create project for '{{ searchWords }}'</span>
+                  <span class="text-overflow">Create project for '{{ searchWords }}'</span>
+                </div>
+                <div v-if="this.currentProjectList.length === 0 && isUsed" class="create-project">
+                  <span class="text-overflow">Already add this task to '{{ searchWords }}'</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <!--        tag管理-->
-        <div v-if="currentTaskData.tag.length > 0" class="task-pane-item align">
-          <div class="item-left mrg-top-5">
+        <div v-show="currentTaskData.tag.length > 0 || showTag" class="task-pane-item align width-100">
+          <div class="item-left mrg-top-5 flex-none">
             <span>Tags</span>
           </div>
-          <div class="item-right" style="position: relative;" @mouseenter="showXIcon = 'tag'"
+          <div class="item-right width-100" style="position: relative;" @mouseenter="showXIcon = 'tag'"
                @mouseleave="showXIcon = false">
             <!--            tag输入框-->
-            <new-input v-show="showAddTagInput" ref="tagInput" :mrgLFt="mrgLeft"
-                       v-model="searchWords"  @input="search('tag')" @keydown="keySelect('tag')"
-
+            <new-input ref="tagInput" v-model="searchWords" :class="{'vsb-hidden':!showAddTagInput}" :mrgLFt="mrgLeft"
+                       :mrgTOP="margTOP" @blur="hiddenAddInput" @input="search('tag')"
+                       @keydown="keySelect('tag')"
             ></new-input>
             <!--            现有tag-->
-            <div :class="{'mrg-top-225':!showAddTagInput}" class="tag-list">
-              <div ref="tagList" class="dsp-flx">
+            <div class="tag-list align-items-center width-100">
+              <div ref="tagList" class="dsp-flx flex-wrap width-90">
                 <div v-for="tag in currentTaskData.tag">
                   <tool-tip content="Click to view all tasks in this tag.">
-                    <div :style="{color:tag.color}" class="tag-item cursor">
+                    <div :ref="'tag'+tag.id" :style="{color:tag.color}" class="tag-item cursor">
                       <span class="tag-span">{{ tag.name }}</span>
-                      <div class="tag-x-icon">
+                      <div class="tag-x-icon" @click="removeTag(tag.id)">
                         <icon-base box-view="0 0 32 32" height=".56rem" width=".56rem">
                           <XIcon/>
                         </icon-base>
@@ -303,9 +306,10 @@
                     </div>
                   </tool-tip>
                 </div>
+                <div ref="tagEnd"></div>
               </div>
               <!--              plus 按钮-->
-              <tool-tip v-show="showXIcon === 'tag'&& !showAddTagInput" content="Add another tag">
+              <tool-tip v-show="showXIcon === 'tag'&& !showAddTagInput" content="Add another tag" class="add-tag-swap">
                 <div class="add-tag cursor" @click="showAddTag()">
                   <icon-base box-view="0 0 24 24" height=".75rem" width=".75rem">
                     <Plus/>
@@ -313,24 +317,39 @@
                 </div>
               </tool-tip>
             </div>
-            <div ref="tagWrapper" class="project-select width-12 flex-column tag-list-position tag-list" v-show="showAddTagInput"
-                 :style="{minHeight: minTagHeight}">
+            <div v-show="showAddTagInput" ref="tagWrapper"
+                 :style="{minHeight: minTagHeight}"
+                 class="project-select width-12 flex-column tag-list-position tag-list">
               <div v-for="(item,index) in currentTagList" :key="item.id"
-                   :class="{'when-active':tagSelectIndex === index,'borderBottom':item.id === 0}"
-                   class="select-option cursor"
-                   @click="keySelectTag"
-                   @mouseenter="tagSelectIndex = index"
+                   :class="{'when-active':tagSelectIndex === index}"
                    :style="{borderLeft:'5px solid '+item.color}"
+                   class="select-option cursor"
+                   @click="keySelect('tag')"
+                   @mouseenter="tagSelectIndex = index"
               >
                 <div class="text-overflow dsp-flx">
                   <span>{{ item.name }}</span>
                 </div>
               </div>
-              <div  class="create-project" @click="createTag">
-                <icon-base box-view=" 0 0 32 32" icon-color="#4069C3">
+              <div v-if="this.currentTagList.length === 0 && !isUsed" class="create-project" @click="createTag">
+                <icon-base box-view=" 0 0 32 32" height=".9rem" icon-color="#4069C3" width=".9rem">
                   <MiniPlus/>
                 </icon-base>
-                <span>Create tag for '{{ searchWords }}'</span>
+                <span class="text-overflow">Create tag for '{{ searchWords }}'</span>
+              </div>
+              <div v-if="this.currentTagList.length === 0 && isUsed" class="create-project">
+                <span class="text-overflow">Already add '{{ searchWords }}' for this task.</span>
+              </div>
+            </div>
+            <div v-show="showColorSelect" ref="colorSelect" class="color-select">
+              <div class="triangle"></div>
+              <div class="color-selection">
+                <label v-for="color in colorList" :style="{'color':color}" class="color-item cursor"
+                       @click="changeTagColor({tag_id:currentTagId,color:color})">
+                  <icon-base v-show="color === '#E7E5E4'" class="color-right" height=".7rem" width=".7rem">
+                    <Right/>
+                  </icon-base>
+                </label>
               </div>
             </div>
           </div>
@@ -379,7 +398,8 @@ export default {
   name: "editTask",
   data() {
     return {
-      tagSelectIndex:'',
+      colorList: ['#E7E5E4', '#F06A6A', '#EC8E71', '#E9BF78', '#F8DF72', '#B4CE67', '#6D9F84', '#6CBEB9', '#AEE5E2', '#5072CB', '#8B84E1', '#A96ECE', '#EDADEB', '#E277B0', '#ED9B9B', '#68696A'],
+      tagSelectIndex: '',
       colorHover: false,
       dateColor: 'var(--gray)',
       showAddInput: false,
@@ -405,8 +425,14 @@ export default {
       mrgLeft: '',
       showAddTagInput: false,
       tagList: {},
-      tagListPosition: [0,0,0,0],
-      minTagHeight:''
+      tagListPosition: [0, 0, 0, 0],
+      minTagHeight: '',
+      margTOP: '',
+      colorSelectPosition: [],
+      showColorSelect: false,
+      currentTagId: '',
+      showTag: false,
+      isUsed: false
     }
   },
   props: {
@@ -419,9 +445,9 @@ export default {
       default: {}
     }
   },
-  created() {
+  async created() {
     const url = "/api/get_tags"
-    apiHttpClient.get(url).then((res) => {
+    await apiHttpClient.get(url).then((res) => {
       this.tagList = res.data.results
     })
   },
@@ -465,6 +491,10 @@ export default {
       }
       this.completeDate = newValue.complete_date
       this.currentProjectList = this.projectList
+      if (newValue.tag.length > 0) {
+        this.showAddTag('create')
+      }
+
     },
     // 日期更新
     dateValue(newValue) {
@@ -502,21 +532,60 @@ export default {
       if (!newValue && this.taskTitle !== this.currentTaskData.title) {
         this.changeTask('title')
       }
+    },
+    showColorSelect(newValue) {
+      if (newValue) {
+        document.addEventListener("click", this.colorOutsideClick);
+      } else {
+        document.removeEventListener("click", this.colorOutsideClick);
+      }
     }
   },
   methods: {
-    showAddTag() {
+    menuAddTag() {
+      this.showTag = true
+      this.showAddTag()
+    },
+    colorOutsideClick(e) {
+      if (this.$refs.colorSelect && !this.$refs.colorSelect.contains(e.target)) {
+        this.showColorSelect = false
+      }
+    },
+    // 展示color选择
+    changeTagColor(data) {
+      const url = '/api/change_tag/'
+      apiHttpClient.post(url, data).then((res) => {
+        const new_tag = res.data.results
+        for (let index in this.currentTaskData.tag) {
+          if (this.currentTaskData.tag[index].id === new_tag.id) {
+            this.currentTaskData.tag[index] = new_tag
+          }
+        }
+      })
+    },
+    // 展示tagList
+    showAddTag(type) {
       this.tagSelectIndex = 0
-      this.showAddTagInput = true
+      this.showAddTagInput = type !== 'create'
       this.searchWords = null
-      this.currentTagList = this.tagList
+      this.currentTagList = eliminateList(this.tagList, this.currentTaskData.tag)
       const height = this.currentTagList.length * 2.35 * 16
-      this.minTagHeight = Math.min(height,256) +'px'
-      this.mrgLeft = this.$refs.tagList.offsetWidth + 10 + 'px'
+      this.minTagHeight = Math.min(height, 256) + 'px'
+      const tagEnd = this.$refs.tagEnd.getBoundingClientRect()
+      const tagList = this.$refs.tagList.getBoundingClientRect()
+      this.mrgLeft = tagEnd.left - tagList.left + 10 + 'px'
+      this.margTOP = tagEnd.top - tagList.top + 'px'
+      this.margTOP = this.margTOP === '0px' ? '13.2px' : this.margTOP
+      const ListTop = tagList.height === 0 ? '51.39px' : tagList.height + 25 + 'px'
       this.$nextTick(() => {
         this.$refs.tagInput.$refs.input.focus()
       })
-      this.tagListPosition = ['2.35rem', 0, 0, this.mrgLeft]
+      const width = tagEnd.left + 10 +18*16
+      let tagLeft = this.mrgLeft
+      if(width > window.innerWidth){
+        tagLeft = this.$refs.tagInput.offsetWidth -18*16 +'px'
+      }
+      this.tagListPosition = [ListTop, 0, 0, tagLeft]
     },
     // 获取选中的category
     async getSelectCategory(list, type) {
@@ -540,6 +609,34 @@ export default {
         apiHttpClient.post(url, data)
       }
     },
+    // 创建tag
+    async createTag() {
+      const url = '/api/create_tag/'
+      let tag_id;
+      const data = {name: this.searchWords, color: '#E7E5E4'}
+      await apiHttpClient.post(url, data).then((res) => {
+        this.tagList.push(res.data.results)
+        const urlTwo = '/api/update_task/'
+        tag_id = res.data.results.id
+        const data = {task_id: this.currentTaskData.id, tag_id: tag_id}
+        apiHttpClient.post(urlTwo, data).then(() => {
+          this.currentTaskData.tag.push(res.data.results)
+          this.showAddTagInput = false
+          this.$nextTick(() => {
+            const div = this.$refs[`tag${tag_id}`][0]
+            const width = div.offsetWidth
+            const tagEnd = this.$refs.tagEnd.getBoundingClientRect()
+            const tagList = this.$refs.tagList.getBoundingClientRect()
+            const left = tagEnd.left - tagList.left + 10 - width / 2 - 128 + 'px'
+            this.colorSelectPosition = [tagList.height + 10 + 'px', left]
+          })
+          this.currentTagId = tag_id
+          this.showColorSelect = true
+        })
+      })
+      this.showAddTag('create')
+    },
+    // 创建project
     async createProject() {
       const url = "/api/create_project/"
       let project_id;
@@ -556,6 +653,19 @@ export default {
       const categoryTemp = await this.getCategory(project_id, 'single')
       this.categoryList[project_id] = categoryTemp
       this.oldCategorySelect[project_id] = this.categorySelect[project_id] = categoryTemp[0]
+    },
+    // 删除tag
+    async removeTag(tag_id) {
+      const url = '/api/update_task/'
+      const data = {task_id: this.currentTaskData.id, tag_id: tag_id, removeTag: true}
+      await apiHttpClient.post(url, data).then(() => {
+        for (let index in this.currentTaskData.tag) {
+          if (this.currentTaskData.tag[index].id === tag_id) {
+            this.currentTaskData.tag.splice(index, 1)
+          }
+        }
+      })
+      this.showAddTag('create')
     },
     // 删除project
     removeProject(project_id) {
@@ -623,22 +733,31 @@ export default {
       this.projectSelectIndex = 0
       this.searchWords = null
       this.showAddInput = true
-      this.currentProjectList = this.projectList
+      this.currentProjectList = eliminateList(this.projectList,this.currentTaskData.project)
       this.$nextTick(() => {
         this.$refs.projectInput.$refs.input.focus()
       })
     },
     // project搜索
     search(type) {
+      this.isUsed = false
       setTimeout(() => {
         if (this.searchWords !== null) {
-          if(type==='project'){
-            this.currentProjectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+          if (type === 'project') {
+            const projectList = this.projectList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+            this.currentProjectList = eliminateList(projectList,this.currentTaskData.project)
+            if (projectList.length > 0 && this.currentProjectList.length === 0) {
+              this.isUsed = projectList.some(project => project.name === this.searchWords)
+            }
           } else {
-            this.currentTagList = this.tagList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+            const tagList = this.tagList.filter(item => item.name.toLowerCase().includes(this.searchWords.toLowerCase()))
+            this.currentTagList = eliminateList(tagList, this.currentTaskData.tag)
             const height = this.currentTagList.length * 2.35 * 16
-            this.minTagHeight = Math.min(height,256) +'px'
-            this.minTagHeight = this.minTagHeight === '0px' ? '37.6px':this.minTagHeight
+            this.minTagHeight = Math.min(height, 256) + 'px'
+            this.minTagHeight = this.minTagHeight === '0px' ? '37.6px' : this.minTagHeight
+            if (tagList.length > 0 && this.currentTagList.length === 0) {
+              this.isUsed = tagList.some(tag => tag.name === this.searchWords)
+            }
           }
         }
       }, 40)
@@ -654,9 +773,9 @@ export default {
           case 9: // Tab键
           case 13: // Enter键
             if (currentList.length !== 0) {
-              this.addProject()
+              type === 'project' ? this.addProject() : this.addTag();
             } else {
-              this.createProject()
+              type === 'project' ? this.createProject() : this.createTag();
             }
 
             break;
@@ -674,7 +793,7 @@ export default {
             break;
         }
       } else { //鼠标点击选择
-        this.addProject()
+        type === 'project' ? this.addProject() : this.addTag();
       }
     },
     hiddenAddInput() {
@@ -682,6 +801,17 @@ export default {
         this.showAddTagInput = false
         this.showAddInput = false
       }, 100)
+    },
+    // 添加tag
+    async addTag() {
+      const url = '/api/update_task/'
+      const tag_id = this.currentTagList[this.tagSelectIndex].id
+      const data = {task_id: this.currentTaskData.id, tag_id: tag_id}
+      await apiHttpClient.post(url, data).then(() => {
+        this.currentTaskData.tag.push(this.currentTagList[this.tagSelectIndex])
+        this.showAddTagInput = false
+      })
+      this.showAddTag('create')
     },
     // 添加project
     async addProject() {
@@ -757,6 +887,12 @@ export default {
     }
   }
 }
+
+function eliminateList(allTags, orgTags) {
+    return allTags.filter(tag => !orgTags.some(orgTag => orgTag.id === tag.id))
+}
+
+
 </script>
 
 <style scoped>
@@ -859,6 +995,10 @@ export default {
 
 .task-main {
   padding: 0 1.5rem;
+}
+
+.flex-none {
+  flex: none;
 }
 
 .task-title {
@@ -996,7 +1136,7 @@ export default {
 }
 
 .width-12 {
-  width: 12rem!important;
+  width: 18rem !important;
 }
 
 .project-select {
@@ -1029,12 +1169,15 @@ export default {
 .create-project {
   display: flex;
   align-items: center;
-  padding: .5rem 1.5rem;
+  padding: .5rem .5rem;
   color: #4069C3;
+  justify-content: flex-start;
 }
 
 .create-project span {
   margin-left: .5rem;
+  width: 85%;
+  text-align: left;
 }
 
 .align {
@@ -1180,18 +1323,78 @@ export default {
   display: flex;
 }
 
-.mrg-top-225 {
-  margin-top: 2.25rem;
+.tag-list-position {
+  top: v-bind(tagListPosition [0]);
+  right: v-bind(tagListPosition [1]);
+  bottom: v-bind(tagListPosition [2]);
+  left: v-bind(tagListPosition [3]);
 }
 
-.tag-option {
-  height: 2rem;
+.width-100 {
+  width: 100%;
 }
 
-.tag-list-position{
-  top:v-bind(tagListPosition[0]);
-  right:v-bind(tagListPosition[1]);
-  bottom:v-bind(tagListPosition[2]);
-  left:v-bind(tagListPosition[4]);
+.width-90 {
+  max-width: 90%;
+}
+
+.color-select {
+  top: v-bind(colorSelectPosition [0]);
+  left: v-bind(colorSelectPosition [1]);
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.color-selection {
+  border: 1px solid #ECEAE9;
+  background-color: white;
+  box-shadow: 0 5px 10px 0 rgba(109, 110, 111, 0.18);
+  display: flex;
+  flex-wrap: wrap;
+  width: 16rem;
+  padding: 1.5rem;
+  justify-content: space-around;
+}
+
+.color-item {
+  background-color: currentColor;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: .125rem;
+  border-radius: .25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.color-item:hover {
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08));
+}
+
+.triangle {
+  width: 1rem;
+  height: 1rem;
+  background-color: white;
+  transform: rotate(45deg);
+  margin-bottom: -.5rem;
+  border-width: 1px 0 0 1px;
+  border-style: solid;
+  border-color: #EDEAE9;
+  border-radius: .1rem;
+}
+
+.color-right {
+  filter: grayscale(1) contrast(999) invert(1);
+}
+
+.vsb-hidden {
+  visibility: hidden;
+}
+
+.add-tag-swap {
+  position: absolute;
+  right: 0;
 }
 </style>

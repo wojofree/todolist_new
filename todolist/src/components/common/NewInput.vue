@@ -20,6 +20,10 @@ export default {
     }
   },
   props: {
+    mrgTOP: {
+      type:String,
+      default:'.375rem'
+    },
     mrgLFt: {
       type:String,
       default:'.75rem'
@@ -67,12 +71,6 @@ export default {
     handleBlur() {
       this.$emit('blur')
     },
-    // handleInput(){
-    //   this.$emit('input','keyi')
-    // },
-    // handleKeydown() {
-    //   this.$emit('keydown')
-    // }
   }
 }
 </script>
@@ -84,7 +82,7 @@ export default {
   padding: .375rem .75rem;
   padding-left: v-bind(mrgLeft);
   padding-right: .75rem;
-  padding-top: .375rem;
+  padding-top: v-bind(mrgTOP);
   padding-bottom: .375rem;
   color: var(--black);
   border: 1px solid #cfcbcb;
