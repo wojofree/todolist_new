@@ -2,7 +2,7 @@ import {createRouter, createWebHistory} from 'vue-router'
 
 const routes = [
     {
-        path: '/',
+        path: '/home',
         name: 'home',
         component: () => import(/* webpackChunkName: "about" */ '../views/home/HomeView')
     },
@@ -22,15 +22,10 @@ const routes = [
         component: () => import(/* webpackChunkName: "about" */ '../views/ChangePassword.vue')
     },
     {
-        path: '/select',
-        name: 'SelectBar',
-        component: () => import(/* webpackChunkName: "about" */ '../components/common/SelectBar.vue')
+        path: '/tasks',
+        name: 'MyTasks',
+        component: () => import(/* webpackChunkName: "about" */ '../views/myTasks/MyTasks.vue')
     },
-    {
-        path: '/test',
-        name: 'test',
-        component: () => import(/* webpackChunkName: "about" */ '../views/test.vue')
-    }
 
 ]
 

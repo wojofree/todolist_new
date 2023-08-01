@@ -7,8 +7,9 @@ import store from './store'
 import "/src/style/bootstrap.min.css"
 import "bootstrap/dist/js/bootstrap.js"
 // import draggable from 'vuedraggable'
+import WaveSurferVue from "wavesurfer.js-vue";
 
-createApp(App).use(store).use(router).use(ElementPlus).mount('#app')
+createApp(App).use(store).use(router).use(ElementPlus).use(WaveSurferVue).mount('#app')
 
 
 

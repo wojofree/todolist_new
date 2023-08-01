@@ -128,7 +128,7 @@
               <span class="no-marg">Merge duplicate tasks</span>
             </div>
             <div class="separate"></div>
-            <div class="pop-item">
+            <div class="pop-item" @click="deleteTask">
               <span class="no-marg red-span">Delete task</span>
             </div>
           </template>
@@ -247,7 +247,7 @@
             <div v-show="showAddInput" class="project-input">
               <new-input ref="projectInput" v-model="searchWords"
                          placeholder="Add task to a project..."
-                         @blur="hiddenAddInput" @input="search('project')"
+                         @blur="hiddenAddInput('project')" @input="search('project')"
                          @keydown="keySelect('project')"></new-input>
               <div ref="projectWrapper" class="project-select">
                 <div v-for="(item,index) in currentProjectList" :key="item.id"
@@ -542,10 +542,12 @@ export default {
     }
   },
   methods: {
+    // 菜单栏添加tag
     menuAddTag() {
       this.showTag = true
       this.showAddTag()
     },
+    // tag颜色选择点击判断
     colorOutsideClick(e) {
       if (this.$refs.colorSelect && !this.$refs.colorSelect.contains(e.target)) {
         this.showColorSelect = false
@@ -796,10 +798,9 @@ export default {
         type === 'project' ? this.addProject() : this.addTag();
       }
     },
-    hiddenAddInput() {
+    hiddenAddInput(type) {
       setTimeout(() => {
-        this.showAddTagInput = false
-        this.showAddInput = false
+        type === 'project' ? this.showAddInput = false : this.showAddTagInput = false;
       }, 100)
     },
     // 添加tag

@@ -4,28 +4,28 @@
     <div class="menu-swap">
       <!--    home-->
       <div class="menu-top ml-7">
-        <div class="menu-item cursor" @click="isActive = 'home'" :class="{'hover-bg':isActive === 'home'}">
+        <div class="menu-item cursor" @click="router('home')" :class="{'hover-bg':isActive === 'home'}">
           <IconBase box-view=" 0 0 40 40" width="1.2rem" height="1.2rem">
             <Home/>
           </IconBase>
           <span>Home</span>
         </div>
         <!--      my tasks-->
-        <div class="menu-item cursor" @click="isActive = 'tasks'" :class="{'hover-bg':isActive === 'tasks'}">
+        <div class="menu-item cursor" @click="router('tasks')" :class="{'hover-bg':isActive === 'tasks'}">
           <IconBase box-view=" 0 0 40 40" width="1.2rem" height="1.2rem">
             <Done/>
           </IconBase>
           <span>My Tasks</span>
         </div>
         <!--      inbox-->
-        <div class="menu-item cursor" @click="isActive = 'inbox'" :class="{'hover-bg':isActive === 'inbox'}">
+        <div class="menu-item cursor" @click="router('inbox')" :class="{'hover-bg':isActive === 'inbox'}">
           <IconBase box-view=" 0 0 40 40" width="1.2rem" height="1.2rem">
             <InBox/>
           </IconBase>
           <span>Inbox</span>
         </div>
         <!--      my workspace-->
-        <div class="menu-item cursor" @click="isActive = 'workspace'" :class="{'hover-bg':isActive === 'workspace'}">
+        <div class="menu-item cursor" @click="router('workspace')" :class="{'hover-bg':isActive === 'workspace'}">
           <IconBase box-view=" 0 0 32 32" width="1.2rem" height="1.2rem">
             <WorkSpace/>
           </IconBase>
@@ -105,6 +105,11 @@ export default {
     },
     foldMenu() {
       this.isFold = !this.isFold
+    },
+    router(type) {
+      this.isActive = type
+      let link = '/'+type
+      this.$router.push(link)
     }
   },
 }
