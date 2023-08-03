@@ -74,7 +74,7 @@ export default {
 }
 
 .mg-b-6 {
-  padding-bottom: .625rem;
+  padding-bottom: .3rem;
 }
 
 .tab-item:hover {

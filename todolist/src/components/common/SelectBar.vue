@@ -3,8 +3,8 @@
     <div class="disp-block">
       <div class="select cursor" @click="this.openSelect = !this.openSelect" ref="title">
         <div class="flex">
-          <span>{{ modelValue.name }}</span>
-          <IconBase width=".75rem" height=".75rem" box-view="0 0 24 24">
+          <span v-if="this.showTitle">{{ modelValue.name }}</span>
+          <IconBase :width=this.fontSize :height=this.fontSize box-view="0 0 24 24">
             <Arrow/>
           </IconBase>
         </div>
@@ -15,9 +15,9 @@
         <div class="option-title" v-if="optionTitle !== ''">
           <p>{{ optionTitle }}</p>
         </div>
-        <div class="option-item cursor" v-for="item in options" @click="selectOption(item)" :class="{'selected':isSelect === item.value}">
+        <div class="option-item cursor" v-for="item in options" @click="selectOption(item)" :class="{'selected':isSelect === item.value && this.showIcon}">
           <IconBase width=".75rem" height=".75rem" box-view="0 0 32 32"
-                    :class="{'vis-hidden':isSelect !== item.value}">
+                    :class="{'vis-hidden':isSelect !== item.value}" v-if="showIcon">
             <Right/>
           </IconBase>
           <p>{{ item.name }}</p>
@@ -34,7 +34,8 @@ export default {
     return {
       openSelect: false,
       isSelect: '',
-      titleWidth: '2rem'
+      titleWidth: '2rem',
+      mrgLeft: '1rem'
     }
   },
   props: {
@@ -58,10 +59,21 @@ export default {
     fontSize: {
       type: String,
       default: '.75rem'
+    },
+    showTitle: {
+      type: Boolean,
+      default: true
+    },
+    showIcon: {
+      type: Boolean,
+      default: true
     }
   },
   created() {
     this.getDefaultSelect()
+    if (!this.showIcon){
+      this.mrgLeft = '0px'
+    }
   },
   watch: {
     openSelect(newVal) {
@@ -207,7 +219,7 @@ import {Arrow, Right} from "@/components/icons"
 
 .option-item p {
   margin-bottom: 0;
-  margin-left: 1rem;
+  margin-left: v-bind(mrgLeft);
   width: max-content;
 }
 

@@ -1,10 +1,10 @@
 <template>
-
+<div>myTasksBoard</div>
 </template>
 
 <script>
 export default {
-  name: "myTasks"
+  name: "myTasksBoard"
 }
 </script>
 
