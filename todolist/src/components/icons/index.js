@@ -48,8 +48,12 @@ import Milestone from './Milestone'
 import Pending from './Pending'
 import Dependent from './Dependent'
 import Tag from './Tag'
+import RingRight from './RingRight'
+import SortMiniIcon from './SortMiniIcon'
 
 export {
+    SortMiniIcon,
+    RingRight,
     Tag,
     Dependent,
     Pending,

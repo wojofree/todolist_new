@@ -30,10 +30,8 @@
   </div>
   <component :is="this.tabSelected"></component>
 </template>
-
 <script setup>
 import {Lock} from "@/components/icons"
-
 </script>
 <script>
 import TabBar from "@/components/common/TabBar";
@@ -43,6 +41,7 @@ import myTasksList from "@/components/myTasksMain/myTasksList";
 import myTasksBoard from "@/components/myTasksMain/myTasksBoard";
 import myTasksCalendar from "@/components/myTasksMain/myTasksCalendar";
 import myTasksFiles from "@/components/myTasksMain/myTasksFiles";
+
 export default {
   name: "myTasks",
   components: {
@@ -78,10 +77,7 @@ export default {
       type: Object,
       default: null
     },
-    projectList: {
-      type: Object,
-      default: null
-    }
+
   },
   watch: {
     user: {
