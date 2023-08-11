@@ -5,8 +5,10 @@
       <div class="avatar-right">
         <div class="title">
           <span>My tasks</span>
-          <select-bar v-model="this.titleSelected" :options=this.titleSelectOption :show-icon=false :show-title=false
-                      class="select-bar" font-size="1rem"></select-bar>
+          <tool-tip content="Actions">
+            <select-bar v-model="this.titleSelected" :options=this.titleSelectOption :show-icon=false :show-title=false
+                        class="select-bar" font-size="1rem"></select-bar>
+          </tool-tip>
         </div>
         <div class="tab-select">
           <tab-bar v-model="this.tabSelected" :options="this.tabOption"></tab-bar>
@@ -14,12 +16,14 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="header-button">
-        <icon-base height=".75rem" icon-color="#6d6e6f" width=".75rem">
-          <Lock/>
-        </icon-base>
-        <span>Share</span>
-      </div>
+      <tool-tip content="Share this space with teammates to let them organize your work.">
+        <div class="header-button">
+          <icon-base height=".75rem" icon-color="#6d6e6f" width=".75rem">
+            <Lock/>
+          </icon-base>
+          <span>Share</span>
+        </div>
+      </tool-tip>
       <div class="customize">
         <div class="header-button">
           <img alt="customize" class="customize-img" src="@/components/icons/customize_12.svg"/>
@@ -28,10 +32,11 @@
       </div>
     </div>
   </div>
-  <component :is="this.tabSelected"></component>
+  <component :is="this.tabSelected" :tasksList="this.tasksList" :sectionList="this.sectionList"></component>
 </template>
 <script setup>
 import {Lock} from "@/components/icons"
+import ToolTip from "@/components/common/ToolTip";
 </script>
 <script>
 import TabBar from "@/components/common/TabBar";
@@ -41,6 +46,8 @@ import myTasksList from "@/components/myTasksMain/myTasksList";
 import myTasksBoard from "@/components/myTasksMain/myTasksBoard";
 import myTasksCalendar from "@/components/myTasksMain/myTasksCalendar";
 import myTasksFiles from "@/components/myTasksMain/myTasksFiles";
+import {apiHttpClient} from "@/app/app.service";
+import formatTaskData from "@/components/homeCard/js/formatTaskData";
 
 export default {
   name: "myTasks",
@@ -69,7 +76,9 @@ export default {
         {name: 'Board', value: 'myTasksBoard'},
         {name: 'Calendar', value: 'myTasksCalendar'},
         {name: 'Files', value: 'myTasksFiles'},
-      ]
+      ],
+      tasksList: [],
+      sectionList: []
     }
   },
   props: {
@@ -77,7 +86,10 @@ export default {
       type: Object,
       default: null
     },
-
+    projectList: {
+      type: Object,
+      default: null
+    }
   },
   watch: {
     user: {
@@ -88,6 +100,15 @@ export default {
     }
   },
   created() {
+    let taskURL = '/api/get_tasks/'
+    apiHttpClient.post(taskURL).then((res) => {
+      this.tasksList = res.data.results.map(formatTaskData());
+    })
+
+    let sectionURL = '/api/get_all_section/'
+    apiHttpClient.get(sectionURL).then((response) => {
+      this.sectionList = response.data.results
+    })
   },
   methods: {}
 }
@@ -169,4 +190,5 @@ export default {
   display: flex;
   align-items: center;
 }
+
 </style>

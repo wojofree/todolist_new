@@ -18,6 +18,14 @@ export default {
     borderStyle: {
       type: String,
       default: 'none'
+    },
+    fontColor: {
+      type: String,
+      default: 'var(--black)'
+    },
+    hoverColor: {
+      type: String,
+      default: 'rgb(248, 246, 246)'
     }
   },
   created() {
@@ -36,9 +44,10 @@ export default {
   background-color: v-bind(backgroundStyle);
   border: v-bind(borderStyle);
   cursor: pointer;
+  color: v-bind(fontColor)
 }
 
 .new-button:hover {
-  background-color: rgb(248, 246, 246);
+  background-color: v-bind(hoverColor);
 }
 </style>

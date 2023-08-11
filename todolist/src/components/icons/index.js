@@ -50,8 +50,18 @@ import Dependent from './Dependent'
 import Tag from './Tag'
 import RingRight from './RingRight'
 import SortMiniIcon from './SortMiniIcon'
+import PlusThin from './PlusThin'
+import AddRule from './AddRule'
+import Section from './Section'
+import LeftArrow from './LeftArrow'
+import RightArrow from './RightArrow'
 
 export {
+    LeftArrow,
+    RightArrow,
+    Section,
+    AddRule,
+    PlusThin,
     SortMiniIcon,
     RingRight,
     Tag,

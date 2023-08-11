@@ -36,7 +36,7 @@
                  :placeholder=taskPlaceHolder
                  class="add-task-input"
                  @blur="taskPlaceHolder = 'Click here t o add a task...', isTaskActive = false"
-                 @focus="taskPlaceHolder = 'What\'s the next thing on your plate?',isWhenActive = false,isProjectActive = false"
+                 @focus="taskPlaceHolder = 'What\'s the next thing on your plate?',isWhenActive = false, isProjectActive = false"
                  @input="taskTips"
                  @keydown="chooseWhen"
           />
@@ -332,7 +332,7 @@ export default {
     },
     dateValue(newValue) {
       this.isDateChange = this.dateValue !== this.dateValueTemp
-      this.dateType = typeof newValue === "string" ? 'date' : 'dateRange'
+      this.dateType = typeof (newValue === "string" || newValue === null) ? 'date' : 'dateRange'
     },
     analyzeValue(newValue) {
       // const now = new Date()
@@ -382,7 +382,7 @@ export default {
         this.isShowCalendar = false;
         this.isFirstClick = false
         const url = "/api/update_task/"
-        if (typeof this.dateValue === "string" && this.isDateChange) {
+        if ((typeof this.dateValue === "string" || this.dateValue === null) && this.isDateChange) {
           const data = {'task_id': this.currentTask.id, "complete_time": this.dateValue}
           apiHttpClient.post(url, data).then(() => {
             this.updateTaskLab()
@@ -441,7 +441,9 @@ export default {
     },
     // 监听task input的按键，tab和回车时跳转到when的input框
     chooseWhen(event) {
-      if (event.key === 'Tab' && this.taskValue !== '') { // 修改if语句的条件，使用key属性来判断按键
+      if ((event.key === 'Tab' || event.key === 'Enter') && this.taskValue !== '' && !event.isComposing) { // 修改if语句的条件，使用key属性来判断按键
+        event.stopPropagation();
+        event.preventDefault();
         this.isWhenActive = true
         this.taskWhenValue = this.defaultWhenList[0].name
         this.$nextTick(() => {
@@ -449,6 +451,11 @@ export default {
           const {left} = this.$refs.taskWhenValue.getBoundingClientRect()
           this.whenLeft = left - main.left + 'px'
         })
+        if (event.key === 'Enter') {
+          this.$nextTick(()=>{
+            this.$refs.taskWhenValue.focus()
+          })
+        }
       }
     },
     // when输入框focus时,监听键盘和鼠标
@@ -601,6 +608,7 @@ export default {
     async updateTaskLab() {
       // const now = new Date()
       const index = this.taskList.indexOf(this.currentTask)
+      console.log(this.dateType)
       const [startTime, endTime] = this.dateType === 'date' ? [null, this.dateValue] : this.dateValue;
       const endDate = new Date(endTime)
       this.currentTask.complete_time = endTime
@@ -769,7 +777,6 @@ function filterTasks(taskList, type, now) {
   align-items: center;
   justify-content: center;
   color: var(--gray);
-
 }
 
 .project-color {

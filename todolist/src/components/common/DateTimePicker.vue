@@ -706,7 +706,7 @@ function getFormatDate(date, type) {
 }
 
 .time-picker {
-  height: 100%;
+  height: 2.25rem;
   width: 2.25rem;
   display: flex;
   align-items: center;

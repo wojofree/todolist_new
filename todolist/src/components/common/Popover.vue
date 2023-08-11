@@ -52,6 +52,10 @@ export default {
       }
     }
   },
+  mounted() {
+    this.mainHeight = this.$refs.popoverMain.offsetHeight + 'px'
+    this.mainWidth = this.$refs.popoverMain.offsetWidth + 'px'
+  },
   async created() {
     this.alignItems = this.direction
     await this.$nextTick(() => {
@@ -96,6 +100,7 @@ export default {
       } else {
         this.isPopShow = false;
         this.$emit('close', true)
+        this.$emit('clickClose', true)
       }
     },
     showPop() {

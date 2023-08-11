@@ -48,17 +48,25 @@ export default {
       type: Boolean,
       default: false,
     },
-    cardWidth:{
-      type:String,
-      default:'auto'
+    cardWidth: {
+      type: String,
+      default: 'auto'
     },
-    cardHeight:{
-      type:String,
-      default:'auto'
+    cardHeight: {
+      type: String,
+      default: 'auto'
     },
-    maxWidth:{
-      type:String,
-      default:'auto'
+    maxWidth: {
+      type: String,
+      default: 'auto'
+    },
+    mrgTop: {
+      type: String,
+      default: '0px'
+    },
+    justifyContent: {
+      type: String,
+      default: 'center'
     }
   },
   watch: {
@@ -129,7 +137,8 @@ export default {
   align-items: center;
   width: 100%;
   height: 100%;
-  justify-content: center;
+  justify-content: v-bind(justifyContent);
+  margin-top: v-bind(mrgTop);
 }
 
 

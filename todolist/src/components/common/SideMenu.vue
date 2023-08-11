@@ -47,13 +47,11 @@
           <div class="icon-item cursor">
             <IconBase box-view="0 0 32 32" width=".75rem" height=".75rem" class="mag-auto">
               <More/>
-              >
             </IconBase>
           </div>
           <div class="icon-item cursor">
             <IconBase box-view="0 0 24 24" width=".75rem" height=".75rem" class="mag-auto">
               <Plus/>
-              >
             </IconBase>
           </div>
         </div>

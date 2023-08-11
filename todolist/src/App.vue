@@ -40,6 +40,8 @@
   min-width: 63rem;
   //overflow-y: auto;
   height: calc(100vh - 3.4rem);
+  display: flex;
+  flex-direction: column;
 }
 </style>
 <script>

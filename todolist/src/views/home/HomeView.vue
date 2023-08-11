@@ -9,22 +9,22 @@
       <div class="analyze-swap">
         <div class="analyze grid">
           <div class="select">
-            <SelectBar class="select-bar" v-model="analyzeValue" :options=options></SelectBar>
+            <SelectBar v-model="analyzeValue" :options=options class="select-bar"></SelectBar>
             <div class="segmentation"></div>
           </div>
           <div class="analyze-item">
-            <IconBase width="1rem" height="1rem">
+            <IconBase height="1rem" width="1rem">
               <Right/>
             </IconBase>
             <div class="completed-numb task-numb">
-              <div v-for="item in taskNumb" class="numb" :style="{'transform':'translateY(-'+item*10+'%)'}">
+              <div v-for="item in taskNumb" :style="{'transform':'translateY(-'+item*10+'%)'}" class="numb">
                 <div v-for="i of 10"><span>{{ i - 1 }}</span></div>
               </div>
             </div>
             <span> tasks completed</span>
           </div>
           <div class="analyze-item">
-            <IconBase width="1rem" height="1rem" boxView="0 0 32 32">
+            <IconBase boxView="0 0 32 32" height="1rem" width="1rem">
               <WorkSpace/>
             </IconBase>
             <span class="task-numb">{{ taskNumb[0] }}</span>
@@ -39,11 +39,11 @@
         </new-button>
       </div>
       <!--    卡片-->
-      <draggable v-model="list" v-bind="dragOptions" class="home-card">
+      <draggable v-model="list" class="home-card" v-bind="dragOptions">
         <transition-group type="transition">
-          <div v-for="element in list" :key="element.id" class="card-item" :style="{'flex':this.flex[element.name]}">
-            <component :is="element.name" v-if="element.name === 'Tasks'" :projectList="projectList"
-                       :analyzeValue="analyzeValue" @task-completed="taskCompletedNumb"></component>
+          <div v-for="element in list" :key="element.id" :style="{'flex':this.flex[element.name]}" class="card-item">
+            <component :is="element.name" v-if="element.name === 'Tasks'" :analyzeValue="analyzeValue"
+                       :projectList="projectList" @task-completed="taskCompletedNumb"></component>
             <component :is="element.name" v-else-if="element.name === 'Projects'"
                        :projectList="projectList"></component>
             <component :is="element.name" v-else></component>
@@ -54,7 +54,7 @@
                   <div class="more">
                     <ToolTip content="Actions">
                       <div class="cursor more-item">
-                        <IconBase width="1.2rem" height="1.2rem" box-view="0 0 32 32" class="mag-auto">
+                        <IconBase box-view="0 0 32 32" class="mag-auto" height="1.2rem" width="1.2rem">
                           <More/>
                         </IconBase>
                       </div>
@@ -65,28 +65,28 @@
                   <!--                  task 角标菜单-->
                   <div class="pop-main">
                     <div class="task-pop cursor" @click="changeSize(element.name,'half')">
-                      <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
-                                :class="{'vis-hidden':this.MenuSelect[element.name] === 'full'}">
+                      <IconBase :class="{'vis-hidden':this.MenuSelect[element.name] === 'full'}" height=".8rem" icon-color="var(--gray)"
+                                width=".8rem">
                         <Right/>
                       </IconBase>
                       <span class="size-control">Half size</span>
                     </div>
                     <div class="task-pop brd-bottom cursor"
                          @click="changeSize(element.name,'full')">
-                      <IconBase width=".8rem" height=".8rem" icon-color="var(--gray)"
-                                :class="{'vis-hidden':this.MenuSelect[element.name] === 'half'}">
+                      <IconBase :class="{'vis-hidden':this.MenuSelect[element.name] === 'half'}" height=".8rem" icon-color="var(--gray)"
+                                width=".8rem">
                         <Right/>
                       </IconBase>
                       <span class="size-control">Full size</span>
                     </div>
-                    <div class="task-pop brd-bottom cursor" v-if="element.name === 'Tasks'">
-                      <IconBase width="1rem" height="1rem" icon-color="var(--gray)" box-view="0 0 32 32">
+                    <div v-if="element.name === 'Tasks'" class="task-pop brd-bottom cursor">
+                      <IconBase box-view="0 0 32 32" height="1rem" icon-color="var(--gray)" width="1rem">
                         <Eye/>
                       </IconBase>
                       <span>View all my tasks</span>
                     </div>
                     <div class="task-pop trash cursor">
-                      <IconBase width="1rem" height="1rem" box-view="0 0 32 32">
+                      <IconBase box-view="0 0 32 32" height="1rem" width="1rem">
                         <Trash/>
                       </IconBase>
                       <span>Remove widget</span>
@@ -99,7 +99,7 @@
         </transition-group>
       </draggable>
     </div>
-    <CustomizeHome @backColor="backColor" v-model="isOpenDrawer"></CustomizeHome>
+    <CustomizeHome v-model="isOpenDrawer" @backColor="backColor"></CustomizeHome>
   </div>
 </template>
 <script setup>
