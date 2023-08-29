@@ -221,7 +221,7 @@
             <draggable v-model="this.sectionTaskList[section.id]"
                        :class="{'height-50':sectionLength(section.id)['incomplete'] === 0}" class="draggable-group"
                        v-bind="taskDragOptions"
-                       :sort="this.sortSelect === 'none'"
+                       :sort="this.sortSelect.value === 'none'"
                        @change="this.handleTask(section.id,$event)">
                 <!--                task列表-->
                 <div v-for="(task,innerIndex) in this.sectionTaskList[section.id]" :key="innerIndex"
@@ -235,10 +235,9 @@
                     </div>
                   </div>
                   <div class="task-title">
-                    <div :class="{'completed':task.completed,'task-complete':!task.completed}"
-                         @click="this.completeTask(task,section.id,innerIndex)">
-                      <icon-base box-view="0 0 30 30" height=".5rem" width=".5rem">
-                        <right/>
+                    <div class="task-complete" @click="this.completeTask(task.id,section.id,innerIndex)">
+                      <icon-base box-view="0 0 24 24" height="1rem" width="1rem">
+                        <ring-right/>
                       </icon-base>
                     </div>
                     <div :class="{'vsb-hidden':task.id === 'new' || this.currentEditTask.id === task.id}"
@@ -293,7 +292,7 @@
                     </div>
                   </tool-tip>
                 </div>
-<!--              </transition-group>-->
+              </transition-group>
             </draggable>
             <!--            新增task-->
             <div v-if="sectionLength(section.id)['incomplete'] !== 0" class="add-task"
@@ -379,7 +378,7 @@
     <template #main>
       <!--      <div style="width: 42px;height: 42px"></div>-->
       <tool-tip content="More actions">
-        <div class="task-more cursor" @click="handleClosePop('task')">
+        <div class="task-more cursor">
           <div class="more-icon">
             <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
               <More/>
@@ -495,7 +494,6 @@
 
 <script setup>
 import {
-  Right,
   Like,
   FollowUp,
   Duplicate,
@@ -527,6 +525,7 @@ import MessageBox from "@/components/common/MessageBox";
 import NewButton from "@/components/common/NewButton";
 import DatePick from "@/components/common/DateTimePicker";
 import NewSelectBar from "@/components/common/newSelectBar";
+import Right from "@/components/icons/Right";
 </script>
 
 <script>
@@ -575,8 +574,7 @@ export default {
       showMore: false,
       orgDateValue: '',
       addType: '',
-      currentEditTask: {id: ''},
-      completedList: ''
+      currentEditTask: {id: ''}
     }
   },
   mounted() {
@@ -595,23 +593,8 @@ export default {
     },
   },
   watch: {
-    taskFilter(newVal) {
-      this.sectionTaskList = formatTasksList(this.tasksList, this.sectionList, newVal)
-    },
-    sortSelect(newVal) {
-      if(newVal !== 'none'){
-        for(let i in this.sectionTaskList){
-          this.sectionTaskList[i] = this.sectionTaskList[i].sort(function (a,b){
-            return new Date(a.start_time) - new Date(b.start_time)
-          })
-        }
-      } else {
-        // this.sectionTaskList = formatTasksList(this.tasksList, this.sectionList, newVal)
-      }
-    },
     tasksList(newVal) {
       this.sectionTaskList = formatTasksList(newVal, this.sectionList, 'incomplete')
-      this.completedList = formatTasksList(newVal, this.sectionListTemp, 'completed')
     },
     sectionList(newVal) {
       this.sectionListTemp = newVal
@@ -638,6 +621,9 @@ export default {
     addTaskConfirm(newVal) {
       newVal ? document.addEventListener("click", this.handleAddTask) : document.removeEventListener("click", this.handleAddTask);
     },
+    taskFilter(newVal) {
+      console.log(newVal)
+    }
   },
   computed: {
     dragOptions() {
@@ -645,9 +631,7 @@ export default {
         animation: 200,
         group: "section",
         disabled: false,
-        forceFallback: true,
-        dragClass: "drag-class",
-        delay:.1
+        ghostClass: "ghost"
       };
     },
     taskDragOptions() {
@@ -655,10 +639,7 @@ export default {
         animation: 200,
         group: "tasks",
         disabled: false,
-        forceFallback: true,
-        ghostClass: "ghost-class",
-        dragClass: "drag-class",
-        delay:.1,
+        ghostClass: "ghost"
       };
     }
   },
@@ -782,20 +763,20 @@ export default {
     },
     // task more 按钮定位
     showTaskMoreAction(task, section, innerIndex) {
-        const taskDIV = this.$refs[`task${task.id}`][0]
-        const {top, x} = taskDIV.getBoundingClientRect()
-        setTimeout(() => {
-          this.moreActionPosition['top'] = top + 10 + 'px'
-          this.moreActionPosition['left'] = x + 233.5 + 'px'
-          this.addTaskConfirm = this.firstClick = false
-          this.currentTask = task
-          this.currentSection['id'] = section.id
-          this.currentSection['innerIndex'] = innerIndex
-        }, 40)
+      const taskDIV = this.$refs[`task${task.id}`][0]
+      const {top, x} = taskDIV.getBoundingClientRect()
+      setTimeout(() => {
+        this.moreActionPosition['top'] = top + 10 + 'px'
+        this.moreActionPosition['left'] = x + 233.5 + 'px'
+        this.addTaskConfirm = this.firstClick = false
+        this.currentTask = task
+        this.currentSection['id'] = section.id
+        this.currentSection['innerIndex'] = innerIndex
+      }, 40)
 
-        setTimeout(() => {
-          this.$refs.taskMorePop.isPopShow = true
-        }, 100)
+      setTimeout(() => {
+        this.$refs.taskMorePop.isPopShow = true
+      }, 100)
     },
     // task拖拽调整
     handleTask(sectionID, event) {
@@ -914,20 +895,10 @@ export default {
       this.activeSectionName = ''
     },
     // 完成任务
-    completeTask(task, sectionID, index) {
+    completeTask(taskID, sectionID, index) {
       let url = '/api/update_task/'
-      let data;
-      if (!task.completed) {
-        data = {'task_id': task.id, 'completed': true}
-        task.completed = true
-        task.completed_time = new Date()
-      } else {
-        data = {'task_id': task.id, 'completed': false, 'completed_time': null}
-        task.completed = false
-        task.completed_time = null
-      }
-      apiHttpClient.post(url, data).then(() => {
-        this.taskFilter !== 'all' ? this.sectionTaskList[sectionID].splice(index, 1) : null
+      apiHttpClient.post(url, {'task_id': taskID, 'completed': true}).then(() => {
+        this.sectionTaskList[sectionID].splice(index, 1)
       })
     },
     // 删除任务
@@ -949,15 +920,12 @@ export default {
           break;
         case 'task':
           this.showMore = false
-          this.moreActionPosition = {top: '-1000px', left: '-1000px'}
+          this.moreActionPosition = {top: '-100px', left: '-100px'}
           if (!this.addTaskConfirm) {
             this.currentTask = ''
             this.currentEditTask = {id: ''}
             this.addTaskName = ''
           }
-          setTimeout(() => {
-          this.$refs.taskMorePop.isPopShow = false
-          }, 5)
           break;
         default:
           this.$refs[`headerPopOver${sectionID}`][0].isPopShow = false;
@@ -973,9 +941,10 @@ export default {
     // section task数量
     sectionLength(sectionID) {
       const section = this.sectionTaskList[sectionID];
+      let completedList = formatTasksList(this.tasksList, this.sectionListTemp, 'completed')
       let taskLength = {};
       taskLength['incomplete'] = section ? section.length : 0;
-      taskLength['completed'] = this.completedList[sectionID] ? this.completedList[sectionID].length : 0;
+      taskLength['completed'] = completedList[sectionID] ? completedList[sectionID].length : 0;
       taskLength['all'] = taskLength['incomplete'] + taskLength['completed']
       return taskLength
     },
@@ -1011,6 +980,7 @@ export default {
 function taskListSort() {
 
 
+
 }
 
 // 新权重计算
@@ -1031,36 +1001,12 @@ function getNewRank(frontRank, nextRank) {
 // 修改tasksList格式
 function formatTasksList(tasksList, sectionList, type) {
   const newTasksList = {};
-  let now = new Date()
-  const dayDiff = {
-    '3weeks': 22,
-    '2weeks': 15,
-    '1week': 8,
-    'yesterday': 2,
-    'today': 1
-  }
-  const completedDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayDiff[type], 23, 59, 59);
+  const completedTaskList = {};
   for (let section of sectionList) {
-    switch (type) {
-      case 'all' :
-        newTasksList[section.id] = tasksList.filter(task => task.section === section.id);
-        break
-      case '3weeks' :
-      case '2weeks' :
-      case '1weeks' :
-      case 'yesterday' :
-      case 'today' :
-        newTasksList[section.id] = tasksList.filter(task => task.section === section.id && task.completed === true && new Date(task.completed_time) > completedDay);
-        break
-      case 'allCompleted' :
-        newTasksList[section.id] = tasksList.filter(task => task.section === section.id && task.completed === true);
-        break
-      case 'incomplete' :
-        newTasksList[section.id] = tasksList.filter(task => task.section === section.id && task.completed !== true);
-        break
-    }
+    newTasksList[section.id] = tasksList.filter(task => task.section === section.id && task.completed !== true && type === 'incomplete');
+    completedTaskList[section.id] = tasksList.filter(task => task.section === section.id && task.completed === true && type === 'completed');
   }
-  return newTasksList
+  return type === 'incomplete' ? newTasksList : completedTaskList;
 }
 
 </script>
@@ -1226,7 +1172,7 @@ function formatTasksList(tasksList, sectionList, type) {
 }
 
 .task-card:hover {
-  border: 1px solid #AFABAC;
+  border: 1px solid #6D6E6F;
 }
 
 .calendar {
@@ -1260,34 +1206,12 @@ function formatTasksList(tasksList, sectionList, type) {
   position: absolute;
   cursor: pointer;
   z-index: 11;
-  top: .95rem;
-  border-radius: 1rem;
-  border: 1px solid var(--gray);
-  padding: .2rem;
+  top: .95rem
 }
 
 .task-complete:hover {
   color: #6A9F84;
   background-color: #E9F7F1;
-  border-radius: 1rem;
-  border: 1px solid #6A9F84;
-}
-
-.completed {
-  color: white;
-  position: absolute;
-  cursor: pointer;
-  z-index: 11;
-  top: .95rem;
-  padding: .2rem;
-  border-radius: 1rem;
-  background-color: #9EC6B4;
-  border: 1px solid #9EC6B4;
-}
-
-.completed:hover {
-  background-color: #8BBBA6;
-  border: 1px solid #8BBBA6;
 }
 
 .task-project {
@@ -1298,7 +1222,7 @@ function formatTasksList(tasksList, sectionList, type) {
 }
 
 .project-color {
-  width: 2.6rem;
+  width: 2.625rem;
   height: .375rem;
   margin: .25rem .25rem 0 .25rem;
   border-radius: 1rem;
@@ -1338,7 +1262,7 @@ function formatTasksList(tasksList, sectionList, type) {
   justify-content: center;
   height: 2.25rem;
   border-radius: .375rem;
-  margin: 1rem 0 0 0;
+  margin: 1rem 0;
   cursor: pointer;
   color: var(--gray);
   fill: var(--gray);
@@ -1625,9 +1549,9 @@ function formatTasksList(tasksList, sectionList, type) {
 }
 
 .v-leave-active.v-leave-to {
-  opacity: 0!important;
-  display: none!important;
-  visibility: hidden!important;
+  opacity: 0;
+  display: none;
+  visibility: hidden;
 }
 
 .height-50 {
@@ -1651,25 +1575,6 @@ function formatTasksList(tasksList, sectionList, type) {
   background-color: #F9F8F8;
   color: var(--black);
   fill: var(--black);
-}
 
-.ghost-class {
-  background-color: #E9E8E7;
-  color: #E9E8E7;
-  fill: #E9E8E7;
-  border: none!important;
-}
-
-.ghost-class:hover {
-  border: none!important;
-}
-
-.ghost-class div {
-  visibility: hidden;
-}
-
-.drag-class {
-  border: 1px solid #4F74C6;
-  opacity: 1!important;
 }
 </style>

@@ -105,11 +105,11 @@ export default {
     },
     showPop() {
       this.getPosition()
-      if (!this.isPopShow){
-      setTimeout(() => {
-        this.isPopShow = true
-      }, 10)
-        }
+      if (!this.isPopShow) {
+        setTimeout(() => {
+          this.isPopShow = true
+        }, 10)
+      }
     },
     getPosition() {
       this.alignItems = this.direction
