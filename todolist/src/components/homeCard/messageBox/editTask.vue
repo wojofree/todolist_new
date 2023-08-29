@@ -191,7 +191,7 @@
             <span>Due date</span>
           </div>
           <div class="item-right" @mouseenter="showXIcon = 'date'" @mouseleave="showXIcon = false">
-            <date-pick v-model="dateValue" startPosition="flex-start  " @show="updateDate">
+            <date-pick v-model="dateValue" startPosition="flex-start" @show="updateDate">
               <div class="item-info">
                 <div class="calendar-icon">
                   <icon-base box-view="0 0 32 32" height="1rem" width="1rem">

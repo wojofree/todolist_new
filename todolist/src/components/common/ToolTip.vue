@@ -74,7 +74,7 @@ export default {
   display: flex;
   align-items: flex-end;
   flex-direction: v-bind(triangle [0]);
-  z-index: 10;
+  z-index: 100;
   width: max-content;
   padding: .5rem 0;
 }

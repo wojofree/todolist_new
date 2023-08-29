@@ -1,6 +1,6 @@
 <template>
   <div class="select-bar" ref="contentWrap">
-    <div class="disp-block" @click="this.openSelect = !this.openSelect">
+    <div class="disp-block select-header" @click="this.openSelect = !this.openSelect" ref="selectHeader">
       <slot/>
     </div>
     <div class="disp-block list">
@@ -76,6 +76,7 @@ export default {
     openSelect(newVal) {
       if (newVal) {
         document.addEventListener("click", this.handleOutsideClick);
+        this.titleWidth = this.$refs.selectHeader.offsetWidth + 1 + 'px'
       } else {
         document.removeEventListener("click", this.handleOutsideClick);
       }
@@ -86,10 +87,16 @@ export default {
     modelValue(newValue) {
       if(newValue.value !== undefined){
         this.$nextTick(()=>{
+          this.titleWidth = 'auto'
           this.selectOption(newValue)
         })
       }
     }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.titleWidth = 'auto'
+    })
   },
   methods: {
     getDefaultSelect() {
@@ -109,6 +116,9 @@ export default {
       this.isSelect = item.value
       this.openSelect = false
       this.$emit('update:modelValue', item)
+      this.$nextTick(()=>{
+        this.titleWidth = 'auto'
+      })
     }
   }
 }
@@ -125,6 +135,11 @@ import {Right} from "@/components/icons"
   justify-content: flex-start;
   align-items: v-bind(flexEnd);
   flex-direction: column;
+  width: v-bind(titleWidth);
+}
+
+.select-header {
+  /*width: v-bind(titleWidth);*/
 }
 
 .select-bar span {

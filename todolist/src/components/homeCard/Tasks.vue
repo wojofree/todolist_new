@@ -160,7 +160,7 @@
       <div style="width: 2rem; height: 2rem "></div>
     </DatePick>
   </div>
-  <message-box v-model="openTaskMessage" hiddenIcon card-width="70%" card-height="85%" max-width="60rem">
+  <message-box v-model="openTaskMessage" card-height="85%" card-width="70%" hiddenIcon max-width="60rem">
     <edit-task :project-list="projectList" :taskData="currentTask" @close="openTaskMessage = false"
                @updateTask="changeTask"></edit-task>
   </message-box>
@@ -451,11 +451,9 @@ export default {
           const {left} = this.$refs.taskWhenValue.getBoundingClientRect()
           this.whenLeft = left - main.left + 'px'
         })
-        if (event.key === 'Enter') {
           this.$nextTick(()=>{
             this.$refs.taskWhenValue.focus()
           })
-        }
       }
     },
     // when输入框focus时,监听键盘和鼠标

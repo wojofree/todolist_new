@@ -105,9 +105,11 @@ export default {
     },
     showPop() {
       this.getPosition()
+      if (!this.isPopShow){
       setTimeout(() => {
         this.isPopShow = true
-      }, 30)
+      }, 10)
+        }
     },
     getPosition() {
       this.alignItems = this.direction
@@ -137,6 +139,7 @@ export default {
 
 <style scoped>
 .popover-main {
+  cursor: pointer;
   width: fit-content;
   height: fit-content;
 }

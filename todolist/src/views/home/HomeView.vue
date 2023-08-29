@@ -41,7 +41,7 @@
       <!--    卡片-->
       <draggable v-model="list" class="home-card" v-bind="dragOptions">
         <transition-group type="transition">
-          <div v-for="element in list" :key="element.id" :style="{'flex':this.flex[element.name]}" class="card-item">
+          <div v-for="element in list" :key="element.id" :style="{'width':this.flex[element.name]}" class="card-item">
             <component :is="element.name" v-if="element.name === 'Tasks'" :analyzeValue="analyzeValue"
                        :projectList="projectList" @task-completed="taskCompletedNumb"></component>
             <component :is="element.name" v-else-if="element.name === 'Projects'"
@@ -150,7 +150,7 @@ export default {
       }, {'name': 'Goals', 'id': 4}],
       drag: false,
       MenuSelect: {Tasks: 'half', People: 'half', Projects: 'half', Goals: 'half'},
-      flex: {"Goals": "0 0 50%", "People": "0 0 50%", "Projects": "0 0 50%", "Tasks": "0 0 50%"},
+      flex: {"Goals": "50%", "People": "50%", "Projects": "50%", "Tasks": "50%"},
       backgroundColor: '#AD7CC4',
       isOpenDrawer: false,
     }
@@ -208,7 +208,7 @@ export default {
   methods: {
     changeSize(card, type) {
       this.MenuSelect[card] = type
-      this.flex[card] = type === 'half' ? '0 0 50%' : '0 0 100%'
+      this.flex[card] = type === 'half' ? '50%' : '100%'
       const url = "/api/update_setting/"
       const data = {"card_size": JSON.stringify(this.flex)}
       apiHttpClient.post(url, data)
@@ -225,7 +225,7 @@ export default {
         this.backgroundColor = response.data.results.background_color
         this.defaultList = this.list = response.data.results.home_card
         this.flex = response.data.results.card_size
-        const FLEX_FULL = '0 0 100%'
+        const FLEX_FULL = '100%'
         for (let key in this.flex) {
           this.MenuSelect[key] = this.flex[key] === FLEX_FULL ? 'full' : 'half'
         }

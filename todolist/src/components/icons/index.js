@@ -55,8 +55,18 @@ import AddRule from './AddRule'
 import Section from './Section'
 import LeftArrow from './LeftArrow'
 import RightArrow from './RightArrow'
+import Image from './Image'
+import View from './View'
+import Open from './Open'
+import Duplicate from './Duplicate'
+import FollowUp from './FollowUp'
 
 export {
+    FollowUp,
+    Duplicate,
+    Open,
+    View,
+    Image,
     LeftArrow,
     RightArrow,
     Section,

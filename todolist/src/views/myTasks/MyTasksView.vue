@@ -78,16 +78,16 @@ export default {
         {name: 'Files', value: 'myTasksFiles'},
       ],
       tasksList: [],
-      sectionList: []
+      sectionList: [{id:''}]
     }
   },
   props: {
     user: {
-      type: Object,
+      type: [Object,String,Array],
       default: null
     },
     projectList: {
-      type: Object,
+      type: [Object,String,Array],
       default: null
     }
   },

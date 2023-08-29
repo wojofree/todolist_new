@@ -230,7 +230,7 @@ export default {
       }
       if (top <= 383 && this.position[4] === 'column-reverse') {
         this.position[3] = 'column'
-      } else if (winHeight - bottom < 383 && this.position[3] === 'column') {
+      } else if (winHeight - bottom < 403 && this.position[3] === 'column') {
         this.position[3] = 'column-reverse'
         this.position[0] = 'rotate(225deg)'
         this.position[1] = '-.5rem'
@@ -642,6 +642,7 @@ function getFormatDate(date, type) {
   flex-direction: column;
   border: 1px solid #EDEAE9;
   border-radius: .4rem;
+  box-shadow: 0 0 0 1px #edeae9, 0 5px 20px 0 rgba(109, 110, 111, 0.08);
 }
 
 .start-date {
@@ -742,7 +743,7 @@ function getFormatDate(date, type) {
   height: v-bind(mainSize [1]);
   flex-direction: v-bind(position [3]);
   align-items: v-bind(position [2]);
-  z-index: 100000001;
+  /*z-index: 100000001;*/
 }
 
 .triangle {
