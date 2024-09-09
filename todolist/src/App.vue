@@ -39,7 +39,7 @@
   width: 100%;
   min-width: 63rem;
   //overflow-y: auto;
-  height: calc(100vh - 3.4rem);
+  min-height: calc(100vh);
   display: flex;
   flex-direction: column;
 }
@@ -63,7 +63,14 @@ export default {
       reload: this.reload,
     };
   },
+  mounted() {
+    window.addEventListener('resize', this.handleResize);
+  },
   methods: {
+    handleResize(){
+      const windowWidth = window.innerWidth;
+      this.$refs.sideMenu.isFold = windowWidth < 1150;
+    },
     reload() {
       this.isRouterAlive = false;
       this.$nextTick(function () {

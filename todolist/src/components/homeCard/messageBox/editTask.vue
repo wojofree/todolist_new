@@ -2,7 +2,7 @@
   <div class="edit-task-swap">
     <!--    弹窗表头-->
     <div class="edit-header">
-      <div :class="{'completed':currentTaskData.completed}" class="button cursor" @click="changeTask('completed')">
+      <div :class="{'completed':this.currentTaskData.completed}" class="button cursor" @click="changeTask('completed')">
         <icon-base height=".75rem" width=".75rem">
           <Right/>
         </icon-base>
@@ -156,13 +156,13 @@
     <div class="task-main">
       <!--      task title-->
       <div class="task-title">
-        <div class="title" @mouseenter="showTitleInput = true">
+        <div class="title" @click="this.openTextArea">
           {{ taskTitle }}
         </div>
-        <new-input v-show="showTitleInput" v-model="taskTitle" class="title mrg-left" weight="500"
+        <textarea v-show="showTitleInput" v-model="taskTitle" class="mrg-left title-textarea" weight="500"
                    @blur="showTitleInput = titleInputFocus = false" @focus="showTitleInput = titleInputFocus = true"
-                   @mouseleave="isShowTitle"
-        ></new-input>
+                   @mouseleave="isShowTitle" ref="titleTextArea"
+        ></textarea>
       </div>
       <!--      task Assignee-->
       <div class="task-pane">
@@ -203,7 +203,7 @@
               </div>
             </date-pick>
             <tool-tip content="Clear due date">
-              <div v-if="showXIcon === 'date'" class="icon-item mrg-l cursor" @click="dateValue=null,updateDate(false)">
+              <div v-if="showXIcon === 'date'" class="icon-item mrg-l cursor" @click="dateValue=null, updateDate(false)">
                 <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
                   <XIcon/>
                 </icon-base>
@@ -443,7 +443,7 @@ export default {
     projectList: {
       type: Object,
       default: {}
-    }
+    },
   },
   async created() {
     const url = "/api/get_tags"
@@ -457,6 +457,7 @@ export default {
       this.currentTaskData = newValue
       this.taskTitle = newValue.title
       // 获取Section
+      // this.getSection()
       this.getSection()
       // 获取project对应的category
       let projectIDList = []
@@ -464,6 +465,7 @@ export default {
         for (let item of newValue.project) {
           projectIDList.push(item.id)
         }
+
         this.categoryList = await this.getCategory(projectIDList, 'many')
         this.categorySelectList = await this.getSelectCategory(projectIDList, 'many')
         for (let item of projectIDList) {
@@ -542,6 +544,12 @@ export default {
     }
   },
   methods: {
+    openTextArea(){
+      this.showTitleInput = true
+      this.$nextTick(()=>{
+      this.$refs.titleTextArea.focus()
+      })
+    },
     // 菜单栏添加tag
     menuAddTag() {
       this.showTag = true
@@ -706,6 +714,7 @@ export default {
         const data = {section_id: this.sectionSelect.id, task_id: this.currentTaskData.id}
         await apiHttpClient.post(url, data).then(() => {
           this.currentTaskData.section = this.sectionSelect.id
+          this.sectionSelectTemp = this.sectionSelect.id
         })
       } else if (type === 'date') {
         // 更新日期
@@ -728,7 +737,7 @@ export default {
       }
       // 更新日期格式
       this.currentTaskData = await formatTaskData()(this.currentTaskData)
-      await this.$emit('updateTask', this.currentTaskData)
+      await this.$emit('updateTask', {'task': this.currentTaskData, 'type': type})
     },
     // 添加project
     showAdd() {
@@ -763,7 +772,6 @@ export default {
           }
         }
       }, 40)
-
     },
     // project 键盘操作
     keySelect(type) {
@@ -889,6 +897,7 @@ export default {
   }
 }
 
+// 剔除已有project or tag
 function eliminateList(allTags, orgTags) {
     return allTags.filter(tag => !orgTags.some(orgTag => orgTag.id === tag.id))
 }
@@ -1013,15 +1022,20 @@ function eliminateList(allTags, orgTags) {
   padding: .375rem .75rem;
   text-align: left;
   margin-left: -0.8rem;
-  border: 1px solid white;
+  word-wrap: break-word;
+  border-radius: .5rem;
+  border: white 1px solid;
+}
+
+.title:hover {
+  border: lightgray 1px solid;
 }
 
 .mrg-left {
-  margin-left: -1.55rem !important;
   position: absolute;
   top: 0;
   left: 0;
-  padding: 0 .75rem !important;
+  padding: 0.375rem 0.75rem !important;
   border: none;
 }
 
@@ -1041,6 +1055,8 @@ function eliminateList(allTags, orgTags) {
   width: 7.5rem;
   text-align: left;
   margin-right: .5rem;
+  font-size: .75rem;
+  color: var(--gray);
 }
 
 .user-icon {
@@ -1397,5 +1413,26 @@ function eliminateList(allTags, orgTags) {
 .add-tag-swap {
   position: absolute;
   right: 0;
+}
+
+.title-textarea{
+  background:none;
+  color: var(--black);
+  width: -webkit-fill-available;
+  resize: none;
+  border: 1px solid rgba(0,0,0,0);
+  font-size: 1.5rem;
+  font-weight: 500;
+  text-align: left;
+  margin-left: -0.8rem;
+  word-wrap: break-word;
+  border-radius: .5rem;
+}
+
+.title-textarea:focus {
+  outline: 2px solid #4673D2;
+  border: 1px solid #4673D2;
+  border-radius: .5rem;
+  height: 100%;
 }
 </style>

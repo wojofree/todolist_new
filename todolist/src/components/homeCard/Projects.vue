@@ -153,6 +153,7 @@
             </div>
           </div>
           <div class="input date-main">
+            <div></div>
             <label>Due date</label>
             <div ref="dueDate">
               <date-pick v-model="dateValue" start-position="flex-start">

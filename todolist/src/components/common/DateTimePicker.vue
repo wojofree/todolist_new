@@ -215,6 +215,7 @@ export default {
       }
     },
     handleShowDate() {
+      event.stopPropagation()
       this.showDatePick = true
       this.changePosition()
     },
@@ -230,7 +231,7 @@ export default {
       }
       if (top <= 383 && this.position[4] === 'column-reverse') {
         this.position[3] = 'column'
-      } else if (winHeight - bottom < 423 && this.position[3] === 'column') {
+      } else if (winHeight - bottom < 500 && this.position[3] === 'column') {
         this.position[3] = 'column-reverse'
         this.position[0] = 'rotate(225deg)'
         this.position[1] = '-.5rem'

@@ -349,9 +349,9 @@ export default {
     // 通过弹窗更新task
     changeTask(item) {
       for (let index in this.taskList) {
-        if (this.taskList[index].id === item.id) {
-          this.taskList[index] = item
-          let type = item.completed
+        if (this.taskList[index].id === item.task.id) {
+          this.taskList[index] = item.task
+          let type = item.task.completed
           this.changeTab(type, index)
         }
       }
@@ -606,7 +606,6 @@ export default {
     async updateTaskLab() {
       // const now = new Date()
       const index = this.taskList.indexOf(this.currentTask)
-      console.log(this.dateType)
       const [startTime, endTime] = this.dateType === 'date' ? [null, this.dateValue] : this.dateValue;
       const endDate = new Date(endTime)
       this.currentTask.complete_time = endTime

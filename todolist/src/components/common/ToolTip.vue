@@ -106,4 +106,8 @@ export default {
   border-bottom: 1px solid white;
   font-weight: 700;
 }
+
+.slot-main {
+  width: 100%;
+}
 </style>

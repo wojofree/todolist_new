@@ -1,7 +1,7 @@
 <template>
   <!--  表头-->
-  <div class="main-header">
-    <span>Last task completed on Tuesday</span>
+  <div class="main-header" :class="{'padding-right-437':this.isOpenTaskDrawer}">
+    <span>Last task completed on {{ this.lastCompletedDate }}</span>
     <div class="main-header-right">
       <popover ref="filterPop">
         <template #main>
@@ -112,13 +112,16 @@
     </div>
   </div>
   <!--  内容区-->
-  <div class="section-swap">
+  <div class="section-swap" :class="{'padding-right-437':this.isOpenTaskDrawer}" ref='sectionSwap'>
     <draggable v-model="this.sectionListTemp" class="home-card" v-bind="dragOptions" @change="this.handleSection">
       <transition-group type="transition">
-        <div v-for="(section, index) in this.sectionListTemp" :key="section.id" class="list-card">
+        <div v-for="(section, index) in this.sectionListTemp" :key="section.id" :ref="'section'+section.id"
+             class="list-card"
+             @mouseover="this.sectionHover = section.id"
+        >
           <!--          表头-->
           <div class="section-header">
-            <new-input v-show="this.sectionActive === section.id" :ref="'section'+section.id"
+            <new-input v-show="this.sectionActive === section.id" :ref="'sectionInput'+section.id"
                        v-model="this.activeSectionName" class="title-input" weight="700"
                        @blur="updateSection(section)" @keydown="watchKey(section,index, $event)"></new-input>
             <span v-show="this.sectionActive !== section.id" class="text-overflow" @click="activeSection(section)">{{
@@ -185,15 +188,16 @@
                           </div>
                         </template>
                       </popover>
-                      <tool-tip v-if="section.id === this.firstSection"
-                                content="This section can't be deleted because new tasks assigned to you appear here">
-                        <div class="pop-item trash-icon">
-                          <icon-base box-view="0 0 32 32" height="1rem" icon-color="#AFABAC" width="1rem">
-                            <Trash/>
-                          </icon-base>
-                          <span style="color: #AFABAC;">Delete section</span>
-                        </div>
-                      </tool-tip>
+                      <div v-if="section.id === this.firstSection" class="pop-item trash-icon">
+                        <tool-tip content="This section can't be deleted because new tasks assigned to you appear here">
+                          <div class="trash-icon">
+                            <icon-base box-view="0 0 32 32" height="1rem" icon-color="#AFABAC" width="1rem">
+                              <Trash/>
+                            </icon-base>
+                            <span style="color: #AFABAC;">Delete section</span>
+                          </div>
+                        </tool-tip>
+                      </div>
                       <div v-if="section.id !== this.firstSection" class="pop-item trash-icon"
                            @click="deleteSelect(section.id, index)">
                         <icon-base box-view="0 0 32 32" height="1rem" icon-color="#DF5F73" width="1rem">
@@ -208,9 +212,9 @@
             </div>
           </div>
           <!--          tasks列表-->
-          <div :class="{'grayBackgroundColor': sectionLength(section.id)['incomplete'] === 0}" class="task-list">
+          <div :class="{'grayBackgroundColor': sectionLength(section.id)['current'] === 0}" class="task-list">
             <!--                add task按钮-->
-            <div v-if="sectionLength(section.id)['incomplete'] === 0" class="add-task"
+            <div v-if="sectionLength(section.id)['current'] === 0" class="add-task"
                  @click="showAddTask(section,'bottom')">
               <icon-base box-view="0 0 24 24" class="add-color" height=".625rem"
                          width=".625rem">
@@ -219,84 +223,93 @@
               <span>Add task</span>
             </div>
             <draggable v-model="this.sectionTaskList[section.id]"
-                       :class="{'height-50':sectionLength(section.id)['incomplete'] === 0}" class="draggable-group"
-                       v-bind="taskDragOptions"
+                       :class="{'height-50':sectionLength(section.id)['current'] === 0}"
                        :sort="this.sortSelect.value === 'none'"
-                       @change="this.handleTask(section.id,$event)">
-                <!--                task列表-->
-                <div v-for="(task,innerIndex) in this.sectionTaskList[section.id]" :key="innerIndex"
-                     :ref="'task'+task.id"
-                     :class="{ 'fade-enter-active': this.addTaskConfirm === true && task.id === 'new' && task.title === '', 'height-0':task.id === 'new'&& task.title === ''}"
-                     class="task-card" @mouseenter="this.showMore = task.id"
-                     @mouseleave="this.showMore = false">
-                  <div v-if="task.project.length !== 0" class="task-project">
-                    <div v-for="project in task.project" :style="{backgroundColor:project.color}"
-                         class="project-color">
+                       class="draggable-group"
+                       v-bind="taskDragOptions"
+                       @change="this.handleTask(section.id,$event)" @end="this.dragEnd" @start="this.dragStart">
+              <!--                task列表-->
+              <div v-for="(task,innerIndex) in this.sectionTaskList[section.id]" :key="innerIndex"
+                   :ref="'task'+task.id"
+                   :class="{ 'fade-enter-active': this.addTaskConfirm === true && task.id === 'new' && task.title === '',
+                   'border-black':this.currentEditTask.id === task.id,
+                   'detail-card':this.detailTask.id === task.id && this.isOpenTaskDrawer,
+                   'height-0':task.id === 'new'&& task.title === ''}"
+                   class="task-card cursor" @click="this.openDrawer(task)"
+                   @mouseenter="this.showMore = task.id"
+                   @mouseleave="this.showMore = false"
+              >
+                <div v-if="task.project.length !== 0" class="task-project">
+                  <tool-tip v-for="project in task.project" :content="project.name">
+                    <div :style="{backgroundColor:project.color}" class="project-color">
                     </div>
+                  </tool-tip>
+                </div>
+                <div class="task-title">
+                  <div :class="{'completed':task.completed,'task-complete':!task.completed}"
+                       @click="this.completeTask(task,section.id,innerIndex)">
+                    <icon-base box-view="0 0 30 30" height=".5rem" width=".5rem">
+                      <right/>
+                    </icon-base>
                   </div>
-                  <div class="task-title">
-                    <div :class="{'completed':task.completed,'task-complete':!task.completed}"
-                         @click="this.completeTask(task,section.id,innerIndex)">
-                      <icon-base box-view="0 0 30 30" height=".5rem" width=".5rem">
-                        <right/>
-                      </icon-base>
-                    </div>
-                    <div :class="{'vsb-hidden':task.id === 'new' || this.currentEditTask.id === task.id}"
-                         class="task-title-div">{{ task.title }}
-                    </div>
-                    <textarea :ref="'textarea'+task.id" v-model="this.addTaskName"
-                              :class="{'vsb-hidden':task.id !== 'new' && this.currentEditTask.id !== task.id}"
-                              class="add-task-input" placeholder="Write a task name"
-                              @keydown="this.titleInput($event)" @keyup="this.changeHeight()"></textarea>
+                  <div :class="{'vsb-hidden':task.id === 'new' || this.currentEditTask.id === task.id}"
+                       class="task-title-div">{{ task.title }}
                   </div>
-                  <div class="task-bottom">
-                    <div v-if="this.addTaskConfirm || task.id !== 'new'" class="task-calendar">
-                      <date-pick v-model="this.dateValue" :type="this.dateType" class="width-5" show-icon
-                                 startPosition="flex_end" @show="updateDate">
-                        <div class="task-complete-date" @click="confirmDate(task)">
-                          <div v-if="task.complete_date !== ''" class="complete-date cursor">
+                  <textarea :ref="'textarea'+task.id" v-model="this.addTaskName"
+                            :class="{'vsb-hidden':task.id !== 'new' && this.currentEditTask.id !== task.id}"
+                            class="add-task-input" placeholder="Write a task name"
+                            @click="this.stopPropagation" @keydown="this.titleInput($event)"
+                            @keyup="this.changeHeight()"></textarea>
+                </div>
+                <div class="task-bottom">
+                  <div v-if="this.addTaskConfirm || task.id !== 'new'" class="task-calendar">
+                    <date-pick v-model="this.dateValue" :type="this.dateType" class="width-5" show-icon
+                               startPosition="flex_end" @show="updateDate">
+                      <div class="task-complete-date" @click="confirmDate(task)">
+                        <div v-if="task.complete_date !== ''" class="complete-date cursor">
                         <span :class="{'green':task.complete_date.endsWith('Today'),'green1':task.complete_date.endsWith('Tomorrow'),
                       'overdue':!this.compareTime(task.complete_time)}">{{
                             task.complete_date
                           }}</span>
-                          </div>
-                          <tool-tip v-if="task.complete_date === ''"
-                                    :class="{'vsb-hidden':this.showMore !== task.id && task.id !=='new'}"
-                                    class="height-28" content="Add due date">
-                            <div class="calendar cursor">
-                              <IconBase box-view="0 0 24 24" height=".75rem" width=".75rem">
-                                <Calendar/>
-                              </IconBase>
-                            </div>
-                          </tool-tip>
                         </div>
-                      </date-pick>
-                    </div>
-                    <tool-tip v-if="this.showMore === task.id && task.id !== 'new'" class="task-like"
-                              content="Like this">
-                      <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
-                        <Like/>
-                      </icon-base>
-                    </tool-tip>
-                  </div>
-                  <!--                    更多按钮-->
-                  <tool-tip v-if="this.showMore === task.id && this.currentTask.id !== task.id"
-                            class="more-action-position"
-                            content="More actions"
-                            @click="this.showTaskMoreAction(task,section,innerIndex)">
-                    <div class="task-more cursor">
-                      <div class="more-icon">
-                        <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
-                          <More/>
-                        </icon-base>
+                        <tool-tip v-if="task.complete_date === ''"
+                                  :class="{'vsb-hidden':this.showMore !== task.id && task.id !=='new'}"
+                                  class="height-28" content="Add due date">
+                          <div class="calendar cursor">
+                            <IconBase box-view="0 0 24 24" height=".75rem" width=".75rem">
+                              <Calendar/>
+                            </IconBase>
+                          </div>
+                        </tool-tip>
                       </div>
-                    </div>
+                    </date-pick>
+                  </div>
+                  <tool-tip v-if="this.showMore === task.id && task.id !== 'new'" class="task-like"
+                            content="Like this">
+                    <icon-base box-view="0 0 32 32" height=".75rem" width=".75rem">
+                      <Like/>
+                    </icon-base>
                   </tool-tip>
                 </div>
-<!--              </transition-group>-->
+                <!--                    更多按钮-->
+                <tool-tip v-if="this.showMore === task.id && this.currentTask.id !== task.id"
+                          class="more-action-position"
+                          content="More actions"
+                          @click="this.showTaskMoreAction(task,section,innerIndex)">
+                  <div class="task-more cursor">
+                    <div class="more-icon">
+                      <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
+                        <More/>
+                      </icon-base>
+                    </div>
+                  </div>
+                </tool-tip>
+              </div>
+              <div
+                  v-if="this.startDrag !== false && this.sectionHover === section.id && this.sortSelect.value !== 'none' && this.sectionTaskList[section.id].length === 0"></div>
             </draggable>
             <!--            新增task-->
-            <div v-if="sectionLength(section.id)['incomplete'] !== 0" class="add-task"
+            <div v-if="sectionLength(section.id)['current'] !== 0" class="add-task"
                  @click="showAddTask(section,'bottom')">
               <icon-base box-view="0 0 24 24" class="add-color" height=".625rem" width=".625rem">
                 <Plus/>
@@ -307,6 +320,12 @@
         </div>
       </transition-group>
     </draggable>
+    <div
+        v-if="this.startDrag !== false && this.sectionHover !== false && this.startDrag !== this.sectionHover && this.sortSelect.value !== 'none'"
+        class="list-card drag-hover" @mouseleave="this.sectionHover = false">
+      <span class="drag-hover-title">Drop here to move to this column</span>
+      <span>This board is sorted by {{ this.sortSelect.name }}</span>
+    </div>
     <!--    新增section-->
     <div class="list-card-noHover">
       <div class="section-header">
@@ -430,13 +449,14 @@
         </popover>
         <div class="separate"></div>
         <div class="pop-item"
-             @click="this.completeTask(this.currentTask.id, this.currentSection.id, this.currentSection.innerIndex)">
+             @click="this.completeTask(this.currentTask, this.currentSection.id, this.currentSection.innerIndex)">
           <icon-base box-view="0 0 23 23" height="1rem" width="1rem">
             <RingRight/>
           </icon-base>
-          <span>Mark complete</span>
+          <span v-if="this.currentTask.completed === false">Mark complete</span>
+          <span v-if="this.currentTask.completed === true">Mark incomplete</span>
         </div>
-        <div class="pop-item">
+        <div class="pop-item" @click="this.viewTaskDetail">
           <icon-base box-view="0 0 32 32" height="1rem" width="1rem">
             <View/>
           </icon-base>
@@ -491,8 +511,11 @@
       </div>
     </template>
   </popover>
+  <drawer ref="taskDetail" v-model="this.isOpenTaskDrawer" direction="rtl" width="43.75rem">
+    <edit-task :project-list="this.projectList" :task-data="this.detailTask"
+               @close="this.isOpenTaskDrawer = false" @updateTask="this.updateTask"></edit-task>
+  </drawer>
 </template>
-
 <script setup>
 import {
   Right,
@@ -527,6 +550,8 @@ import MessageBox from "@/components/common/MessageBox";
 import NewButton from "@/components/common/NewButton";
 import DatePick from "@/components/common/DateTimePicker";
 import NewSelectBar from "@/components/common/newSelectBar";
+import Drawer from "@/components/common/Drawer";
+import EditTask from "@/components/homeCard/messageBox/editTask";
 </script>
 
 <script>
@@ -540,6 +565,8 @@ export default {
   components: {IconBase, draggable: VueDraggableNext},
   data() {
     return {
+      isOpenTaskDrawer: false,
+      sectionHover: false,
       sectionTaskList: {},
       sectionActive: '',
       activeSectionName: '',
@@ -576,13 +603,30 @@ export default {
       orgDateValue: '',
       addType: '',
       currentEditTask: {id: ''},
-      completedList: ''
+      completedList: '',
+      startDrag: false,
+      dragHoverPosition: ['0', '0'],
+      ghostClass: 'ghost-class',
+      lastCompletedDate: '',
+      detailTask: {id: '', assigned_to: {username: ''}, project: {color: '', name: '', id: ''}},
+      incompleteList: '',
+      taskIndex:''
     }
   },
   mounted() {
     this.sectionTaskList = formatTasksList(this.tasksList, this.sectionList, 'incomplete')
+    this.completedList = formatTasksList(this.tasksList, this.sectionList, 'allCompleted')
+    this.incompleteList = formatTasksList(this.tasksList, this.sectionList, 'incomplete')
+    this.sectionTaskList = taskListSort({value: 'none'}, this.sectionTaskList)
     this.sectionListTemp = this.sectionList
-    this.firstSection = this.sectionList[0].id
+    let minId = this.sectionList[0].id; // 假设第一个元素的id为最小值
+    for (let i = 1; i < this.sectionList.length; i++) {
+      if (this.sectionList[i].id < minId) {
+        minId = this.sectionList[i].id;
+      }
+    }
+    this.firstSection = minId;
+    this.lastCompletedDate = this.tasksList.length === 0 ? '' : getLastCompletedTime(this.tasksList)
   },
   props: {
     tasksList: {
@@ -593,25 +637,40 @@ export default {
       type: [String, Object, Array],
       default: ""
     },
+    projectList: {
+      type: [String, Object, Array],
+      default: ""
+    }
   },
   watch: {
+    // 排序规则下，遮罩位置计算
+    sectionHover(newVal) {
+      if (this.startDrag) {
+        let div = this.$refs[`section${newVal}`]
+        if (div !== undefined) {
+          let {top, left} = div[0].getBoundingClientRect()
+          this.dragHoverPosition = [top + 'px', left + 'px']
+        }
+      }
+    },
     taskFilter(newVal) {
       this.sectionTaskList = formatTasksList(this.tasksList, this.sectionList, newVal)
     },
     sortSelect(newVal) {
-      if(newVal !== 'none'){
-        for(let i in this.sectionTaskList){
-          this.sectionTaskList[i] = this.sectionTaskList[i].sort(function (a,b){
-            return new Date(a.start_time) - new Date(b.start_time)
-          })
-        }
+      if (newVal.value !== 'none') {
+        this.ghostClass = 'no-sort'
+        this.sectionTaskList = taskListSort(newVal, this.sectionTaskList)
       } else {
-        // this.sectionTaskList = formatTasksList(this.tasksList, this.sectionList, newVal)
+        this.sectionTaskList = taskListSort(newVal, this.sectionTaskList)
+        this.ghostClass = 'ghost-class'
       }
     },
-    tasksList(newVal) {
-      this.sectionTaskList = formatTasksList(newVal, this.sectionList, 'incomplete')
-      this.completedList = formatTasksList(newVal, this.sectionListTemp, 'completed')
+    async tasksList(newVal) {
+      let taskList = formatTasksList(newVal, this.sectionList, 'incomplete')
+      this.sectionTaskList = taskListSort({value: 'none'}, taskList)
+      this.completedList = formatTasksList(newVal, this.sectionList, 'allCompleted')
+      this.incompleteList = formatTasksList(newVal, this.sectionList, 'incomplete')
+      this.lastCompletedDate = getLastCompletedTime(newVal)
     },
     sectionList(newVal) {
       this.sectionListTemp = newVal
@@ -647,7 +706,8 @@ export default {
         disabled: false,
         forceFallback: true,
         dragClass: "drag-class",
-        delay:.1
+        delay: .1,
+        filter: '.un-move'
       };
     },
     taskDragOptions() {
@@ -656,13 +716,114 @@ export default {
         group: "tasks",
         disabled: false,
         forceFallback: true,
-        ghostClass: "ghost-class",
+        ghostClass: this.ghostClass,
         dragClass: "drag-class",
-        delay:.1,
+        delay: .1,
+        filter: '.un-move'
       };
     }
   },
   methods: {
+    openDrawer(task) {
+      this.detailTask = task;
+      this.$refs.taskDetail.isFirstClick = false
+      this.isOpenTaskDrawer = true
+      setTimeout(() => {
+        this.$refs.taskDetail.isFirstClick = true
+      }, 20)
+      this.currentSection['id'] = task.section
+      this.scrollSection(task)
+    },
+    scrollSection(task){
+      const taskDIV = this.$refs[`task${task.id}`][0]
+      const main = this.$refs.sectionSwap.getBoundingClientRect()
+      const windowWidth = window.innerWidth;
+      const {right, left} = taskDIV.getBoundingClientRect()
+      const scrollLeft = this.$refs.sectionSwap.scrollLeft
+      if (windowWidth-right < 740) {
+        this.$nextTick(()=>{
+          this.$refs.sectionSwap.scrollLeft = 742 - windowWidth + right + scrollLeft
+        })
+      } else if (left - main.left <0) {
+        this.$refs.sectionSwap.scrollLeft = 742 - windowWidth + right + scrollLeft
+      }
+
+    },
+    updateTask(item) {
+      let taskList = this.sectionTaskList[this.currentSection['id']]
+      if (item.type === 'section') {
+        for (let index in taskList) {
+          if (taskList[index].id === item.task.id) {
+            taskList[index] = item.task
+            this.sectionTaskList[this.currentSection['id']].splice(index, 1)
+            this.sectionTaskList[item.task.section].push(item.task)
+            this.sectionTaskList = taskListSort(this.sortSelect, this.sectionTaskList)
+            this.currentSection['id'] = item.task.section
+          }
+        }
+      } else if ((item.type === 'completed' && this.taskFilter === 'all') || item.type === 'date' || item.type === 'title') {
+        for (let index in taskList) {
+          if (taskList[index].id === item.task.id) {
+            taskList[index] = item.task
+          }
+        }
+      } else if (item.type === 'completed' && this.taskFilter === 'incomplete' && item.task.completed) {
+        for (let index in taskList) {
+          if (taskList[index].id === item.task.id) {
+            taskList[index] = item.task
+            this.sectionTaskList[this.currentSection['id']].splice(index, 1)
+            this.incompleteList[this.currentSection['id']].splice(index, 1)
+            this.completedList[this.currentSection['id']].unshift(item.task)
+            this.taskIndex = index
+          }
+        }
+      } else if (item.type === 'completed' && this.taskFilter === 'incomplete' && !item.task.completed) {
+        this.sectionTaskList[this.currentSection['id']].splice(this.taskIndex,0,item.task)
+        this.completedList[this.currentSection['id']].splice(0, 1)
+        this.incompleteList[this.currentSection['id']].splice(this.taskIndex,0,item.task)
+      } else if (item.type === 'completed' && this.taskFilter !== 'incomplete' && this.taskFilter !== 'all' && !item.task.completed) {
+        for (let index in taskList) {
+          if (taskList[index].id === item.task.id) {
+            taskList[index] = item.task
+            this.sectionTaskList[this.currentSection['id']].splice(index, 1)
+            this.completedList[this.currentSection['id']].splice(index, 1)
+            this.incompleteList[this.currentSection['id']].unshift(item.task)
+            this.taskIndex = index
+          }
+        }
+      } else if (item.type === 'completed' && this.taskFilter !== 'incomplete' && this.taskFilter !== 'all' && item.task.completed) {
+        this.sectionTaskList[this.currentSection['id']].splice(this.taskIndex,0,item.task)
+        this.incompleteList[this.currentSection['id']].splice(0, 1)
+        this.completedList[this.currentSection['id']].splice(this.taskIndex,0,item.task)
+      }
+    },
+    viewTaskDetail() {
+      this.isOpenTaskDrawer = true
+      this.detailTask = this.currentTask
+      this.scrollSection(this.detailTask)
+    },
+    // 发起拖拽
+    dragStart(event) {
+      this.startDrag = event.item._underlying_vm_.section
+      this.currentTask = {task: event.item._underlying_vm_}
+      this.currentTask['oldIndex'] = event.oldIndex
+    },
+    // 排序规则下 拖拽位置判断，并重新排序
+    async dragEnd() {
+      if (this.sectionHover && this.sectionHover !== this.currentTask['task'].section) {
+        let url = '/api/update_task/'
+        let data = {task_id: this.currentTask['task'].id, section_id: this.sectionHover}
+        await apiHttpClient.post(url, data).then((res) => {
+          this.currentTask['task'].section = res.data.results.section
+          this.currentTask['task'].updated_at = res.data.results.updated_at
+          this.sectionTaskList[this.startDrag].splice(this.currentTask['oldIndex'], 1)
+          this.sectionTaskList[this.sectionHover].splice(this.currentTask['oldIndex'], 0, this.currentTask['task'])
+          this.sectionTaskList = taskListSort(this.sortSelect, this.sectionTaskList)
+        })
+      }
+      this.currentTask = ''
+      this.startDrag = false
+    },
     // 修改任务名
     editTask() {
       this.currentTask['orgTitle'] = this.addTaskName = this.currentTask.title
@@ -723,23 +884,25 @@ export default {
       let taskName = this.addTaskName
       let date = this.dateValue
       let task;
+      let rank = this.addType === 'top' ? parseFloat((this.sectionTaskList[sectionId][1].rank - 0.1).toFixed(3)) : parseFloat((this.sectionTaskList[sectionId][this.sectionTaskList[sectionId].length - 2].rank + 1).toFixed(3))
       if (date === null || date === '') {
-        data = {title: taskName, section_id: sectionId}
+        data = {title: taskName, section_id: sectionId, rank: rank}
       } else if (typeof date === 'string') {
-        data = {title: taskName, complete_time: this.dateValue, section_id: sectionId}
+        data = {title: taskName, complete_time: this.dateValue, section_id: sectionId, rank: rank}
       } else {
         data = {
           title: taskName,
           complete_time: date[1],
           start_time: date[0],
-          section_id: sectionId
+          section_id: sectionId,
+          rank: rank
         }
       }
       await apiHttpClient.post(url, data).then((res) => {
         task = formatTaskData()(res.data.results)
       })
       this.addTaskName = ''
-      this.dateValue = ''
+      this.dateValue = null
       this.dateType = 'date'
       return task
     },
@@ -782,20 +945,21 @@ export default {
     },
     // task more 按钮定位
     showTaskMoreAction(task, section, innerIndex) {
-        const taskDIV = this.$refs[`task${task.id}`][0]
-        const {top, x} = taskDIV.getBoundingClientRect()
-        setTimeout(() => {
-          this.moreActionPosition['top'] = top + 10 + 'px'
-          this.moreActionPosition['left'] = x + 233.5 + 'px'
-          this.addTaskConfirm = this.firstClick = false
-          this.currentTask = task
-          this.currentSection['id'] = section.id
-          this.currentSection['innerIndex'] = innerIndex
-        }, 40)
+      event.stopPropagation()
+      const taskDIV = this.$refs[`task${task.id}`][0]
+      const {top, x} = taskDIV.getBoundingClientRect()
+      setTimeout(() => {
+        this.moreActionPosition['top'] = top + 10 + 'px'
+        this.moreActionPosition['left'] = x + 233.5 + 'px'
+        this.addTaskConfirm = this.firstClick = false
+        this.currentTask = task
+        this.currentSection['id'] = section.id
+        this.currentSection['innerIndex'] = innerIndex
+      }, 40)
 
-        setTimeout(() => {
-          this.$refs.taskMorePop.isPopShow = true
-        }, 100)
+      setTimeout(() => {
+        this.$refs.taskMorePop.isPopShow = true
+      }, 100)
     },
     // task拖拽调整
     handleTask(sectionID, event) {
@@ -808,7 +972,9 @@ export default {
       } else if (event.moved !== undefined) {
         task = event.moved.element
         let newIndex = event.moved.newIndex
-        this.changeTask(sectionID, newIndex, task)
+        if (this.sectionTaskList[sectionID].length > 1) {
+          this.changeTask(sectionID, newIndex, task)
+        }
       }
     },
     // 更新task
@@ -818,7 +984,6 @@ export default {
       let lastSection = newIndex + 1 === this.sectionTaskList[sectionID].length
       let nextRank = lastSection ? null : this.sectionTaskList[sectionID][newIndex + 1]['rank']
       let newRank = getNewRank(frontRank, nextRank)
-      console.log(newRank)
       task.rank = newRank
       apiHttpClient.post(url, {task_id: task.id, section_id: sectionID, rank: newRank})
     },
@@ -831,7 +996,7 @@ export default {
     },
     // 更新日期
     updateDate(item) {
-      if (!item && this.orgDateValue !== this.dateValue) {
+      if (!item && this.orgDateValue !== this.dateValue && this.currentTask.id !== 'new') {
         let data = {};
         if (this.dateValue === null || typeof this.dateValue === 'string') {
           data = {complete_time: this.dateValue, start_time: null}
@@ -843,7 +1008,7 @@ export default {
         apiHttpClient.post(url, data).then(() => {
           this.currentTask = {id: ''}
         })
-      } else {
+      } else if (this.currentTask.id !== 'new') {
         this.currentTask = {id: ''}
       }
     },
@@ -866,7 +1031,7 @@ export default {
         this.sectionActive = section.id
         this.activeSectionName = section.name
         this.$nextTick(() => {
-          this.$refs[`section${section.id}`][0].$refs.input.focus()
+          this.$refs[`sectionInput${section.id}`][0].$refs.input.focus()
         })
       } else {
         this.sectionActive = 'addSection'
@@ -878,9 +1043,12 @@ export default {
     // 新增section
     addSection(index, type) {
       let url = '/api/add_section/'
-      let data = {'name': 'Untitled Section'}
+      let num = type === 'left' ? index : index + 1
+      let frontRank = num === 0 ? null : this.sectionListTemp[num - 1].rank
+      let nextRank = index + 1 === this.sectionListTemp.length && type === 'right' ? null : this.sectionListTemp[num].rank
+      let newRank = getNewRank(frontRank, nextRank)
+      let data = {'name': 'Untitled Section', 'rank': newRank}
       apiHttpClient.post(url, data).then((res) => {
-        let num = type === 'left' ? index : index + 1
         this.sectionListTemp.splice(num, 0, res.data.results)
         this.sectionTaskList[res.data.results.id] = []
         this.activeSection(res.data.results)
@@ -904,7 +1072,10 @@ export default {
         })
       } else if (section === 'addSection' && this.activeSectionName !== '') {
         let url = 'api/add_section/'
-        let data = {'name': this.activeSectionName}
+        let data = {
+          'name': this.activeSectionName,
+          rank: this.sectionListTemp[this.sectionListTemp.length - 1].rank + 1
+        }
         apiHttpClient.post(url, data).then((res) => {
           this.sectionListTemp.push(res.data.results)
           this.sectionTaskList[res.data.results.id] = []
@@ -915,9 +1086,10 @@ export default {
     },
     // 完成任务
     completeTask(task, sectionID, index) {
+      event.stopPropagation()
       let url = '/api/update_task/'
       let data;
-      if (!task.completed) {
+      if (!task.completed && this.currentEditTask.id !== 'new') {
         data = {'task_id': task.id, 'completed': true}
         task.completed = true
         task.completed_time = new Date()
@@ -926,9 +1098,13 @@ export default {
         task.completed = false
         task.completed_time = null
       }
-      apiHttpClient.post(url, data).then(() => {
-        this.taskFilter !== 'all' ? this.sectionTaskList[sectionID].splice(index, 1) : null
-      })
+      if (this.currentEditTask.id !== 'new') {
+        apiHttpClient.post(url, data).then(() => {
+          this.taskFilter !== 'all' ? this.sectionTaskList[sectionID].splice(index, 1) : null
+          task.completed ? this.completedList[sectionID].push(task) : this.incompleteList[sectionID].push(task)
+          task.completed ? this.incompleteList[sectionID].splice(index, 1) : this.completedList[sectionID].splice(index, 1)
+        })
+      }
     },
     // 删除任务
     deleteTask(taskID, sectionID, index) {
@@ -956,7 +1132,7 @@ export default {
             this.addTaskName = ''
           }
           setTimeout(() => {
-          this.$refs.taskMorePop.isPopShow = false
+            this.$refs.taskMorePop.isPopShow = false
           }, 5)
           break;
         default:
@@ -974,8 +1150,9 @@ export default {
     sectionLength(sectionID) {
       const section = this.sectionTaskList[sectionID];
       let taskLength = {};
-      taskLength['incomplete'] = section ? section.length : 0;
+      taskLength['current'] = section ? section.length : 0;
       taskLength['completed'] = this.completedList[sectionID] ? this.completedList[sectionID].length : 0;
+      taskLength['incomplete'] = this.incompleteList[sectionID] ? this.incompleteList[sectionID].length : 0;
       taskLength['all'] = taskLength['incomplete'] + taskLength['completed']
       return taskLength
     },
@@ -1003,14 +1180,54 @@ export default {
         this.currentSection['completed'] = taskLength['completed']
         this.currentSection['all'] = taskLength['all']
       }
+    },
+    stopPropagation(event) {
+      event.stopPropagation()
     }
   }
 }
 
+// 最后一次更新时间
+function getLastCompletedTime(tasksList) {
+  let lastDate = tasksList[0].completed_time
+  for (let i = 1; i < tasksList.length; i++) {
+    if (tasksList[i].completed === true && new Date(tasksList[i].completed_time) > new Date(lastDate)) {
+      lastDate = tasksList[i].completed_time;
+    }
+  }
+  let task = formatTaskData()({complete_time: lastDate, start_time: null})
+  return task.complete_date
+}
+
 // task 排序
-function taskListSort() {
-
-
+function taskListSort(type, sectionTaskList) {
+  for (let i in sectionTaskList) {
+    sectionTaskList[i] = sectionTaskList[i].sort(function (a, b) {
+      switch (type.value) {
+        case 'none':
+          return a.rank - b.rank
+        case 'startDate':
+          let ATime = a.start_time ?? a.complete_time ?? '2099-01-01 0:0:0';
+          let BTime = b.start_time ?? b.complete_time ?? '2099-01-01 0:0:0';
+          return new Date(ATime) - new Date(BTime)
+        case 'dueDate':
+          let ACTime = a.complete_time ?? '2099-01-01 0:0:0';
+          let BCTime = b.complete_time ?? '2099-01-01 0:0:0';
+          return new Date(ACTime) - new Date(BCTime)
+        case 'createBy':
+          return a.created_by - b.created_by
+        case 'createOn':
+          return new Date(a.created_at) - new Date(b.created_at)
+        case 'modified':
+          return new Date(b.updated_at) - new Date(a.updated_at)
+        case 'likes':
+          break
+        case 'alphabetical':
+          return a.title.localeCompare(b.title)
+      }
+    })
+  }
+  return sectionTaskList
 }
 
 // 新权重计算
@@ -1035,7 +1252,7 @@ function formatTasksList(tasksList, sectionList, type) {
   const dayDiff = {
     '3weeks': 22,
     '2weeks': 15,
-    '1week': 8,
+    '1weeks': 8,
     'yesterday': 2,
     'today': 1
   }
@@ -1082,6 +1299,10 @@ function formatTasksList(tasksList, sectionList, type) {
   border-bottom: 1px solid #EDE9E8;
 }
 
+.main-header span {
+  min-width: max-content;
+}
+
 .right-button {
   display: flex;
   align-items: center;
@@ -1113,6 +1334,10 @@ function formatTasksList(tasksList, sectionList, type) {
   height: 100%;
   background-color: white;
   overflow-y: hidden;
+}
+
+.padding-right-437 {
+  padding-right: 43.75rem;
 }
 
 .task-list {
@@ -1228,6 +1453,7 @@ function formatTasksList(tasksList, sectionList, type) {
 .task-card:hover {
   border: 1px solid #AFABAC;
 }
+
 
 .calendar {
   border: 1px dashed var(--gray);
@@ -1499,7 +1725,7 @@ function formatTasksList(tasksList, sectionList, type) {
 }
 
 .add-task-input {
-  background-color: white;
+  background-color: rgba(0,0,0,0);
   text-indent: 1.5rem;
   color: var(--black);
   border: none;
@@ -1532,7 +1758,7 @@ function formatTasksList(tasksList, sectionList, type) {
 }
 
 .width-5 {
-  width: 10rem !important;
+  /*width: 10rem !important;*/
 }
 
 .task-bottom {
@@ -1625,9 +1851,9 @@ function formatTasksList(tasksList, sectionList, type) {
 }
 
 .v-leave-active.v-leave-to {
-  opacity: 0!important;
-  display: none!important;
-  visibility: hidden!important;
+  opacity: 0 !important;
+  display: none !important;
+  visibility: hidden !important;
 }
 
 .height-50 {
@@ -1657,11 +1883,11 @@ function formatTasksList(tasksList, sectionList, type) {
   background-color: #E9E8E7;
   color: #E9E8E7;
   fill: #E9E8E7;
-  border: none!important;
+  border: none !important;
 }
 
 .ghost-class:hover {
-  border: none!important;
+  border: none !important;
 }
 
 .ghost-class div {
@@ -1670,6 +1896,46 @@ function formatTasksList(tasksList, sectionList, type) {
 
 .drag-class {
   border: 1px solid #4F74C6;
-  opacity: 1!important;
+  opacity: 1 !important;
+  display: flex !important;
 }
+
+.drag-hover {
+  border: 2px dashed #4F74C6;
+  color: #4F74C6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, .96);
+  position: absolute;
+  top: v-bind(dragHoverPosition [0]);
+  left: v-bind(dragHoverPosition [1]);
+  z-index: 100;
+}
+
+.drag-hover-title {
+  font-weight: 700 !important;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.drag-hover span {
+  font-weight: 500;
+}
+
+.trash-icon {
+  display: flex;
+  align-items: center;
+}
+
+.border-black {
+  border: 1px solid #6D6E6F;
+}
+
+.detail-card {
+  background-color: #F1F2FC;
+  border: 1px solid #3F6AC4 !important;
+}
+
 </style>

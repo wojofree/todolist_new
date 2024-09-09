@@ -79,6 +79,7 @@ export default {
       } else {
         this.modelStyle.rtl.width = this.modelStyle.ltr.width = this.modelStyle.btt.height = this.modelStyle.ttb.height = 0
         this.modelStyle.rtl.right = this.modelStyle.ltr.left = this.modelStyle.btt.bottom = this.modelStyle.ttb.top = '-35px'
+        this.isFirstClick = false
         document.removeEventListener("click", this.close)
       }
     }
@@ -115,7 +116,7 @@ export default {
   height: v-bind(modelStyle [direction] ['height']);
   width: v-bind(modelStyle [direction] ['width']);
   transition: width .3s, height .3s;
-  z-index: 10001;
+  z-index: 100101;
   box-shadow: 5px 5px 5px 5px rgba(109, 110, 111, 0.1);
 }
 

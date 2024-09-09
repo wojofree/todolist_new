@@ -26,6 +26,10 @@ export default {
     hoverColor: {
       type: String,
       default: 'rgb(248, 246, 246)'
+    },
+    borderRadius: {
+      type: String,
+      default: '.4rem'
     }
   },
   created() {
@@ -39,7 +43,7 @@ export default {
   height: max-content;
   padding: .5rem 1rem;
   transition: background-color .3s;
-  border-radius: .4rem;
+  border-radius: v-bind(borderRadius);
   font-weight: 500;
   background-color: v-bind(backgroundStyle);
   border: v-bind(borderStyle);

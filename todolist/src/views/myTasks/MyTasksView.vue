@@ -32,7 +32,7 @@
       </div>
     </div>
   </div>
-  <component :is="this.tabSelected" :tasksList="this.tasksList" :sectionList="this.sectionList"></component>
+  <component :is="this.tabSelected" :tasksList="this.tasksList" :sectionList="this.sectionList" :projectList="this.projectList"></component>
 </template>
 <script setup>
 import {Lock} from "@/components/icons"
