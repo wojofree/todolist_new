@@ -36,7 +36,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 .progress-bar-wrapper {
   width: 100%;
@@ -62,7 +62,8 @@ export default {
     display: flex;
     justify-content: space-between;
     font-size: 18px;
-    font-family: 'SourceHanSansCN_Bold', serif;
+    font-family: 'Source Han Sans CN', 'SourceHanSansCN_Bold';
+    font-weight: bold;
   }
 }
 </style>

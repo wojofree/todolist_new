@@ -1,7 +1,12 @@
 <template>
   <div style="width: 100%; background-color: black">
     <div style="width: 750px; padding: 0 40px;margin: 40px 0;background-color: white;">
-      <HeadingOne></HeadingOne>
+      <HeadingTwo :option="this.heading"></HeadingTwo>
+      <HeadingThree :option="this.heading"></HeadingThree>
+      <HeadingOne :option="this.headingOne"></HeadingOne>
+      <BarChartHorizontal :option="barChartHorizontal"></BarChartHorizontal>
+
+
       <ProgressBarOne
           :option=this.test
       ></ProgressBarOne>
@@ -117,6 +122,9 @@ import ProgressBarOne from "@/components/common/ProgressBarOne";
 import ProgressBarTwo from "@/components/common/ProgressBarTwo";
 import FunnelChart from "@/components/common/FunnelChart";
 import HeadingOne from "@/components/common/HeadingOne";
+import HeadingTwo from "@/components/common/HeadingTwo";
+import HeadingThree from "@/components/common/HeadingThree";
+import BarChartHorizontal from "@/components/common/BarChartHorizontal";
 
 
 use([
@@ -700,7 +708,13 @@ export default {
           leftCornerText: '左标1',
           rightCornerText: '右标',
         },
-      funnelTest: {data: [['总客流人数', 100], ['进店人数', 60], ['流人数', 30], ['流人数1', 15], ['流人数2', 7]]}
+      heading: {text: '测试一下'},
+      headingOne: {text: '测试一下', number: "01"},
+      barChartHorizontal: {
+        labelFormatter: '%',
+        data: [['总客流人数', 1], ['进店人数', 2.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]],
+      },
+      funnelTest: {data: [['总客流人数', 100], ['进店人数', 60], ['流人数11231231123123', 30], ['流人数1123123', 15], ['流人数2', 7]]}
     }
   },
   async mounted() {
@@ -790,7 +804,12 @@ export default {
     },
 
     changeData() {
-      this.funnelTest = {data: [['总客流人数123', 100], ['进店人数1', 50], ['流人数2', 30]]}
+      this.barChartHorizontal = {
+        data: [['总客流人数总客流人数总客流人数', 1], ['进店人数', 1.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]],
+        text: '测试一下测试一下测试一下测试一下',
+        heading: '测试一下测试一下',
+        color: 1
+      }
     }
 
   },

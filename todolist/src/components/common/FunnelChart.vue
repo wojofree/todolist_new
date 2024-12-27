@@ -5,7 +5,7 @@
         <div class="funnel-text">{{ formatText(index) }}</div>
         <img alt="arrowDown" height="27" src="../../assets/img/arrowDwon.png" width="18">
       </div>
-      <div :ref="'bar'+index" :style="{ width: (index === (option.data.length - 1)) ? 'fit-content' : '100%' }"
+      <div :ref="'bar'+index" :style="{ width: (index === 0) ?'100%' : 'fit-content' }"
            class="funnel-bar">
         {{ item[0] }}
       </div>
@@ -30,9 +30,9 @@ export default {
   },
   watch: {
     option: function () {
-      this.$nextTick(()=>{
-          this.updateStyle()
-        });
+      this.$nextTick(() => {
+        this.updateStyle()
+      });
     },
   },
   created() {
@@ -43,10 +43,9 @@ export default {
   methods: {
     updateStyle() {
 
-      const {firstBarElementWidth, lastBarElementWidth} = this.getBarWith()
-      this.newData = this.transformData(this.option.data, firstBarElementWidth, lastBarElementWidth);
-
-       this.option.data.forEach((_, index) => {
+      const {firstBarElementWidth, maxBarWidth} = this.getBarWith()
+      this.newData = this.transformData(this.option.data, firstBarElementWidth, maxBarWidth);
+      this.option.data.forEach((_, index) => {
         const barElement = this.$refs[`bar${index}`][0];
         this.setBarStyle(barElement, index);
       });
@@ -68,7 +67,7 @@ export default {
       return Number(value.toFixed(1)) + '%'
 
     },
-    transformData(data, firstBarWidth, lastBarWidth) {
+    transformData(data, firstBarWidth, maxBarWidth) {
       const dataLength = data.length;
 
       if (dataLength < 5) {
@@ -83,11 +82,11 @@ export default {
         }));
       }
 
-      const widthRatio = Math.pow(lastBarWidth / firstBarWidth, 1 / (dataLength - 1));
+      const widthRatio = Math.pow(maxBarWidth / firstBarWidth, 1 / (dataLength - 1));
       const gradientRatio = Math.pow(0.1, 1 / (dataLength - 1));
 
       return data.map((row, index) => {
-        const widthPercentage = index === dataLength - 1 ? "fit-content" : `${Math.pow(widthRatio, index) * 100}%`;
+        const widthPercentage = `${Math.pow(widthRatio, index) * 100}%`;
         const color = index === dataLength - 1 ? 1 : Math.pow(gradientRatio, dataLength - index - 1);
 
         return {
@@ -100,57 +99,68 @@ export default {
     },
     getBarWith() {
       const firstBarElementWidth = this.$refs[`bar${0}`][0].getBoundingClientRect().width;
-      const lastBarElementWidth = this.$refs[`bar${this.option.data.length - 1}`][0].getBoundingClientRect().width;
-      return {firstBarElementWidth, lastBarElementWidth}
+      const maxBarWidth = this.getMaxWidth();
+      return {firstBarElementWidth, maxBarWidth}
+    },
+    getMaxWidth() {
+      let maxWidth = 0;
+      this.option.data.forEach((_, index) => {
+        if (index !== 0) {
+          const barElement = this.$refs[`bar${index}`][0];
+          const barWidth = barElement.getBoundingClientRect().width;
+          maxWidth = Math.max(maxWidth, barWidth);
+        }
+      });
+      return maxWidth;
     }
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .funnel-chart-wrapper {
   width: 100%;
   padding-bottom: 24px;
   height: fit-content;
 
-.funnel-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-  width: 100%;
-  height: 52px;
-  background-color: #2b98bc;
-  border-radius: 8px;
-  font-size: 20px;
-  font-family: 'SourceHanSansCN', serif;
-  font-weight: 400;
-  box-shadow: 0 12px 12px 0 rgba(26, 117, 234, 0.15);
-}
+  .funnel-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    width: 100%;
+    height: 52px;
+    background-color: #2b98bc;
+    border-radius: 8px;
+    font-size: 20px;
+    font-family: 'Source Han Sans CN', 'SourceHanSansCN';
+    font-weight: 400;
+    box-shadow: 0 12px 12px 0 rgba(26, 117, 234, 0.15);
+  }
 
-.funnel-chart {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
+  .funnel-chart {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 
-.funnel-text-swap {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding-left: 34px;
-}
+  .funnel-text-swap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding-left: 34px;
+  }
 
-.funnel-text {
-  font-size: 22px;
-  font-family: 'Source Han Sans CN', serif;
-  font-weight: bold;
-  margin: 16px 0;
-}
+  .funnel-text {
+    font-size: 22px;
+    font-family: 'Source Han Sans CN', 'SourceHanSansCN_Bold';
+    font-weight: bold;
+    margin: 16px 0;
+  }
 
 }
 </style>

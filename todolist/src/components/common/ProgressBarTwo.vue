@@ -7,19 +7,21 @@
             {{ leftText }}
           </div>
           <div class="corner-value">
-            {{ leftNumber }}</div>
+            {{ leftNumber }}
           </div>
+        </div>
       </div>
       <div class="progress-interval"></div>
     </div>
     <div class="right-corner">
       <div class="corner color-blue">
-          <div class="corner-text">
-            {{ rightText }}
-          </div>
-          <div class="corner-value">
-            {{ rightNumber }}</div>
-          </div>
+        <div class="corner-text">
+          {{ rightText }}
+        </div>
+        <div class="corner-value">
+          {{ rightNumber }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -40,7 +42,7 @@ export default {
     option: {
       type: Object,
       required: false,
-      default: () => ({ value: 0.9, leftCornerText: '左标',  rightCornerText: '右标'}),
+      default: () => ({value: 0.9, leftCornerText: '左标', rightCornerText: '右标'}),
     }
   },
   watch: {
@@ -74,7 +76,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .progress-bar-wrapper {
   width: 100%;
   padding-bottom: 24px;
@@ -120,20 +122,21 @@ export default {
   }
 
   .corner {
-      font-family: 'SourceHanSansCN_Bold',serif;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      margin-left: 40px;
+    font-family: 'Source Han Sans CN', 'SourceHanSansCN_Bold';
+    font-weight: bold;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 40px;
 
-      .corner-text{
-        font-size: 20px;
-        margin: 6px 9px 0 0 ;
-      }
-
-      .corner-value {
-        font-size: 29px;
-      }
+    .corner-text {
+      font-size: 20px;
+      margin: 6px 9px 0 0;
     }
+
+    .corner-value {
+      font-size: 29px;
+    }
+  }
 }
 </style>
