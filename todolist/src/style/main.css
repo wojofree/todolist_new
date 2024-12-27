@@ -1,0 +1,19 @@
+@font-face {
+  font-family: 'SourceHanSansCN';
+  src: url('../assets/font/SourceHanSansCN-Regular.otf');
+}
+
+@font-face {
+  font-family: 'SourceHanSansCN_Bold';
+  src: url('../assets/font/SourceHanSansCN-Bold.otf');
+}
+
+@font-face {
+  font-family: 'SourceHanSansCN_Medium';
+  src: url('../assets/font/SourceHanSansCN-Medium.otf');
+}
+
+@font-face {
+  font-family: 'Bahnschrift';
+  src: url('../assets/font/bahnschrift.ttf');
+}

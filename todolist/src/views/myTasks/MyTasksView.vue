@@ -2,7 +2,7 @@
   <div class="header">
     <div class="header-left">
       <div class="avatar">{{ this.nickName }}</div>
-      <div class="avatar-right">
+      <div class="avatar-right" ref="test">
         <div class="title">
           <span>My tasks</span>
           <tool-tip content="Actions">
@@ -110,7 +110,11 @@ export default {
       this.sectionList = response.data.results
     })
   },
-  methods: {}
+  methods: {},
+  mounted() {
+    const test = this.$refs.test.getBoundingClientRect()
+    console.log(test)
+  }
 }
 </script>
 

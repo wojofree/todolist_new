@@ -408,6 +408,7 @@ export default {
       const div = this.$refs[`calendar${item.id}`][0]
       const {top} = div.getBoundingClientRect()
       const main = this.$refs.taskCard.getBoundingClientRect()
+      console.log("test")
       this.calendarTop = top - main.top + 5 + 'px'
       if (item.start_time !== null) {
         this.dateType = 'dateRange'
