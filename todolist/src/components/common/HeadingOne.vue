@@ -18,7 +18,10 @@ export default {
     option: {
       type: Object,
       required: false,
-      default: () => ({text: '客流分析溯源', number: '01'}),
+      default: () => ({
+        text: '客流分析溯源',
+        number: '01'
+      }),
     }
   }
 }

@@ -25,25 +25,26 @@ export default {
     option: {
       type: Object,
       required: false,
-      default: () => ({data: [['总客流人数', 1], ['进店人数', 0.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]]}),
+      default: () => ({
+        data: [['总客流人数', 1], ['进店人数', 0.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]]
+      }),
     }
   },
   watch: {
     option: function () {
       this.$nextTick(() => {
-        this.updateStyle()
+        this.updateStyle();
       });
     },
   },
   created() {
   },
   mounted() {
-    this.updateStyle()
+    this.updateStyle();
   },
   methods: {
     updateStyle() {
-
-      const {firstBarElementWidth, maxBarWidth} = this.getBarWith()
+      const {firstBarElementWidth, maxBarWidth} = this.getBarWith();
       this.newData = this.transformData(this.option.data, firstBarElementWidth, maxBarWidth);
       this.option.data.forEach((_, index) => {
         const barElement = this.$refs[`bar${index}`][0];
@@ -51,7 +52,7 @@ export default {
       });
     },
     setBarStyle(barElement, index) {
-      const dataLength = this.option.data.length
+      const dataLength = this.option.data.length;
 
       barElement.style.width = this.newData[index].width;
       barElement.style.backgroundColor =
@@ -61,16 +62,18 @@ export default {
       barElement.style.color = this.newData[index].color <= 0.35 ? "#5B5B5B" : "white";
     },
     formatText(index) {
-      const previousValue = index === 0 ? '1' : this.option.data[index - 1][1]
-      const currentValue = this.option.data[index][1]
-      const value = currentValue / previousValue * 100
-      return Number(value.toFixed(1)) + '%'
+      const previousValue = index === 0 ? '1' : this.option.data[index - 1][1];
+      const currentValue = this.option.data[index][1];
+      const value = currentValue / previousValue * 100;
+      return Number(value.toFixed(1)) + '%';
 
     },
     transformData(data, firstBarWidth, maxBarWidth) {
       const dataLength = data.length;
+      const widthRatio = Math.pow(maxBarWidth / firstBarWidth, 1 / (dataLength - 1));
+      const gradientRatio = Math.pow(0.1, 1 / (dataLength - 1));
 
-      if (dataLength < 5) {
+      if (dataLength < 5 && (maxBarWidth / firstBarWidth) < 0.3) {
         const widthList = ["100%", "70%", "49%", "34.3%"];
         const colorList = [0.1, 0.3, 0.6, 1];
 
@@ -82,8 +85,7 @@ export default {
         }));
       }
 
-      const widthRatio = Math.pow(maxBarWidth / firstBarWidth, 1 / (dataLength - 1));
-      const gradientRatio = Math.pow(0.1, 1 / (dataLength - 1));
+
 
       return data.map((row, index) => {
         const widthPercentage = `${Math.pow(widthRatio, index) * 100}%`;
@@ -100,7 +102,7 @@ export default {
     getBarWith() {
       const firstBarElementWidth = this.$refs[`bar${0}`][0].getBoundingClientRect().width;
       const maxBarWidth = this.getMaxWidth();
-      return {firstBarElementWidth, maxBarWidth}
+      return {firstBarElementWidth, maxBarWidth};
     },
     getMaxWidth() {
       let maxWidth = 0;

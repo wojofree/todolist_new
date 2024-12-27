@@ -1,16 +1,17 @@
 <template>
   <div ref="bar-main" class="bar-chart-wrapper">
-    <div v-for="(item, index) in chartOption.data" :key="item[0]" class="bar-chart dis-flex">
-      <div class="bar-chart-item dis-flex" :style="{background: barColorList [chartOption.color]}">
-        <div :ref="'category'+index" class="bar-chart-category">{{ item[0] }}</div>
-        <div :ref="'bar'+index" class="bar-chart-width"></div>
-      </div>
-      <div :ref="'label'+index" class="bar-chart-label" :style="{color: labelColorList [chartOption.color]}">{{ item[1] }}{{ chartOption.labelFormatter }}</div>
+    <div class="bar-chart-content">
+      <div v-for="(item, index) in chartOption.data" :key="item[0]" class="bar-chart dis-flex">
+        <div class="bar-chart-item dis-flex" :style="{background: barColorList [chartOption.color]}">
+          <div :ref="'category'+index" class="bar-chart-category">{{ item[0] }}</div>
+          <div :ref="'bar'+index" class="bar-chart-width"></div>
+        </div>
+      <div :ref="'label'+index" class="bar-chart-label" :style="{color: labelColorList [chartOption.color]}">{{ item[1] }}{{ chartOption.isPercentage ? '%' : '' }}</div>
     </div>
-    <div class="bar-text">{{ chartOption.text }}</div>
-    <div class="bar-heading">{{ chartOption.heading }}</div>
+    </div>
+    <div v-if="chartOption.text !== null"  class="bar-text">{{ chartOption.text }}</div>
+    <div v-if="chartOption.text !== null" class="bar-heading">{{ chartOption.heading }}</div>
   </div>
-
 </template>
 
 <script>
@@ -46,40 +47,53 @@ export default {
   },
   watch: {
     option: function () {
+      this.chartOption = this.getChartOptions();
       this.$nextTick(() => {
-        this.chartOption = this.getChartOptions()
-        this.updateStyle()
+        this.updateStyle();
       });
     },
   },
   mounted() {
     this.$nextTick(() => {
-      this.updateStyle()
-      console.log(this.chartOption)
+      this.updateStyle();
     });
   },
   methods: {
+    // 组件参数
     getChartOptions() {
       const defaultOptions = {
         data: [['总客流人数', 1], ['进店人数', 1.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]],
-        color: 0,
-        text: '',
-        heading: '',
-        labelFormatter: '',
+        color: 0,   // 颜色，设计稿从左到右从上倒下顺序，0开始
+        text: null,   // 说明文本
+        heading: null,   // 下标题
+        isPercentage: false, // csv数值是否为百分数
       };
 
-      return {
-        ...defaultOptions,
-        ...this.option,
-        data: this.option.data || defaultOptions.data,
-      }
+      // option类型判断，如果不符合要求切换回默认值；
+      const handleOption = (value, defaultValue) => {
+        if (value === '' || value === null || value === 'null' || value === undefined) {
+          return defaultValue;
+        }
+        return value;
+      };
+
+      return Object.entries(defaultOptions).reduce(
+        (options, [key, defaultValue]) => {
+          options[key] = handleOption(this.option[key], defaultValue);
+          return options;
+        },
+        {
+          ...defaultOptions,
+          ...this.option,
+          data: this.option.data || defaultOptions.data,
+        });
     },
     updateStyle() {
-      const categoryMaxWidth = this.getMaxWidth('category')
-      const labelMaxWidth = this.getMaxWidth('label')
-      const mainWidth = this.$refs["bar-main"].getBoundingClientRect().width
-
-      const newData = this.transformData(this.chartOption.data, (mainWidth - categoryMaxWidth - labelMaxWidth))
+      const categoryMaxWidth = this.getMaxWidth('category');
+      const labelMaxWidth = this.getMaxWidth('label');
+      const mainWidth = this.$refs["bar-main"].getBoundingClientRect().width;
+      const maxAvailableBarWidth = mainWidth - categoryMaxWidth - labelMaxWidth - 16
+      const newData = this.transformData(this.chartOption.data, maxAvailableBarWidth);
 
       this.chartOption.data.forEach((_, index) => {
         const categoryElement = this.$refs[`category${index}`][0];
@@ -97,7 +111,7 @@ export default {
       }, 0);
 
       return data.map((row) => {
-        const newWidth = maxWidth / maxVal * row[1]
+        const newWidth = maxWidth / maxVal * row[1];
 
         return {
           category: row[0],
@@ -106,8 +120,8 @@ export default {
         };
       });
     },
-    setBarStyle(barElement, width) {
-      barElement.style.width = width + 'px'
+    setBarStyle(element, width) {
+      element.style.width = width + 'px';
     },
     getMaxWidth(refName) {
       let maxWidth = 0;
@@ -138,12 +152,17 @@ export default {
   height: fit-content;
   gap: 12px;
 
+  .bar-chart-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
   .bar-chart {
     width: 100%;
     gap: 16px;
 
     &-item {
-      gap: 16px;
       height: 27px;
       font-size: 16px;
     }
@@ -151,6 +170,7 @@ export default {
     &-category {
       color: #000000;
       text-align: left;
+      width: fit-content;
     }
 
     &-width {
@@ -160,6 +180,8 @@ export default {
 
     &-label {
       text-align: left;
+      font-size: 16px;
+      width: fit-content;
     }
   }
 

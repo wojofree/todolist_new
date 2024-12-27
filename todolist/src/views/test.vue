@@ -4,15 +4,16 @@
       <HeadingTwo :option="this.heading"></HeadingTwo>
       <HeadingThree :option="this.heading"></HeadingThree>
       <HeadingOne :option="this.headingOne"></HeadingOne>
+      <BarChartVertical :option="barChartVertical"></BarChartVertical>
       <BarChartHorizontal :option="barChartHorizontal"></BarChartHorizontal>
 
 
       <ProgressBarOne
-          :option=this.test
+          :option=this.progress
       ></ProgressBarOne>
 
       <ProgressBarTwo
-          :option=this.test
+          :option=this.progress
       ></ProgressBarTwo>
 
       <button @click="changeData">更新数据</button>
@@ -117,7 +118,6 @@ import {SVGRenderer} from 'echarts/renderers';
 import {BarChart, LineChart, PieChart, ScatterChart} from 'echarts/charts';
 import {DatasetComponent, GridComponent, LegendComponent,} from 'echarts/components';
 import VChart from 'vue-echarts';
-import {jsPDF} from "jspdf";
 import ProgressBarOne from "@/components/common/ProgressBarOne";
 import ProgressBarTwo from "@/components/common/ProgressBarTwo";
 import FunnelChart from "@/components/common/FunnelChart";
@@ -125,6 +125,9 @@ import HeadingOne from "@/components/common/HeadingOne";
 import HeadingTwo from "@/components/common/HeadingTwo";
 import HeadingThree from "@/components/common/HeadingThree";
 import BarChartHorizontal from "@/components/common/BarChartHorizontal";
+import BarChartVertical from "@/components/common/BarChartVertical";
+
+
 
 
 use([
@@ -136,7 +139,6 @@ use([
   DatasetComponent,
   LineChart,
   ScatterChart,
-  jsPDF
 ]);
 
 const pieLargeOneData = [
@@ -239,7 +241,7 @@ function formatData(data) {
 
 const linearBarData = [
   ['category', 'value'],
-  ['20-29岁', 27.64],
+  ['20-29岁', 75.64],
   ['30-39岁', 41.42],
   ['40-49岁', 19.06],
   ['50-59岁', 11.41],
@@ -254,7 +256,7 @@ function commonGrid(top = 35) {
     left: 0,
     right: 1,
     bottom: 5,
-    top: top,
+    // top: top,
     containLabel: true
   }
 }
@@ -690,7 +692,6 @@ const scatterOption = {
 </script>
 <script>
 
-import {jsPDF} from "jspdf";
 import html2canvas from "html2canvas";
 
 export default {
@@ -703,18 +704,36 @@ export default {
         borderColor: '#fff',
         borderWidth: 2
       },
-      test: {
-          value: 0.95,
-          leftCornerText: '左标1',
-          rightCornerText: '右标',
-        },
+      progress: {
+        value: 0.95,
+        leftCornerText: '左标1',
+        rightCornerText: '右标',
+      },
       heading: {text: '测试一下'},
       headingOne: {text: '测试一下', number: "01"},
       barChartHorizontal: {
-        labelFormatter: '%',
-        data: [['总客流人数', 1], ['进店人数', 2.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]],
+        // labelSuffix: '%',
+        data: [['总客流人数', 1], ['进店人数', 2.38], ['流人数', 0.00008], ['流人数1', 0.18], ['流人数2', 0.08]],
       },
-      funnelTest: {data: [['总客流人数', 100], ['进店人数', 60], ['流人数11231231123123', 30], ['流人数1123123', 15], ['流人数2', 7]]}
+      funnelTest: {data: [['总客流人数', 100], ['进店人数', 60], ['流人数1123', 30], ['流人数112', 15]]},
+      barChartVertical: {
+        data: [
+          ['category', 'value'],
+          ['20-29岁', 27.64],
+          ['30-39岁', 50],
+          ['40-49岁', 19.06],
+          ['50-59岁', 11.41],
+          ['60-69岁', 1.33],
+          ['70岁以上', 0.96]
+        ],
+        color: 0,
+        height: '350',
+        yStart: 0,
+        yEnd: null,
+        xRotate: 'ceshi',
+        xInterval: 0,
+        isPercentage: false
+      },
     }
   },
   async mounted() {
@@ -727,7 +746,7 @@ export default {
     this.getGElement('pieSmall2', 218, 0);
     this.getGElement('pieSmall3', 218, 0);
     // this.getGElement('linearBar');
-    // this.getGElement('multipleBar');
+    this.getGElement('multipleBar');
     // this.getGElement('line');
 
   },
@@ -804,14 +823,40 @@ export default {
     },
 
     changeData() {
-      this.barChartHorizontal = {
-        data: [['总客流人数总客流人数总客流人数', 1], ['进店人数', 1.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]],
-        text: '测试一下测试一下测试一下测试一下',
-        heading: '测试一下测试一下',
-        color: 1
+      this.barChartVertical = {
+        data: [
+          ['category', 'value'],
+          ['20-29岁', 79.64],
+          ['30-39岁', 41.42],
+          ['40-49岁', 19.06],
+          ['50-59岁', 11.41],
+          ['60-69岁', 1.33],
+          ['70岁以上', 0.96]
+        ],
+        color: 2,
+        height: 450,
+        yStart: '1ss',
+        yEnd: '',
+        xRotate: 0,
+        xInterval: 0,
+        isPercentage: true
       }
-    }
 
+      this.barChartHorizontal = {
+        labelSuffix: '%',
+        data: [['总客流人数', 1], ['进店人数', 2.38], ['流人数2', 0.28], ['流人数12121212', 0.18], ['流人数22', 2.08]],
+        color: 2
+      }
+
+      this.funnelTest = {data: [['总客流人数', 100], ['进店人数', 60], ['流人数112', 30], ['流人数1123123', 15], ['流人数223123123123', 7]]}
+      this.progress = {
+          value: 0.55,
+          leftCornerText: '测试一下',
+          rightCornerText: '测试',
+        }
+      this.heading = {text: '测试一下测试一下测试一下'}
+      this.headingOne = {text: '测试一下测试一下测试一下', number: "02"}
+    }
   },
   computed: {},
   watch: {},
