@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import {handleOption} from "./HandleEChartStyle.js";
+
 export default {
   name: "BarChartHorizontal",
   data() {
@@ -69,24 +71,7 @@ export default {
         isPercentage: false, // csv数值是否为百分数
       };
 
-      // option类型判断，如果不符合要求切换回默认值；
-      const handleOption = (value, defaultValue) => {
-        if (value === '' || value === null || value === 'null' || value === undefined) {
-          return defaultValue;
-        }
-        return value;
-      };
-
-      return Object.entries(defaultOptions).reduce(
-        (options, [key, defaultValue]) => {
-          options[key] = handleOption(this.option[key], defaultValue);
-          return options;
-        },
-        {
-          ...defaultOptions,
-          ...this.option,
-          data: this.option.data || defaultOptions.data,
-        });
+      return handleOption(defaultOptions, this.option)
     },
     updateStyle() {
       const categoryMaxWidth = this.getMaxWidth('category');

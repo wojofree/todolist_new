@@ -4,6 +4,8 @@
       <HeadingTwo :option="this.heading"></HeadingTwo>
       <HeadingThree :option="this.heading"></HeadingThree>
       <HeadingOne :option="this.headingOne"></HeadingOne>
+      <button @click="changeData">更新数据</button>
+      <BarChartMultiple :option="barChartVertical"></BarChartMultiple>
       <BarChartVertical :option="barChartVertical"></BarChartVertical>
       <BarChartHorizontal :option="barChartHorizontal"></BarChartHorizontal>
 
@@ -15,8 +17,6 @@
       <ProgressBarTwo
           :option=this.progress
       ></ProgressBarTwo>
-
-      <button @click="changeData">更新数据</button>
       <FunnelChart :option=this.funnelTest></FunnelChart>
     </div>
   </div>
@@ -126,6 +126,7 @@ import HeadingTwo from "@/components/common/HeadingTwo";
 import HeadingThree from "@/components/common/HeadingThree";
 import BarChartHorizontal from "@/components/common/BarChartHorizontal";
 import BarChartVertical from "@/components/common/BarChartVertical";
+import BarChartMultiple from "@/components/common/BarChartMultiple";
 
 
 
@@ -256,7 +257,7 @@ function commonGrid(top = 35) {
     left: 0,
     right: 1,
     bottom: 5,
-    // top: top,
+    top: top,
     containLabel: true
   }
 }
@@ -718,13 +719,13 @@ export default {
       funnelTest: {data: [['总客流人数', 100], ['进店人数', 60], ['流人数1123', 30], ['流人数112', 15]]},
       barChartVertical: {
         data: [
-          ['category', 'value'],
-          ['20-29岁', 27.64],
-          ['30-39岁', 50],
-          ['40-49岁', 19.06],
-          ['50-59岁', 11.41],
-          ['60-69岁', 1.33],
-          ['70岁以上', 0.96]
+          ['category', '7月', '8月'],
+          ['20-29岁', 27.64, 37.64],
+          ['30-39岁', 52, 47.64],
+          ['40-49岁', 19.06, 27.64],
+          ['50-59岁', 11.41, 17.64],
+          ['60-69岁', 1.33, 22.64],
+          ['70岁以上', 0.96, 9.64]
         ],
         color: 0,
         height: '350',
@@ -732,7 +733,9 @@ export default {
         yEnd: null,
         xRotate: 'ceshi',
         xInterval: 0,
-        isPercentage: false
+        isPercentage: true,
+        isShowLabel: true,
+        heading: '123123aaaaaa'
       },
     }
   },
@@ -825,7 +828,7 @@ export default {
     changeData() {
       this.barChartVertical = {
         data: [
-          ['category', 'value'],
+          ['category', 'value123'],
           ['20-29岁', 79.64],
           ['30-39岁', 41.42],
           ['40-49岁', 19.06],
@@ -834,18 +837,24 @@ export default {
           ['70岁以上', 0.96]
         ],
         color: 2,
-        height: 450,
-        yStart: '1ss',
+        height: 750,
+        yStart: 0,
         yEnd: '',
         xRotate: 0,
         xInterval: 0,
-        isPercentage: true
+        isPercentage: true,
+        heading: 'asdfasdfasdfasfd',
+        isShowLabel: true,
       }
 
       this.barChartHorizontal = {
         labelSuffix: '%',
         data: [['总客流人数', 1], ['进店人数', 2.38], ['流人数2', 0.28], ['流人数12121212', 0.18], ['流人数22', 2.08]],
-        color: 2
+        color: 2,
+        text: 'testsetsetest',
+        heading: 'asdfasdfasdfasfd',
+        isPercentage: true,
+        isShowLabel: true
       }
 
       this.funnelTest = {data: [['总客流人数', 100], ['进店人数', 60], ['流人数112', 30], ['流人数1123123', 15], ['流人数223123123123', 7]]}

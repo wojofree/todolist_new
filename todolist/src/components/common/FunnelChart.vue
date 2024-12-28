@@ -18,7 +18,6 @@ export default {
   name: "FunnelChart",
   data() {
     return {
-      newData: [{}],
     }
   },
   props: {
@@ -37,30 +36,29 @@ export default {
       });
     },
   },
-  created() {
-  },
   mounted() {
     this.updateStyle();
   },
   methods: {
     updateStyle() {
       const {firstBarElementWidth, maxBarWidth} = this.getBarWith();
-      this.newData = this.transformData(this.option.data, firstBarElementWidth, maxBarWidth);
+      const styleData = this.getStyleData(this.option.data, firstBarElementWidth, maxBarWidth);
       this.option.data.forEach((_, index) => {
         const barElement = this.$refs[`bar${index}`][0];
-        this.setBarStyle(barElement, index);
+        this.setBarStyle(barElement, index, styleData[index]);
       });
     },
-    setBarStyle(barElement, index) {
+    setBarStyle(barElement, index, style) {
       const dataLength = this.option.data.length;
 
-      barElement.style.width = this.newData[index].width;
+      barElement.style.width = style.width;
       barElement.style.backgroundColor =
           index === dataLength - 1
               ? "rgba(59, 124, 255, 100%)"
-              : `rgba(59, 124, 255, ${this.newData[index].color})`;
-      barElement.style.color = this.newData[index].color <= 0.35 ? "#5B5B5B" : "white";
+              : `rgba(59, 124, 255, ${style.color})`;
+      barElement.style.color = style.color <= 0.35 ? "#5B5B5B" : "white";
     },
+    // 百分数, 小数点处理
     formatText(index) {
       const previousValue = index === 0 ? '1' : this.option.data[index - 1][1];
       const currentValue = this.option.data[index][1];
@@ -68,7 +66,8 @@ export default {
       return Number(value.toFixed(1)) + '%';
 
     },
-    transformData(data, firstBarWidth, maxBarWidth) {
+    // 增加样式数据
+    getStyleData(data, firstBarWidth, maxBarWidth) {
       const dataLength = data.length;
       const widthRatio = Math.pow(maxBarWidth / firstBarWidth, 1 / (dataLength - 1));
       const gradientRatio = Math.pow(0.1, 1 / (dataLength - 1));
@@ -84,8 +83,6 @@ export default {
           color: index === dataLength - 1 ? '1' : colorList[index],
         }));
       }
-
-
 
       return data.map((row, index) => {
         const widthPercentage = `${Math.pow(widthRatio, index) * 100}%`;

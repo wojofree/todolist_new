@@ -23,7 +23,7 @@ use([
 </script>
 <script>
 import {reactive} from "vue";
-import {getGElement} from "./HandleEChartStyle.js";
+import {getGElement, handleOption} from "./HandleEChartStyle.js";
 
 export default {
   name: "BarChartVertical",
@@ -32,7 +32,7 @@ export default {
       formattedData: this.formatData(),
       propsOption: this.getPropsOptions(),
       chartOption: {},
-      chartKey: 0
+      chartKey: 0,
     }
   },
   props: {
@@ -41,8 +41,8 @@ export default {
       required: false,
       default: () => ({
         data: [
-          ['category', 'value'],
-          ['20-29岁', 27.64],
+          ['category', 'value1'],
+          ['20-29岁', 37.64],
           ['30-39岁', 41.42],
           ['40-49岁', 19.06],
           ['50-59岁', 11.41],
@@ -54,24 +54,26 @@ export default {
   },
   watch: {
     option: function () {
-      this.formattedData = this.formatData()
-      this.propsOption = this.getPropsOptions()
-      this.chartOption = this.getChartOption()
-      this.chartKey += 1
-      this.updateSvgStyle()
+      this.formattedData = this.formatData();
+      this.propsOption = this.getPropsOptions();
+      this.updateChart();
     }
   },
   mounted() {
-    this.chartOption = this.getChartOption()
-    this.updateSvgStyle()
+    this.updateChart();
   },
   methods: {
+    updateChart() {
+      this.chartOption = this.getChartOption();
+      this.chartKey += 1;
+      this.updateSvgStyle();
+    },
     // 组件参数
     getPropsOptions() {
       const defaultOptions = {
         data: [
           ['category', 'value'],
-          ['20-29岁', 27.64],
+          ['20-29岁', 127.64],
           ['30-39岁', 41.42],
           ['40-49岁', 19.06],
           ['50-59岁', 11.41],
@@ -87,48 +89,13 @@ export default {
         isPercentage: false, // csv数据是否为百分数
       };
 
-      // option类型判断，如果不符合要求切换回默认值；
-      const handleOption = (value, defaultValue, checkBoolean = false) => {
-        if (checkBoolean) {
-          if (typeof value !== 'boolean') {
-            return defaultValue;
-          }
-        } else {
-          if (
-              value === '' ||
-              value === null ||
-              value === 'null' ||
-              value === undefined ||
-              isNaN(parseFloat(value)) ||
-              !isFinite(value)
-          ) {
-            return defaultValue;
-          }
-        }
-        return value;
-      };
+      // 参数类型及缺失项目
+      let finalOptions = handleOption(defaultOptions, this.option)
 
-      let finalOptions = Object.entries(defaultOptions).reduce(
-          (options, [key, defaultValue]) => {
-            options[key] = handleOption(this.option[key], defaultValue, key === 'isPercentage');
-            return options;
-          },
-          {
-            ...defaultOptions,
-            ...this.option,
-            data: this.option.data || defaultOptions.data,
-          });
+      finalOptions.height = parseInt(finalOptions.height, 10) + 100;
+      finalOptions.seriesLable = finalOptions.isPercentage ? `{@${this.option.data[0][1]}}%` : `{@${this.option.data[0][1]}}`;
 
-      finalOptions.height = parseInt(finalOptions.height, 10) + 100
-
-      return finalOptions
-    },
-    formatData() {
-      const data = this.option.data
-      return data.map((item, index) => {
-        const prefix = index === 0 ? 'index' : index;
-        return [prefix, ...item];
-      });
+      return finalOptions;
     },
     getColorList() {
       const originalColors = {
@@ -258,6 +225,13 @@ export default {
 
       return newColors;
     },
+    formatData() {
+      const data = this.option.data;
+      return data.map((item, index) => {
+        const prefix = index === 0 ? 'index' : index;
+        return [prefix, ...item];
+      });
+    },
     getChartOption() {
       return reactive({
         dataset: {source: this.formattedData},
@@ -305,10 +279,8 @@ export default {
               }
             }
           }],
-        series: this.formattedData[0]
-            .slice(2)
-            .map((item) => ({
-              name: item,
+        series: {
+              name: this.formattedData[0][2],
               colorBy: 'data',
               type: 'bar',
               yAxisIndex: 0,
@@ -316,23 +288,23 @@ export default {
                 show: true,
                 position: 'top',
                 valueAnimation: true,
-                formatter: this.propsOption.isPercentage ? '{@value}%' : '{@value}', // 符号自定义
+                formatter: this.propsOption.seriesLable,
                 offset: [0, -5],
                 fontSize: 18,
                 fontFamily: 'Source Han Sans CN',
               },
               barMaxWidth: 36,
-              encode: {x: 'index', y: item},
-            }))
+              encode: {x: 'index', y: this.formattedData[0][2]},
+            }
       });
     },
     updateSvgStyle() {
-      const chartElement = this.$refs["bar-main"]
+      // label超出坐标系顶部异常处理
+      const chartElement = this.$refs["bar-main"];
       this.$nextTick(() => {
-        this.getGElement(chartElement)
+        getGElement(chartElement);
       });
     },
-    getGElement,
   }
 }
 </script>
