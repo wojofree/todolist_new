@@ -25,13 +25,12 @@ use([
 </script>
 <script>
 import {reactive} from "vue";
-import {handleOption} from "./HandleEChartStyle.js";
+import {formatData, handleOption} from "./HandleEChartStyle.js";
 
 export default {
   name: "LineChartMultiple",
   data() {
     return {
-      formattedData: this.formatData(),
       propsOption: this.getPropsOptions(),
       chartOption: {},
       chartKey: 0
@@ -41,25 +40,17 @@ export default {
     option: {
       type: Object,
       required: false,
-      default: () => ({
-        data: [
-          ['category', '7月'],
-          ['20-29岁', 27.64],
-          ['30-39岁', 41.42],
-          ['40-49岁', 19.06],
-          ['50-59岁', 11.41],
-          ['60-69岁', 1.33],
-          ['70岁以上', 0.96]
-        ]
-      }),
+      default: () => ({ }),
     }
   },
   watch: {
-    option: function () {
-      this.formattedData = this.formatData();
-      this.propsOption = this.getPropsOptions();
-      this.chartOption = this.getChartOption();
-      this.chartKey += 1;
+    option: {
+      deep: true,
+      handler: function () {
+        this.propsOption = this.getPropsOptions();
+        this.chartOption = this.getChartOption();
+        this.chartKey += 1;
+      }
     }
   },
   mounted() {
@@ -71,12 +62,12 @@ export default {
       const defaultOptions = {
         data: [
           ['category', 'value'],
-          ['20-29岁', 27.64],
-          ['30-39岁', 41.42],
-          ['40-49岁', 19.06],
-          ['50-59岁', 11.41],
-          ['60-69岁', 1.33],
-          ['70岁以上', 0.96]
+          ['示例数据1', 27.64],
+          ['示例数据2', 41.42],
+          ['示例数据3', 19.06],
+          ['示例数据4', 11.41],
+          ['示例数据5', 1.33],
+          ['示例数据6', 0.96]
         ],
         heading: null, // 标题
         color: 0,  // 颜色，设计稿从左到右从上倒下顺序，0开始
@@ -90,8 +81,9 @@ export default {
       };
 
       // 参数类型及缺失项目
-      let finalOptions = handleOption(defaultOptions, this.option)
+      let finalOptions = handleOption(defaultOptions, this.option);
 
+      finalOptions.data = formatData(finalOptions.data)
       finalOptions.yLabel = finalOptions.isPercentage ? '{value}%' : '{value}';
 
       return finalOptions;
@@ -224,16 +216,9 @@ export default {
 
       return newColors;
     },
-    formatData() {
-      const data = this.option.data;
-      return data.map((item, index) => {
-        const prefix = index === 0 ? 'index' : index;
-        return [prefix, ...item];
-      });
-    },
     getChartOption() {
       return reactive({
-        dataset: {source: this.formattedData},
+        dataset: {source: this.propsOption.data},
         animation: false,
         color: this.getColorList(),
         grid: {
@@ -262,7 +247,7 @@ export default {
           axisLabel: {
             fontSize: 12,
             fontFamily: 'Source Han Sans CN',
-            formatter: (value) => this.formattedData[value][1] || '',
+            formatter: (value) => this.propsOption.data[value][1] || '',
             interval: this.propsOption.xInterval, //自定义 默认0，空为null
             rotate: this.propsOption.xRotate, //自定义 默认0
           }
@@ -278,17 +263,17 @@ export default {
             formatter: this.propsOption.yLabel, // %
           },
         },
-        series: this.formattedData[0]
+        series: this.propsOption.data[0]
             .slice(2)
-            .map((name) => ({
-              name: name,
+            .map((item) => ({
+              name: item,
               type: 'line',
               smooth: true,
               showSymbol: false,
               lineStyle: {
                 width: 3
               },
-              encode: {x: 'index', y: name},
+              encode: {x: 'index', y: item},
             }))
       });
     },
@@ -312,6 +297,7 @@ export default {
     font-size: 16px;
     color: #7C7C7C;
     margin-top: 12px;
+    text-align: center;
   }
 }
 </style>

@@ -23,13 +23,12 @@ use([
 </script>
 <script>
 import {reactive} from "vue";
-import {getGElement, handleOption} from "./HandleEChartStyle.js";
+import {updateSVG, handleOption, formatData} from "./HandleEChartStyle.js";
 
 export default {
   name: "BarChartVertical",
   data() {
     return {
-      formattedData: this.formatData(),
       propsOption: this.getPropsOptions(),
       chartOption: {},
       chartKey: 0,
@@ -39,24 +38,16 @@ export default {
     option: {
       type: Object,
       required: false,
-      default: () => ({
-        data: [
-          ['category', 'value1'],
-          ['20-29岁', 37.64],
-          ['30-39岁', 41.42],
-          ['40-49岁', 19.06],
-          ['50-59岁', 11.41],
-          ['60-69岁', 1.33],
-          ['70岁以上', 0.96]
-        ]
-      }),
+      default: () => ({ }),
     }
   },
   watch: {
-    option: function () {
-      this.formattedData = this.formatData();
-      this.propsOption = this.getPropsOptions();
-      this.updateChart();
+    option: {
+      deep: true,
+      handler: function () {
+        this.propsOption = this.getPropsOptions();
+        this.updateChart();
+      }
     }
   },
   mounted() {
@@ -73,12 +64,12 @@ export default {
       const defaultOptions = {
         data: [
           ['category', 'value'],
-          ['20-29岁', 127.64],
-          ['30-39岁', 41.42],
-          ['40-49岁', 19.06],
-          ['50-59岁', 11.41],
-          ['60-69岁', 1.33],
-          ['70岁以上', 0.96]
+          ['示例1', 127.64],
+          ['示例2', 41.42],
+          ['示例3', 19.06],
+          ['示例4', 11.41],
+          ['示例5', 1.33],
+          ['示例6', 0.96]
         ],
         color: 0,  // 颜色，设计稿从左到右从上倒下顺序，0开始
         height: 350, // 图表高度
@@ -89,11 +80,12 @@ export default {
         isPercentage: false, // csv数据是否为百分数
       };
 
-      // 参数类型及缺失项目
-      let finalOptions = handleOption(defaultOptions, this.option)
+      // 参数类型及缺失参数补全
+      let finalOptions = handleOption(defaultOptions, this.option);
 
+      finalOptions.data = formatData(finalOptions.data);
       finalOptions.height = parseInt(finalOptions.height, 10) + 100;
-      finalOptions.seriesLable = finalOptions.isPercentage ? `{@${this.option.data[0][1]}}%` : `{@${this.option.data[0][1]}}`;
+      finalOptions.seriesLable = finalOptions.isPercentage ? `{@${finalOptions.data[0][2]}}%` : `{@${finalOptions.data[0][2]}}`;
 
       return finalOptions;
     },
@@ -225,16 +217,9 @@ export default {
 
       return newColors;
     },
-    formatData() {
-      const data = this.option.data;
-      return data.map((item, index) => {
-        const prefix = index === 0 ? 'index' : index;
-        return [prefix, ...item];
-      });
-    },
     getChartOption() {
       return reactive({
-        dataset: {source: this.formattedData},
+        dataset: { source: this.propsOption.data },
         animation: false,
         color: this.getColorList(),
         grid: {
@@ -255,7 +240,7 @@ export default {
               fontSize: 18,
               fontFamily: 'Source Han Sans CN',
               interval: this.propsOption.xInterval, // 自定义
-              formatter: (value) => this.formattedData[value][1] || '',
+              formatter: (value) => this.propsOption.data[value][1] || '',
               rotate: this.propsOption.xRotate, //自定义 默认0
             },
           }
@@ -280,7 +265,7 @@ export default {
             }
           }],
         series: {
-              name: this.formattedData[0][2],
+              name: this.propsOption.data[0][2],
               colorBy: 'data',
               type: 'bar',
               yAxisIndex: 0,
@@ -294,7 +279,7 @@ export default {
                 fontFamily: 'Source Han Sans CN',
               },
               barMaxWidth: 36,
-              encode: {x: 'index', y: this.formattedData[0][2]},
+              encode: {x: 'index', y: this.propsOption.data[0][2]},
             }
       });
     },
@@ -302,7 +287,7 @@ export default {
       // label超出坐标系顶部异常处理
       const chartElement = this.$refs["bar-main"];
       this.$nextTick(() => {
-        getGElement(chartElement);
+        updateSVG(chartElement);
       });
     },
   }
@@ -317,7 +302,7 @@ export default {
 
   &-main {
     width: 100%;
-    overflow: hidden;
+    overflow-y: hidden;
   }
 }
 </style>

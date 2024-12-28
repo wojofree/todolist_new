@@ -25,15 +25,24 @@ export default {
       type: Object,
       required: false,
       default: () => ({
-        data: [['总客流人数', 1], ['进店人数', 0.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]]
+        data: [
+          ['总客流人数', 1],
+          ['进店人数', 0.38],
+          ['流人数', 0.28],
+          ['流人数1', 0.18],
+          ['流人数2', 0.08]
+        ]
       }),
     }
   },
   watch: {
-    option: function () {
-      this.$nextTick(() => {
-        this.updateStyle();
-      });
+    option: {
+      deep: true,
+      handler: function () {
+        this.$nextTick(() => {
+          this.updateStyle();
+        });
+      }
     },
   },
   mounted() {

@@ -48,11 +48,14 @@ export default {
     }
   },
   watch: {
-    option: function () {
-      this.chartOption = this.getChartOptions();
-      this.$nextTick(() => {
-        this.updateStyle();
-      });
+    option: {
+      deep: true,
+      handler: function () {
+        this.chartOption = this.getChartOptions();
+        this.$nextTick(() => {
+          this.updateStyle();
+        });
+      }
     },
   },
   mounted() {
@@ -64,7 +67,13 @@ export default {
     // 组件参数
     getChartOptions() {
       const defaultOptions = {
-        data: [['总客流人数', 1], ['进店人数', 1.38], ['流人数', 0.28], ['流人数1', 0.18], ['流人数2', 0.08]],
+        data: [
+          ['示例数据1', 1],
+          ['示例数据2', 1.38],
+          ['示例数据3', 0.28],
+          ['示例数据4', 0.18],
+          ['示例数据5', 0.08]
+        ], // 没有表头
         color: 0,   // 颜色，设计稿从左到右从上倒下顺序，0开始
         text: null,   // 说明文本
         heading: null,   // 下标题
@@ -173,11 +182,13 @@ export default {
   .bar-text {
     color: #0C69FF;
     font-size: 14px;
+    text-align: center;
   }
 
   .bar-heading {
     color: #7C7C7C;
     font-size: 16px;
+    text-align: center;
   }
 }
 </style>

@@ -1,4 +1,4 @@
-const updateSVG = (chartElement, gElement, width, padding) => {
+const updateStyle = (chartElement, gElement, width, padding) => {
     const gInfo = gElement.getBoundingClientRect();
     const pieInfo = chartElement.getBoundingClientRect();
     const svgElement = chartElement.querySelector("svg");
@@ -38,16 +38,16 @@ const updateSVG = (chartElement, gElement, width, padding) => {
     divElement.style.marginTop = (pieInfo.y - gInfoNew.y) + 'px';
 };
 
-export const getGElement = (chartElement, padding = 0) => {
+export const updateSVG = (chartElement, padding = 0) => {
     const gElement = chartElement.querySelector("svg g");
     const width = chartElement.getBoundingClientRect().width
 
     if (!gElement) {
         setTimeout(() => {
-            getGElement();
+            updateSVG();
         }, 500);
     } else {
-        updateSVG(chartElement, gElement, width, padding);
+        updateStyle(chartElement, gElement, width, padding);
     }
 };
 
@@ -57,6 +57,11 @@ const optionsCheck = (
     checkKey = "heading"
 ) => {
     switch (checkKey) {
+        case "data":
+            if (value === "null" || value === null || value === undefined || value.length === 0) {
+                return defaultValue;
+            }
+            break;
         case "heading":
         case "text":
             if (value === "" || value === "null" || value === null || value === undefined) {
@@ -65,6 +70,7 @@ const optionsCheck = (
             break;
         case "isPercentage":
         case "isShowLegend":
+        case "isHalf":
             if (typeof value !== "boolean") {
                 return defaultValue;
             }
@@ -95,10 +101,17 @@ export const handleOption = (defaultOptions, newOptions) => {
         {
             ...defaultOptions,
             ...newOptions,
-            data: newOptions.data || defaultOptions.data,
-        });
+            data: newOptions.data !== null ? newOptions.data : defaultOptions.data,
+        })
 }
 
+
+export const formatData = (data) => {
+      return data.map((item, index) => {
+        const prefix = index === 0 ? 'index' : index;
+        return [prefix, ...item];
+      });
+    }
 
 
 

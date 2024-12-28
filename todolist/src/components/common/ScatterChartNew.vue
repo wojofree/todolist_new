@@ -3,23 +3,21 @@
     <div ref="bar-main" :style="{ height: propsOption.height + 'px' }" class="bar-chart-main">
       <v-chart :key="chartKey" :option="chartOption" className="chart"/>
     </div>
-    <div v-if="propsOption.heading !== null" class="bar-chart-heading">{{ propsOption.heading }}</div>
   </div>
 </template>
 <script setup>
 import {reactive} from 'vue';
 import {use} from 'echarts/core';
 import {SVGRenderer} from 'echarts/renderers';
-import {LineChart} from 'echarts/charts';
-import {DatasetComponent, GridComponent, LegendComponent} from 'echarts/components';
+import {ScatterChart} from 'echarts/charts';
+import {DatasetComponent, GridComponent} from 'echarts/components';
 import VChart from 'vue-echarts';
 
 use([
   SVGRenderer,
-  LineChart,
+  ScatterChart,
   GridComponent,
   DatasetComponent,
-  LegendComponent
 ]);
 
 </script>
@@ -31,10 +29,9 @@ export default {
   name: "ScatterChartNew",
   data() {
     return {
-      formattedData: this.formatData(),
       propsOption: this.getPropsOptions(),
       chartOption: {},
-      chartKey: 0
+      chartKey: 0,
     }
   },
   props: {
@@ -43,23 +40,24 @@ export default {
       required: false,
       default: () => ({
         data: [
-          ['category', '7月'],
-          ['20-29岁', 27.64],
-          ['30-39岁', 41.42],
-          ['40-49岁', 19.06],
-          ['50-59岁', 11.41],
-          ['60-69岁', 1.33],
-          ['70岁以上', 0.96]
+          ['date', '0', '1a', '1a', '1a', '4a', '5a'],
+          ['2024/8/1', '22', '2', '1', '1', '1', '1'],
+          ['2024/8/2', '1', '2', '1', '1', '1', '1'],
+          ['2024/8/4', '1', '3', '1', '1', '1', '1'],
+          ['2024/8/5', '1', '3', '1', '1', '1', '1'],
+          ['2024/8/6', '1', '4', '1', '1', '1', '1'],
         ]
       }),
     }
   },
   watch: {
-    option: function () {
-      this.formattedData = this.formatData();
-      this.propsOption = this.getPropsOptions();
-      this.chartOption = this.getChartOption();
-      this.chartKey += 1;
+    option: {
+      deep: true,
+      handler: function () {
+        this.propsOption = this.getPropsOptions();
+        this.chartOption = this.getChartOption();
+        this.chartKey += 1;
+      }
     }
   },
   mounted() {
@@ -70,226 +68,115 @@ export default {
     getPropsOptions() {
       const defaultOptions = {
         data: [
-          ['category', 'value'],
-          ['20-29岁', 27.64],
-          ['30-39岁', 41.42],
-          ['40-49岁', 19.06],
-          ['50-59岁', 11.41],
-          ['60-69岁', 1.33],
-          ['70岁以上', 0.96]
+          ['date', '12a', '1a', '1a', '1a', '4a', '5a'],
+          ['2024/8/1', '22', '2', '1', '1', '1', '1'],
+          ['2024/8/2', '1', '2', '1', '1', '1', '1'],
+          ['2024/8/4', '1', '3', '1', '1', '1', '1'],
+          ['2024/8/5', '1', '3', '1', '1', '1', '1'],
+          ['2024/8/6', '1', '4', '1', '1', '1', '1'],
         ],
-        heading: null, // 标题
         color: 0,  // 颜色，设计稿从左到右从上倒下顺序，0开始
-        height: 350, // 图表高度
-        yStart: 0, // y轴起点
-        yEnd: undefined, // y轴终点
-        xRotate: 0, // x轴label角度
-        xInterval: 0, // x轴label间隔
-        isPercentage: false, // csv数据是否为百分数
-        isShowLegend: true, // 是否显示图例
+        height: 800, // 图表高度
       };
 
+      let finalOptions = handleOption(defaultOptions, this.option);
+
+      finalOptions.data = this.formatData(finalOptions.data);
+
+      const chartHeight = finalOptions.height;
+      const yCount = this.option.data.length - 1;
+      const maxSymbolHeight = (chartHeight - (yCount * 2)) / yCount;  // 上下留一像素间距
+
+      const maxValue = (() => {
+        return this.option.data.slice(1).reduce((maxVal, row) => {
+          return Math.max(maxVal, Math.max(...row.slice(1).map(Number)));
+        }, -Infinity);
+      })();
+
+      finalOptions.unitSize = maxSymbolHeight / maxValue;
+
       // 参数类型及缺失项目
-      let finalOptions = handleOption(defaultOptions, this.option)
-
-      finalOptions.yLabel = finalOptions.isPercentage ? '{value}%' : '{value}';
-
       return finalOptions;
     },
     getColorList() {
-      const transparency = this.propsOption.color < 4 ? 0.1 : 1;
-
-      const originalColors = {
-        color1: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0, color: '#0C69FF'
-          }, {
-            offset: 1, color: `rgba(12, 105, 255, ${transparency})`
-          }],
-          global: false
-        },
-        color2: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0, color: '#FF8538'
-          }, {
-            offset: 1, color: `rgba(255, 133, 56, ${transparency})`
-          }],
-          global: false
-        },
-        color3: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0, color: '#13CA96'
-          }, {
-            offset: 1, color: `rgba(19, 202, 150, ${transparency})`
-          }],
-          global: false
-        },
-        color4: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0, color: '#305AFF'
-          }, {
-            offset: 1, color: `rgba(48, 90, 255, ${transparency})`
-          }],
-          global: false
-        },
-        color5: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0, color: '#8830FF'
-          }, {
-            offset: 1, color: `rgba(136, 48, 255, ${transparency})`
-          }],
-          global: false
-        },
-        color6: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0, color: '#5FC8FF'
-          }, {
-            offset: 1, color: `rgba(95, 200, 255, ${transparency})`
-          }],
-          global: false
-        },
-        color7: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0, color: '#C73FFF'
-          }, {
-            offset: 1, color: `rgba(199, 63, 255, ${transparency})`
-          }],
-          global: false
-        },
-        color8: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0, color: '#FFB6C1'
-          }, {
-            offset: 1, color: `rgba(255, 182, 193, ${transparency})`
-          }],
-          global: false
-        }
-      };
-      const colorSortLists = [
-        [1, 2, 3, 4, 5, 6, 7, 8],
-        [2, 3, 4, 5, 6, 7, 8, 1],
-        [3, 4, 5, 6, 7, 8, 1, 2],
-        [3, 4, 6, 7, 8, 5, 1, 2],
-        [1, 2, 3, 4, 5, 6, 7, 8],
-        [2, 3, 4, 5, 6, 7, 8, 1],
-        [3, 4, 5, 6, 7, 8, 1, 2],
-        [3, 4, 6, 7, 8, 5, 1, 2],
+      const originalColors = [
+        '#BDE0EA',
+        '#305AFF',
+        '#E74C3C',
+        '#13CA96',
+        '#FFB6C1',
+        '#AE7ED4',
+        '#FAC858',
+        '#FAC858',
       ];
-      const colorList = colorSortLists[this.propsOption.color];
-      const keys = colorList.map((item) => 'color' + (item));
-      const newColors = [];
-      keys.forEach((key) => {
-        newColors.push(originalColors[key]);
+
+      return originalColors[this.propsOption.color];
+    },
+    formatData(data) {
+      const output = [];
+      data.slice(1).forEach((row, yIndex) => {
+        row.forEach((value, xIndex) => {
+          output.push({
+            x: xIndex,
+            y: yIndex + 1,
+            value: xIndex === 0 ? 0 : value,
+          });
+        });
       });
 
-      return newColors;
-    },
-    formatData() {
-      const data = this.option.data;
-      return data.map((item, index) => {
-        const prefix = index === 0 ? 'index' : index;
-        return [prefix, ...item];
-      });
+      return output;
     },
     getChartOption() {
       return reactive({
-        dataset: {source: this.formattedData},
-        animation: false,
+        dataset: {
+          source: this.propsOption.data,
+        },
         color: this.getColorList(),
+        animation: false,
         grid: {
           left: 0,
-          right: 1,
+          right: 7,
           bottom: 5,
-          top: 35,
+          top: 5,
           containLabel: true
-        },
-        legend: {
-          show: this.propsOption.isShowLegend,
-          right: '0',
-          top: '0',
-          itemWidth: 18,
-          itemHeight: 3,
-          orient: 'horizontal',
-          icon: 'roundRect',
-          textStyle: {
-            fontSize: 12,
-            fontFamily: 'Source Han Sans CN',
-          }
         },
         xAxis: {
           type: 'category',
-          deduplication: false,
           axisLabel: {
-            fontSize: 12,
+            fontSize: 8,
             fontFamily: 'Source Han Sans CN',
-            formatter: (value) => this.formattedData[value][1] || '',
-            interval: this.propsOption.xInterval, //自定义 默认0，空为null
-            rotate: this.propsOption.xRotate, //自定义 默认0
-          }
-        },
-        yAxis: {
-          type: 'value',
-          min: this.propsOption.yStart, // 自定义
-          max: this.propsOption.yEnd, // 自定义
-          axisLabel: {
-            fontSize: 12,
-            fontFamily: 'Source Han Sans CN',
-            interval: 0,
-            formatter: this.propsOption.yLabel, // %
+            formatter: (value) => value === '0' ? '' : this.option.data[0][value] || '',
+          },
+          axisTick: {
+            lineStyle: {
+              color: '#E0E6F1',
+            }
+          },
+          axisLine: {
+            show: false
+          },
+          boundaryGap: false,
+          splitLine: {
+            show: true
           },
         },
-        series: this.formattedData[0]
-            .slice(2)
-            .map((name) => ({
-              name: name,
-              type: 'line',
-              smooth: true,
-              showSymbol: false,
-              lineStyle: {
-                width: 3
-              },
-              encode: {x: 'index', y: name},
-            }))
+        yAxis: {
+          type: 'category',
+          axisLabel: {
+            fontSize: 8,
+            fontFamily: 'Source Han Sans CN',
+            formatter: (value) => this.option.data[value][0] || '',
+          },
+        },
+        series: [
+          {
+            type: 'scatter',
+            datasetIndex: 0,
+            symbol: 'rect',
+            symbolSize: (item) => item.value * this.propsOption.unitSize || '',
+            encode: {x: 'x', y: 'y'},
+          },
+        ],
       });
     },
   }
@@ -306,12 +193,6 @@ export default {
   &-main {
     width: 100%;
     overflow: hidden;
-  }
-
-  &-heading {
-    font-size: 16px;
-    color: #7C7C7C;
-    margin-top: 12px;
   }
 }
 </style>
