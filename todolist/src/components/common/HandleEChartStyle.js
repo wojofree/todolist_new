@@ -59,12 +59,12 @@ const optionsCheck = (
     switch (checkKey) {
         case "heading":
         case "text":
-            if (value === "" || value === "null") {
+            if (value === "" || value === "null" || value === null || value === undefined) {
                 return defaultValue;
             }
             break;
         case "isPercentage":
-        case "isShowLabel":
+        case "isShowLegend":
             if (typeof value !== "boolean") {
                 return defaultValue;
             }

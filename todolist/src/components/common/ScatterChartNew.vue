@@ -10,13 +10,13 @@
 import {reactive} from 'vue';
 import {use} from 'echarts/core';
 import {SVGRenderer} from 'echarts/renderers';
-import {BarChart} from 'echarts/charts';
+import {LineChart} from 'echarts/charts';
 import {DatasetComponent, GridComponent, LegendComponent} from 'echarts/components';
 import VChart from 'vue-echarts';
 
 use([
   SVGRenderer,
-  BarChart,
+  LineChart,
   GridComponent,
   DatasetComponent,
   LegendComponent
@@ -28,7 +28,7 @@ import {reactive} from "vue";
 import {handleOption} from "./HandleEChartStyle.js";
 
 export default {
-  name: "BarChartMultiple",
+  name: "ScatterChartNew",
   data() {
     return {
       formattedData: this.formatData(),
@@ -97,19 +97,123 @@ export default {
       return finalOptions;
     },
     getColorList() {
+      const transparency = this.propsOption.color < 4 ? 0.1 : 1;
+
       const originalColors = {
-        color1: '#87CEFA',
-        color2: '#FAC858',
-        color3: '#13CA96',
-        color4: '#AE7ED4',
-        color5: '#E74C3C',
-        color6: '#FFB6C1',
+        color1: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0, color: '#0C69FF'
+          }, {
+            offset: 1, color: `rgba(12, 105, 255, ${transparency})`
+          }],
+          global: false
+        },
+        color2: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0, color: '#FF8538'
+          }, {
+            offset: 1, color: `rgba(255, 133, 56, ${transparency})`
+          }],
+          global: false
+        },
+        color3: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0, color: '#13CA96'
+          }, {
+            offset: 1, color: `rgba(19, 202, 150, ${transparency})`
+          }],
+          global: false
+        },
+        color4: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0, color: '#305AFF'
+          }, {
+            offset: 1, color: `rgba(48, 90, 255, ${transparency})`
+          }],
+          global: false
+        },
+        color5: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0, color: '#8830FF'
+          }, {
+            offset: 1, color: `rgba(136, 48, 255, ${transparency})`
+          }],
+          global: false
+        },
+        color6: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0, color: '#5FC8FF'
+          }, {
+            offset: 1, color: `rgba(95, 200, 255, ${transparency})`
+          }],
+          global: false
+        },
+        color7: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0, color: '#C73FFF'
+          }, {
+            offset: 1, color: `rgba(199, 63, 255, ${transparency})`
+          }],
+          global: false
+        },
+        color8: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0, color: '#FFB6C1'
+          }, {
+            offset: 1, color: `rgba(255, 182, 193, ${transparency})`
+          }],
+          global: false
+        }
       };
       const colorSortLists = [
         [1, 2, 3, 4, 5, 6, 7, 8],
         [2, 3, 4, 5, 6, 7, 8, 1],
         [3, 4, 5, 6, 7, 8, 1, 2],
-        [4, 5, 6, 7, 8, 1, 2, 3],
+        [3, 4, 6, 7, 8, 5, 1, 2],
+        [1, 2, 3, 4, 5, 6, 7, 8],
+        [2, 3, 4, 5, 6, 7, 8, 1],
+        [3, 4, 5, 6, 7, 8, 1, 2],
+        [3, 4, 6, 7, 8, 5, 1, 2],
       ];
       const colorList = colorSortLists[this.propsOption.color];
       const keys = colorList.map((item) => 'color' + (item));
@@ -142,24 +246,26 @@ export default {
         legend: {
           show: this.propsOption.isShowLegend,
           right: '0',
-          itemHeight: 11,
-          itemWidth: 6,
+          top: '0',
+          itemWidth: 18,
+          itemHeight: 3,
           orient: 'horizontal',
+          icon: 'roundRect',
           textStyle: {
             fontSize: 12,
             fontFamily: 'Source Han Sans CN',
-          },
-          top: '0'
+          }
         },
         xAxis: {
           type: 'category',
+          deduplication: false,
           axisLabel: {
             fontSize: 12,
             fontFamily: 'Source Han Sans CN',
-            interval: this.propsOption.xInterval, // 自定义
             formatter: (value) => this.formattedData[value][1] || '',
+            interval: this.propsOption.xInterval, //自定义 默认0，空为null
             rotate: this.propsOption.xRotate, //自定义 默认0
-          },
+          }
         },
         yAxis: {
           type: 'value',
@@ -174,12 +280,15 @@ export default {
         },
         series: this.formattedData[0]
             .slice(2)
-            .map((item) => ({
-              name: item,
-              type: 'bar',
-              datasetIndex: 0,
-              barMaxWidth: 28.8,
-              encode: {x: 'index', y: item},
+            .map((name) => ({
+              name: name,
+              type: 'line',
+              smooth: true,
+              showSymbol: false,
+              lineStyle: {
+                width: 3
+              },
+              encode: {x: 'index', y: name},
             }))
       });
     },

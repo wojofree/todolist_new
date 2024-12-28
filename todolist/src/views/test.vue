@@ -1,15 +1,18 @@
 <template>
   <div style="width: 100%; background-color: black">
     <div style="width: 750px; padding: 0 40px;margin: 40px 0;background-color: white;">
-      <HeadingTwo :option="this.heading"></HeadingTwo>
-      <HeadingThree :option="this.heading"></HeadingThree>
-      <HeadingOne :option="this.headingOne"></HeadingOne>
+
       <button @click="changeData">更新数据</button>
-      <BarChartMultiple :option="barChartVertical"></BarChartMultiple>
-      <BarChartVertical :option="barChartVertical"></BarChartVertical>
+      <LineChartMultiple :option="barChartVertical"></LineChartMultiple>
+      <ScatterChartNew></ScatterChartNew>
+<!--      <BarChartMultiple :option="barChartVertical"></BarChartMultiple>-->
+<!--      <BarChartVertical :option="barChartVertical"></BarChartVertical>-->
       <BarChartHorizontal :option="barChartHorizontal"></BarChartHorizontal>
 
 
+      <HeadingTwo :option="this.heading"></HeadingTwo>
+      <HeadingThree :option="this.heading"></HeadingThree>
+      <HeadingOne :option="this.headingOne"></HeadingOne>
       <ProgressBarOne
           :option=this.progress
       ></ProgressBarOne>
@@ -127,6 +130,8 @@ import HeadingThree from "@/components/common/HeadingThree";
 import BarChartHorizontal from "@/components/common/BarChartHorizontal";
 import BarChartVertical from "@/components/common/BarChartVertical";
 import BarChartMultiple from "@/components/common/BarChartMultiple";
+import LineChartMultiple from "@/components/common/LineChartMultiple";
+import ScatterChartNew from "@/components/common/ScatterChartNew";
 
 
 
@@ -530,7 +535,13 @@ const lineOption = ref({
       global: false
     }
   ],
-  grid: commonGrid(),
+  grid: {
+          left: 0,
+          right: 1,
+          bottom: 5,
+          top: 35,
+          containLabel: true
+        },
   legend: {
     right: '0',
     top: '0',
@@ -727,15 +738,15 @@ export default {
           ['60-69岁', 1.33, 22.64],
           ['70岁以上', 0.96, 9.64]
         ],
-        color: 0,
+        color: 4,
         height: '350',
         yStart: 0,
         yEnd: null,
         xRotate: 'ceshi',
         xInterval: 0,
-        isPercentage: true,
-        isShowLabel: true,
-        heading: '123123aaaaaa'
+        // isPercentage: true,
+        // isShowLegend: true,
+        // heading: '123123aaaaaa'
       },
     }
   },
@@ -844,7 +855,7 @@ export default {
         xInterval: 0,
         isPercentage: true,
         heading: 'asdfasdfasdfasfd',
-        isShowLabel: true,
+        isShowLegend: true,
       }
 
       this.barChartHorizontal = {
@@ -854,7 +865,6 @@ export default {
         text: 'testsetsetest',
         heading: 'asdfasdfasdfasfd',
         isPercentage: true,
-        isShowLabel: true
       }
 
       this.funnelTest = {data: [['总客流人数', 100], ['进店人数', 60], ['流人数112', 30], ['流人数1123123', 15], ['流人数223123123123', 7]]}
